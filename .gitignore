@@ -730,6 +730,11 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+**/example/windows
+**/example/windows/flutter/generated_plugin_registrant.cc
+**/example/windows/flutter/generated_plugin_registrant.h
+**/example/windows/flutter/generated_plugins.cmake
+
 
 ### ------------------------- macOS.gitignore -------------------------- ###
 
@@ -776,6 +781,10 @@ Temporary Items
 
 # .nfs files are created when an open file is removed but is still being accessed
 .nfs*
+**/example/linux/flutter
+**/example/linux/flutter/generated_plugin_registrant.cc
+**/example/linux/flutter/generated_plugin_registrant.h
+**/example/linux/flutter/generated_plugins.cmake
 
 
 ### ------------------------ Archives.gitignore ------------------------ ###
@@ -863,3 +872,5 @@ Temporary Items
 # Archives         - https://github.com/github/gitignore/blob/main/Global/Archives.gitignore
 # Backup           - https://github.com/github/gitignore/blob/main/Global/Backup.gitignore
 # JEnv             - https://github.com/github/gitignore/blob/main/Global/JEnv.gitignore
+/test/integration/assets/mocked_wave_file.wav
+/example/linux/flutter/
