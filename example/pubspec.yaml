@@ -34,6 +34,11 @@ dependencies:
   # https://pub.dev/packages/logger
   logger: ^1.3.0
 
+  # A Flutter plugin to play multiple simultaneously audio files, works for Android, iOS, Linux, macOS, Windows, and web.
+  # https://pub.dev/packages/audioplayers
+  audioplayers: ^4.0.1
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
