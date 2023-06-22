@@ -2,14 +2,17 @@ import 'dart:math';
 
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/fsk/fsk_encoder.dart';
-import 'package:mrumru/src/utils/binary_utils.dart';
+import 'package:mrumru/src/frame/frame_model_builder.dart';
+import 'package:mrumru/src/models/frame_collection_model.dart';
 
 class AudioGenerator {
   final AudioSettingsModel audioSettingsModel;
+  final FrameModelBuilder frameModelBuilder;
+  final FrameSettingsModel frameSettingsModel;
   final WavEncoder wavEncoder;
   final FskEncoder fskEncoder;
 
-  AudioGenerator({required this.audioSettingsModel})
+  AudioGenerator({required this.audioSettingsModel, required this.frameSettingsModel})
       : wavEncoder = WavEncoder(
           audioSettingsModel.channels,
           audioSettingsModel.sampleRate,
@@ -19,7 +22,8 @@ class AudioGenerator {
           baseFrequency: audioSettingsModel.baseFrequency,
           frequencyStep: audioSettingsModel.frequencyStep,
           bitsPerFrequency: audioSettingsModel.bitsPerFrequency,
-        );
+        ),
+        frameModelBuilder = FrameModelBuilder(frameSettingsModel: frameSettingsModel);
 
   List<int> generateAudioBytes(String textMessage) {
     List<int> frequencies = _parseTextToFrequencySequence(textMessage);
@@ -28,8 +32,9 @@ class AudioGenerator {
   }
 
   List<int> _parseTextToFrequencySequence(String text) {
-    String binaryText = BinaryUtils.convertAsciiToBinary(text);
-    return fskEncoder.encodeBinaryDataToFrequencies(binaryText);
+    FrameCollectionModel frameCollectionModel = frameModelBuilder.buildFrameCollection(text);
+    String binaryData = frameCollectionModel.mergedBinaryFrames;
+    return fskEncoder.encodeBinaryDataToFrequencies(binaryData);
   }
 
   List<int> _buildSamples(List<int> frequencies) {

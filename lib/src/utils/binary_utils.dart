@@ -18,4 +18,8 @@ class BinaryUtils {
 
     return asciiText;
   }
+
+  static String parseIntToPaddedBinary(int value, int digits) {
+    return value.toRadixString(2).padLeft(digits, '0');
+  }
 }

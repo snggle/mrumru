@@ -11,6 +11,7 @@ import 'package:mrumru/mrumru.dart';
 class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
   final AudioPlayer audioPlayer = AudioPlayer();
   final AudioRecorder audioRecorder = AudioRecorder();
+  final FrameSettingsModel frameSettingsModel = FrameSettingsModel.withDefaults();
   final TextEditingController messageTextController = TextEditingController();
 
   late final AudioSettingsModel audioSettingsModel;
@@ -20,7 +21,7 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
   }
 
   void playSound() {
-    AudioGenerator audioGenerator = AudioGenerator(audioSettingsModel: audioSettingsModel);
+    AudioGenerator audioGenerator = AudioGenerator(audioSettingsModel: audioSettingsModel, frameSettingsModel: frameSettingsModel);
     List<int> audioBytes = audioGenerator.generateAudioBytes(messageTextController.text);
     Source source = BytesSource(Uint8List.fromList(audioBytes));
     audioPlayer.play(source);
@@ -42,7 +43,7 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
 
   Future<void> stopRecording() async {
     try {
-      AudioDecoder audioDecoder = AudioDecoder(audioSettingsModel: audioSettingsModel);
+      AudioDecoder audioDecoder = AudioDecoder(audioSettingsModel: audioSettingsModel, frameSettingsModel: frameSettingsModel);
       Uint8List recordedBytes = await audioRecorder.stopRecording();
       String receivedText = await audioDecoder.decodeRecordedAudio(recordedBytes);
       emit(AudioEmissionResultState(decodedMessage: receivedText));

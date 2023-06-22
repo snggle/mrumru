@@ -1,52 +1,59 @@
+import 'dart:math';
+
 import 'package:equatable/equatable.dart';
 
 class AudioSettingsModel with EquatableMixin {
-  int baseFrequency;
-  int frequencyStep;
-  int sampleRate;
-  int bitDepth;
-  int channels;
-  int symbolDuration;
-  int bitsPerFrequency;
+  late int baseFrequency;
+  late int bitDepth;
+  late int bitsPerFrequency;
+  late int channels;
+  late int frequencyStep;
+  late int symbolDuration;
+  late int sampleRate;
 
   AudioSettingsModel({
     required this.baseFrequency,
-    required this.frequencyStep,
-    required this.sampleRate,
     required this.bitDepth,
-    required this.channels,
-    required this.symbolDuration,
     required this.bitsPerFrequency,
+    required this.channels,
+    required this.frequencyStep,
+    required this.symbolDuration,
+    required this.sampleRate,
   });
 
-  AudioSettingsModel.withDefaults({
-    this.baseFrequency = 1000,
-    this.frequencyStep = 100,
-    this.sampleRate = 44100,
-    this.bitDepth = 16,
-    this.channels = 1,
-    this.symbolDuration = 1,
-    this.bitsPerFrequency = 4,
-  });
+  AudioSettingsModel.withDefaults() {
+    baseFrequency = 1000;
+    bitDepth = 16;
+    bitsPerFrequency = 4;
+    channels = 1;
+    frequencyStep = 100;
+    symbolDuration = 1;
+    sampleRate = 3 * maxFrequency;
+  }
 
   void updateAudioSettings({
     int? baseFrequency,
-    int? frequencyStep,
-    int? sampleRate,
     int? bitDepth,
-    int? channels,
-    int? symbolDuration,
     int? bitsPerFrequency,
+    int? channels,
+    int? frequencyStep,
+    int? symbolDuration,
+    int? sampleRate,
   }) {
     this.baseFrequency = baseFrequency ?? this.baseFrequency;
-    this.frequencyStep = frequencyStep ?? this.frequencyStep;
-    this.sampleRate = sampleRate ?? this.sampleRate;
     this.bitDepth = bitDepth ?? this.bitDepth;
-    this.channels = channels ?? this.channels;
-    this.symbolDuration = symbolDuration ?? this.symbolDuration;
     this.bitsPerFrequency = bitsPerFrequency ?? this.bitsPerFrequency;
+    this.channels = channels ?? this.channels;
+    this.frequencyStep = frequencyStep ?? this.frequencyStep;
+    this.symbolDuration = symbolDuration ?? this.symbolDuration;
+    this.sampleRate = 3 * maxFrequency;
+  }
+
+  int get maxFrequency {
+    int maxFrequency = (baseFrequency + (frequencyStep * (pow(2, bitsPerFrequency) - 1))).toInt();
+    return maxFrequency;
   }
 
   @override
-  List<Object?> get props => <Object>[baseFrequency, frequencyStep, sampleRate, bitDepth, channels, symbolDuration, bitsPerFrequency];
+  List<Object?> get props => <Object>[baseFrequency, bitDepth, bitsPerFrequency, channels, frequencyStep, symbolDuration, sampleRate];
 }

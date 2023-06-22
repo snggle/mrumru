@@ -17,9 +17,10 @@ void main() async {
         symbolDuration: 1,
         bitsPerFrequency: 4,
       );
+      FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
 
-      AudioGenerator actualAudioGenerator = AudioGenerator(audioSettingsModel: actualAudioSettingsModel);
-      AudioDecoder actualAudioDecoder = AudioDecoder(audioSettingsModel: actualAudioSettingsModel);
+      AudioGenerator actualAudioGenerator = AudioGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
+      AudioDecoder actualAudioDecoder = AudioDecoder(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
 
       File actualWavFile = File('./test/integration/assets/mocked_wave_file.wav');
       String actualInputString = '123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
