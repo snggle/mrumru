@@ -55,4 +55,7 @@ class AudioGenerator {
 
     return samples;
   }
+  void createDataFrame(String text){
+
+  }
 }
