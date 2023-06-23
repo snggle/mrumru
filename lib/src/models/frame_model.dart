@@ -1,12 +1,12 @@
 import 'dart:typed_data';
 
 class FrameModel {
-  int frameNumber;
-  int lengthOfFrame;
-  int numberOfAllFrames;
-  int checksumOfAllData;
-  Uint8List rawData;
-  int checksumOfFrame;
+  late int frameNumber;
+  late int lengthOfFrame;
+  late int numberOfAllFrames;
+  late int checksumOfAllData;
+  late Uint8List rawData;
+  late int checksumOfFrame;
 
   FrameModel({
     required this.frameNumber,
@@ -17,28 +17,34 @@ class FrameModel {
     required this.checksumOfFrame,
   });
 
-  FrameModel.empty()
-      : frameNumber = 0,
-        lengthOfFrame = 0,
-        numberOfAllFrames = 0,
-        checksumOfAllData = 0,
-        rawData = Uint8List(0),
-        checksumOfFrame = 0;
-
-  void fillData(Uint8List data, int givenFrameNumber, int totalFrames, int protocolID, int sessionID, int checksumOfAllData) {
-    rawData = data;
-    frameNumber = frameNumber;
-    numberOfAllFrames = totalFrames;
-    this.checksumOfAllData = checksumOfAllData;
-    checksumOfFrame = calculateChecksum(data);
-    lengthOfFrame = data.length + frameNumber.bitLength + numberOfAllFrames.bitLength + checksumOfFrame.bitLength + checksumOfFrame.bitLength;
+  FrameModel.empty() {
+    frameNumber = 0;
+    lengthOfFrame = 0;
+    numberOfAllFrames = 0;
+    checksumOfAllData = 0;
+    rawData = Uint8List(0);
+    checksumOfFrame = 0;
   }
 
-  int calculateChecksum(Uint8List data) {
-    int checksum = 0;
-    for (int byte in data) {
-      checksum = checksum ^ byte;
-    }
-    return checksum;
+  void fillData(Uint8List data, int givenFrameNumber, int totalFrames, int checksumOfAllData) {
+    rawData = data;
+    frameNumber = givenFrameNumber;
+    numberOfAllFrames = totalFrames;
+    this.checksumOfAllData = checksumOfAllData;
+    checksumOfFrame = _calculateChecksum(data);
+    lengthOfFrame = _calculateFrameLength();
+  }
+
+  int _calculateFrameLength() {
+    return rawData.length + frameNumber.bitLength + numberOfAllFrames.bitLength + checksumOfFrame.bitLength + checksumOfAllData.bitLength;
+  }
+
+  int _calculateChecksum(Uint8List data) {
+    return data.fold(0, (int previousValue, int element) => previousValue ^ element);
+  }
+
+  int calculateChecksumOfEntireFrame() {
+    int total = frameNumber + lengthOfFrame + numberOfAllFrames + checksumOfAllData + checksumOfFrame;
+    return total ^ _calculateChecksum(rawData);
   }
 }
