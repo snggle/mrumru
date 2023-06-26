@@ -6,15 +6,7 @@ void main() async {
   group('Tests of AudioGenerator.generateAudioBytes() and AudioDecoder.decodeRecordedAudio()', () {
     test('Should generate byte list and correctly decode it', () async {
       // Arrange
-      AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel(
-        baseFrequency: 1000,
-        frequencyStep: 100,
-        sampleRate: 44100,
-        bitDepth: 16,
-        channels: 1,
-        symbolDuration: 1,
-        bitsPerFrequency: 4,
-      );
+      AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults();
 
       AudioGenerator actualAudioGenerator = AudioGenerator(audioSettingsModel: actualAudioSettingsModel);
       AudioDecoder actualAudioDecoder = AudioDecoder(audioSettingsModel: actualAudioSettingsModel);
