@@ -1,12 +1,10 @@
-import 'dart:typed_data';
-
 class FrameModel {
-  late int frameNumber;
-  late int lengthOfFrame;
-  late int numberOfAllFrames;
-  late int checksumOfAllData;
-  late Uint8List rawData;
-  late int checksumOfFrame;
+  int frameNumber;
+  int lengthOfFrame;
+  int numberOfAllFrames;
+  int checksumOfAllData;
+  String rawData;
+  int checksumOfFrame;
 
   FrameModel({
     required this.frameNumber,
@@ -17,16 +15,7 @@ class FrameModel {
     required this.checksumOfFrame,
   });
 
-  FrameModel.empty() {
-    frameNumber = 0;
-    lengthOfFrame = 0;
-    numberOfAllFrames = 0;
-    checksumOfAllData = 0;
-    rawData = Uint8List(0);
-    checksumOfFrame = 0;
-  }
-
-  void fillData(Uint8List data, int givenFrameNumber, int totalFrames, int checksumOfAllData) {
+  void fillData(String data, int givenFrameNumber, int totalFrames, int checksumOfAllData) {
     rawData = data;
     frameNumber = givenFrameNumber;
     numberOfAllFrames = totalFrames;
@@ -39,8 +28,9 @@ class FrameModel {
     return rawData.length + frameNumber.bitLength + numberOfAllFrames.bitLength + checksumOfFrame.bitLength + checksumOfAllData.bitLength;
   }
 
-  int _calculateChecksum(Uint8List data) {
-    return data.fold(0, (int previousValue, int element) => previousValue ^ element);
+  int _calculateChecksum(String data) {
+    List<int> codeUnits = data.codeUnits;
+    return codeUnits.fold(0, (int previousValue, int element) => previousValue ^ element);
   }
 
   int calculateChecksumOfEntireFrame() {
