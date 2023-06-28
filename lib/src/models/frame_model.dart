@@ -1,9 +1,9 @@
 class FrameModel {
   int frameNumber;
+  String rawData;
   int lengthOfFrame;
   int numberOfAllFrames;
   int checksumOfAllData;
-  String rawData;
   int checksumOfFrame;
 
   FrameModel({

@@ -1,7 +1,7 @@
 import 'package:mrumru/src/models/frame_model.dart';
-
+// TODO(a): Need to think about slicing frame and calculating checksums
 class FrameModelCreator {
-  List<FrameModel> buildFrames(String rawData) {
+  List<FrameModel> createFrames(String rawData) {
     List<FrameModel> frames = <FrameModel>[];
     int frameNumber = 0;
     int numberOfAllFrames = (rawData.length / 240).ceil();
