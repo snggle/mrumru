@@ -1,36 +1,38 @@
 import 'package:mrumru/src/models/frame_model.dart';
-// TODO(a): Need to think about slicing frame and calculating checksums
+import 'package:mrumru/src/utils/binary_utils.dart';
+
 class FrameModelCreator {
-  List<FrameModel> createFrames(String rawData) {
+  List<String> createFrames(String rawData) {
     List<FrameModel> frames = <FrameModel>[];
     int frameNumber = 0;
-    int numberOfAllFrames = (rawData.length / 240).ceil();
+    int numberOfAllFrames = (rawData.length / 30).ceil();
+    int checksumOfAllData = _calculateChecksum(rawData);
 
     for (int i = 0; i < numberOfAllFrames; i++) {
-      int startIndex = i * 240;
-      int endIndex = (i + 1) * 240;
-      String frameData = rawData.substring(startIndex, endIndex < rawData.length ? endIndex : rawData.length);
+      int startIndex = i * 30;
+      int endIndex = ((i + 1) * 30 > rawData.length) ? rawData.length : (i + 1) * 30;
+      String frameData = rawData.substring(startIndex, endIndex);
       int checksumOfFrame = _calculateChecksum(frameData);
-      int lengthOfFrame = _calculateFrameLength(frameData, frameNumber, numberOfAllFrames, checksumOfFrame);
 
       FrameModel frameModel = FrameModel(
         frameNumber: frameNumber,
-        lengthOfFrame: lengthOfFrame,
-        numberOfAllFrames: numberOfAllFrames,
-        checksumOfAllData: _calculateChecksum(rawData),
+        lengthOfFrame: frameData.length,
         rawData: frameData,
         checksumOfFrame: checksumOfFrame,
+        numberOfAllFrames: numberOfAllFrames,
+        checksumOfAllData: checksumOfAllData,
       );
 
       frames.add(frameModel);
       frameNumber++;
     }
 
-    return frames;
-  }
+    List<String> binaryFrames = frames.map((FrameModel frame) {
+      String frameAsString = frame.toString();
+      return BinaryUtils.convertAsciiToBinary(frameAsString);
+    }).toList();
 
-  int _calculateFrameLength(String frameData, int frameNumber, int numberOfAllFrames, int checksumOfFrame) {
-    return frameData.length + frameNumber.bitLength + numberOfAllFrames.bitLength + checksumOfFrame.bitLength;
+    return binaryFrames;
   }
 
   int _calculateChecksum(String data) {
