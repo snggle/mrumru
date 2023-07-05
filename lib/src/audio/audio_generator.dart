@@ -2,12 +2,13 @@ import 'dart:math';
 
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/fsk/fsk_encoder.dart';
-import 'package:mrumru/src/utils/binary_utils.dart';
+import 'package:mrumru/src/frame/frame_model_creator.dart';
 
 class AudioGenerator {
   final AudioSettingsModel audioSettingsModel;
   final WavEncoder wavEncoder;
   final FskEncoder fskEncoder;
+  FrameModelCreator frameModelCreator = FrameModelCreator();
 
   AudioGenerator({required this.audioSettingsModel})
       : wavEncoder = WavEncoder(
@@ -22,14 +23,14 @@ class AudioGenerator {
         );
 
   List<int> generateAudioBytes(String textMessage) {
-    List<int> frequencies = _parseTextToFrequencySequence(textMessage);
+    List<String> textFrames = frameModelCreator.createFrames(textMessage);
+    List<int> frequencies = _parseTextFramesToFrequencySequence(textFrames);
     List<int> samples = _buildSamples(frequencies);
     return wavEncoder.buildWavFromSamples(samples);
   }
 
   List<int> _parseTextToFrequencySequence(String text) {
-    String binaryText = BinaryUtils.convertAsciiToBinary(text);
-    return fskEncoder.encodeBinaryDataToFrequencies(binaryText);
+    return fskEncoder.encodeBinaryDataToFrequencies(text);
   }
 
   List<int> _buildSamples(List<int> frequencies) {
@@ -55,9 +56,20 @@ class AudioGenerator {
 
     return samples;
   }
-  String createDataFrame(String text){
+
+  String createDataFrame(String text) {
     String dataFrame = text;
 
     return dataFrame;
+  }
+
+  List<int> _parseTextFramesToFrequencySequence(List<String> texts) {
+    List<int> frequencies = <int>[];
+
+    for (String text in texts) {
+      frequencies.addAll(_parseTextToFrequencySequence(text));
+    }
+
+    return frequencies;
   }
 }

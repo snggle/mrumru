@@ -12,13 +12,12 @@ class FrameModelCreator {
       int startIndex = i * 30;
       int endIndex = ((i + 1) * 30 > rawData.length) ? rawData.length : (i + 1) * 30;
       String frameData = rawData.substring(startIndex, endIndex);
-      int checksumOfFrame = _calculateChecksum(frameData);
 
       FrameModel frameModel = FrameModel(
         frameNumber: frameNumber,
         lengthOfFrame: frameData.length,
         rawData: frameData,
-        checksumOfFrame: checksumOfFrame,
+        checksumOfFrame: _calculateChecksum(frameData),
         numberOfAllFrames: numberOfAllFrames,
         checksumOfAllData: checksumOfAllData,
       );
@@ -27,12 +26,20 @@ class FrameModelCreator {
       frameNumber++;
     }
 
-    List<String> binaryFrames = frames.map((FrameModel frame) {
-      String frameAsString = frame.toString();
-      return BinaryUtils.convertAsciiToBinary(frameAsString);
-    }).toList();
+    List<String> binaryFrames = frames.map(_createBinaryFrameString).toList();
 
     return binaryFrames;
+  }
+
+  String _createBinaryFrameString(FrameModel frame) {
+    String frameAsString = frame.frameNumber.toString().padLeft(4, '0') +
+        frame.lengthOfFrame.toString().padLeft(8, '0') +
+        frame.rawData +
+        frame.checksumOfFrame.toString().padLeft(8, '0') +
+        frame.numberOfAllFrames.toString().padLeft(8, '0') +
+        frame.checksumOfAllData.toString().padLeft(8, '0');
+
+    return BinaryUtils.convertAsciiToBinary(frameAsString);
   }
 
   int _calculateChecksum(String data) {

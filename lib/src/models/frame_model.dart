@@ -37,4 +37,9 @@ class FrameModel {
     int total = frameNumber + lengthOfFrame + numberOfAllFrames + checksumOfAllData + checksumOfFrame;
     return total ^ _calculateChecksum(rawData);
   }
+
+  @override
+  String toString() {
+    return '${frameNumber}${rawData}${lengthOfFrame}${numberOfAllFrames}${checksumOfAllData}${checksumOfFrame}';
+  }
 }
