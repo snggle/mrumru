@@ -2,42 +2,65 @@ import 'package:mrumru/src/models/frame_model.dart';
 import 'package:mrumru/src/utils/binary_utils.dart';
 
 class FrameModelCreator {
+  late String _rawData;
+  late List<FrameModel> _frames;
+  late int _numberOfAllFrames;
+  late int _checksumOfAllData;
+
   List<String> createFrames(String rawData) {
-    List<FrameModel> frames = <FrameModel>[];
-    int frameNumber = 0;
-    int numberOfAllFrames = (rawData.length / 30).ceil();
-    int checksumOfAllData = _calculateChecksum(rawData);
+    _initializeFields(rawData);
 
-    for (int i = 0; i < numberOfAllFrames; i++) {
-      int startIndex = i * 30;
-      int endIndex = ((i + 1) * 30 > rawData.length) ? rawData.length : (i + 1) * 30;
-      String frameData = rawData.substring(startIndex, endIndex);
-
-      FrameModel frameModel = FrameModel(
-        frameNumber: frameNumber,
-        lengthOfFrame: frameData.length,
-        rawData: frameData,
-        checksumOfFrame: _calculateChecksum(frameData),
-        numberOfAllFrames: numberOfAllFrames,
-        checksumOfAllData: checksumOfAllData,
-      );
-
-      frames.add(frameModel);
-      frameNumber++;
+    for (int i = 0; i < _numberOfAllFrames; i++) {
+      _createFrameModelForIndex(i);
     }
 
-    List<String> binaryFrames = frames.map(_createBinaryFrameString).toList();
+    return _convertFrameModelsToBinary();
+  }
 
-    return binaryFrames;
+  void _initializeFields(String rawData) {
+    _rawData = rawData;
+    _frames = <FrameModel>[];
+    _numberOfAllFrames = (_rawData.length / 30).ceil();
+    _checksumOfAllData = _calculateChecksum(_rawData);
+  }
+
+  void _createFrameModelForIndex(int index) {
+    String frameData = _getFrameDataForIndex(index);
+
+    FrameModel frameModel = FrameModel(
+      frameNumber: index,
+      lengthOfFrame: frameData.length,
+      rawData: frameData,
+      checksumOfFrame: _calculateChecksum(frameData),
+      numberOfAllFrames: _numberOfAllFrames,
+      checksumOfAllData: _checksumOfAllData,
+    );
+
+    _frames.add(frameModel);
+  }
+
+  String _getFrameDataForIndex(int index) {
+    int startIndex = index * 30;
+    int endIndex = ((index + 1) * 30 > _rawData.length) ? _rawData.length : (index + 1) * 30;
+    return _rawData.substring(startIndex, endIndex);
+  }
+
+  List<String> _convertFrameModelsToBinary() {
+    return _frames.map(_createBinaryFrameString).toList();
   }
 
   String _createBinaryFrameString(FrameModel frame) {
-    String frameAsString = frame.frameNumber.toString().padLeft(4, '0') +
-        frame.lengthOfFrame.toString().padLeft(8, '0') +
+    String frameNumberBinary = frame.frameNumber.toRadixString(2).padLeft(4, '0');
+    String checksumOfFrameASCII = String.fromCharCode(frame.checksumOfFrame);
+    String numberOfAllFramesASCII = String.fromCharCode(frame.numberOfAllFrames);
+    String checksumOfAllDataASCII = String.fromCharCode(frame.checksumOfAllData);
+
+    String frameAsString = frameNumberBinary +
         frame.rawData +
-        frame.checksumOfFrame.toString().padLeft(8, '0') +
-        frame.numberOfAllFrames.toString().padLeft(8, '0') +
-        frame.checksumOfAllData.toString().padLeft(8, '0');
+        frame.lengthOfFrame.toString().padLeft(8, '0') +
+        checksumOfFrameASCII +
+        numberOfAllFramesASCII +
+        checksumOfAllDataASCII;
 
     return BinaryUtils.convertAsciiToBinary(frameAsString);
   }

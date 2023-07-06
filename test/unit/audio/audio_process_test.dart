@@ -11,7 +11,7 @@ void main() async {
       AudioGenerator actualAudioGenerator = AudioGenerator(audioSettingsModel: actualAudioSettingsModel);
       AudioDecoder actualAudioDecoder = AudioDecoder(audioSettingsModel: actualAudioSettingsModel);
 
-      String actualInputString = 'a';
+      String actualInputString = 'aads';
 
       // Act
       // Create WAV file
