@@ -14,7 +14,7 @@ void main() {
 
       // Assert
       for(String frame in actualFrames){
-        print('${frame.toString()}      ${BinaryUtils.convertBinaryToAscii(frame)}');
+        print('${frame.toString()}      ${BinaryUtils.convertBinaryToAscii(frame)} | ');
       }
     });
   });

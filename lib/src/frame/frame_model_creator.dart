@@ -50,19 +50,21 @@ class FrameModelCreator {
   }
 
   String _createBinaryFrameString(FrameModel frame) {
-    String frameNumberBinary = frame.frameNumber.toRadixString(2).padLeft(4, '0');
-    String checksumOfFrameASCII = String.fromCharCode(frame.checksumOfFrame);
-    String numberOfAllFramesASCII = String.fromCharCode(frame.numberOfAllFrames);
-    String checksumOfAllDataASCII = String.fromCharCode(frame.checksumOfAllData);
+    String frameNumberBinary = frame.frameNumber.toString().padLeft(4, '0');
+    String rawDataBinary = BinaryUtils.convertAsciiToBinary(frame.rawData);
+    String lengthOfFrameBinary = frame.lengthOfFrame.toRadixString(2).padLeft(8, '0');
+    String checksumOfFrameBinary = frame.checksumOfFrame.toRadixString(2).padLeft(8, '0');
+    String numberOfAllFramesBinary = frame.numberOfAllFrames.toRadixString(2).padLeft(4, '0');
+    String checksumOfAllDataBinary = frame.checksumOfAllData.toRadixString(2).padLeft(8, '0');
 
     String frameAsString = frameNumberBinary +
-        frame.rawData +
-        frame.lengthOfFrame.toString().padLeft(8, '0') +
-        checksumOfFrameASCII +
-        numberOfAllFramesASCII +
-        checksumOfAllDataASCII;
+        rawDataBinary +
+        lengthOfFrameBinary +
+        checksumOfFrameBinary +
+        numberOfAllFramesBinary +
+        checksumOfAllDataBinary;
 
-    return BinaryUtils.convertAsciiToBinary(frameAsString);
+    return frameAsString;
   }
 
   int _calculateChecksum(String data) {
