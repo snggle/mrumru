@@ -21,7 +21,7 @@ class FrameModelCreator {
     _rawData = rawData;
     _frames = <FrameModel>[];
     _numberOfAllFrames = (_rawData.length / 30).ceil();
-    _checksumOfAllData = _calculateChecksum(_rawData);
+    _checksumOfAllData = calculateChecksum(_rawData);
   }
 
   void _createFrameModelForIndex(int index) {
@@ -31,7 +31,7 @@ class FrameModelCreator {
       frameNumber: index,
       lengthOfFrame: frameData.length,
       rawData: frameData,
-      checksumOfFrame: _calculateChecksum(frameData),
+      checksumOfFrame: calculateChecksum(frameData),
       numberOfAllFrames: _numberOfAllFrames,
       checksumOfAllData: _checksumOfAllData,
     );
@@ -67,7 +67,7 @@ class FrameModelCreator {
     return frameAsString;
   }
 
-  int _calculateChecksum(String data) {
+  int calculateChecksum(String data) {
     List<int> codeUnits = data.codeUnits;
     return codeUnits.fold(0, (int previousValue, int element) => previousValue ^ element);
   }

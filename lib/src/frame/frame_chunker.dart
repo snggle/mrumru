@@ -1,8 +1,10 @@
+import 'package:mrumru/src/frame/frame_model_creator.dart';
 import 'package:mrumru/src/models/frame_model.dart';
 import 'package:mrumru/src/utils/binary_utils.dart';
 
 class FrameModelChunker {
   final int chunkSize;
+  final FrameModelCreator _frameModelCreator = FrameModelCreator();
 
   FrameModelChunker({required this.chunkSize});
 
@@ -19,16 +21,19 @@ class FrameModelChunker {
       int numberOfAllFrames = int.parse(chunk.substring(chunk.length - 8, chunk.length - 4), radix: 2);
       int checksumOfAllData = int.parse(chunk.substring(chunk.length - 4, chunk.length), radix: 2);
 
-      frames.add(FrameModel(
-          frameNumber: frameNumber,
-          lengthOfFrame: lengthOfFrame,
-          numberOfAllFrames: numberOfAllFrames,
-          checksumOfAllData: checksumOfAllData,
-          rawData: rawData,
-          checksumOfFrame: checksumOfFrame
-      ));
+      if (checksumOfFrame == _frameModelCreator.calculateChecksum(rawData)) {
+        frames.add(FrameModel(
+            frameNumber: frameNumber,
+            lengthOfFrame: lengthOfFrame,
+            numberOfAllFrames: numberOfAllFrames,
+            checksumOfAllData: checksumOfAllData,
+            rawData: rawData,
+            checksumOfFrame: checksumOfFrame
+        ));
+      } else {
+        print('Checksum mismatch in frame number: $frameNumber');
+      }
     }
     return frames;
   }
 }
-
