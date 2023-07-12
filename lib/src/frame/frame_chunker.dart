@@ -15,11 +15,11 @@ class FrameModelChunker {
       String chunk = binaryString.substring(i, end);
 
       int frameNumber = int.parse(chunk.substring(0, 4), radix: 2);
-      String rawData = BinaryUtils.convertBinaryToAscii(chunk.substring(4, chunk.length - 24));
-      int lengthOfFrame = int.parse(chunk.substring(chunk.length - 24, chunk.length - 16), radix: 2);
-      int checksumOfFrame = int.parse(chunk.substring(chunk.length - 16, chunk.length - 8), radix: 2);
-      int numberOfAllFrames = int.parse(chunk.substring(chunk.length - 8, chunk.length - 4), radix: 2);
-      int checksumOfAllData = int.parse(chunk.substring(chunk.length - 4, chunk.length), radix: 2);
+      int lengthOfFrame = int.parse(chunk.substring(4, 16), radix: 2);
+      String rawData = BinaryUtils.convertBinaryToAscii(chunk.substring(16, 16 + lengthOfFrame));
+      int checksumOfFrame = int.parse(chunk.substring(16 + lengthOfFrame, 16 + lengthOfFrame + 8), radix: 2);
+      int numberOfAllFrames = int.parse(chunk.substring(16 + lengthOfFrame + 8, 16 + lengthOfFrame + 12), radix: 2);
+      int checksumOfAllData = int.parse(chunk.substring(16 + lengthOfFrame + 12, 16 + lengthOfFrame + 16), radix: 2);
 
       if (checksumOfFrame == _frameModelCreator.calculateChecksum(rawData)) {
         frames.add(FrameModel(
@@ -30,10 +30,25 @@ class FrameModelChunker {
             rawData: rawData,
             checksumOfFrame: checksumOfFrame
         ));
-      } else {
-        print('Checksum mismatch in frame number: $frameNumber');
       }
     }
     return frames;
+  }
+
+  String concatenateRawData(List<FrameModel> frames) {
+    StringBuffer concatenatedRawData = StringBuffer();
+    for (FrameModel frame in frames) {
+      concatenatedRawData.write(frame.rawData);
+    }
+    return concatenatedRawData.toString();
+  }
+
+  String getFrameRawData(FrameModel frame) {
+    return frame.rawData.substring(0, frame.lengthOfFrame);
+  }
+
+  int calculateChecksumForConcatenatedData(List<FrameModel> frames) {
+    String concatenatedData = concatenateRawData(frames);
+    return _frameModelCreator.calculateChecksum(concatenatedData);
   }
 }
