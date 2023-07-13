@@ -50,19 +50,14 @@ class FrameModelCreator {
   }
 
   String _createBinaryFrameString(FrameModel frame) {
-    String frameNumberBinary = frame.frameNumber.toString().padLeft(4, '0');
+    String frameNumberBinary = frame.frameNumber.toRadixString(2).padLeft(4, '0');
     String rawDataBinary = BinaryUtils.convertAsciiToBinary(frame.rawData);
     String lengthOfFrameBinary = frame.lengthOfFrame.toRadixString(2).padLeft(8, '0');
     String checksumOfFrameBinary = frame.checksumOfFrame.toRadixString(2).padLeft(8, '0');
     String numberOfAllFramesBinary = frame.numberOfAllFrames.toRadixString(2).padLeft(4, '0');
     String checksumOfAllDataBinary = frame.checksumOfAllData.toRadixString(2).padLeft(8, '0');
 
-    String frameAsString = frameNumberBinary +
-        rawDataBinary +
-        lengthOfFrameBinary +
-        checksumOfFrameBinary +
-        numberOfAllFramesBinary +
-        checksumOfAllDataBinary;
+    String frameAsString = frameNumberBinary + lengthOfFrameBinary + rawDataBinary + checksumOfFrameBinary + numberOfAllFramesBinary + checksumOfAllDataBinary;
 
     return frameAsString;
   }

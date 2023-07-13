@@ -1,8 +1,8 @@
+import 'dart:math';
+
 import 'package:mrumru/src/frame/frame_model_creator.dart';
 import 'package:mrumru/src/models/frame_model.dart';
-import 'package:mrumru/src/utils/binary_utils.dart';
-
-class FrameModelChunker {
+import 'package:mrumru/src/utils/binary_utils.dart';class FrameModelChunker {
   final int chunkSize;
   final FrameModelCreator _frameModelCreator = FrameModelCreator();
 
@@ -14,12 +14,15 @@ class FrameModelChunker {
       int end = (i+chunkSize < binaryString.length) ? i+chunkSize : binaryString.length;
       String chunk = binaryString.substring(i, end);
 
-      int frameNumber = int.parse(chunk.substring(0, 4), radix: 2);
-      int lengthOfFrame = int.parse(chunk.substring(4, 16), radix: 2);
+      int frameNumber = _parseBinaryString(chunk, 0, 4);
+      int lengthOfFrame = _parseBinaryString(chunk, 4, 16);
+      if (lengthOfFrame > chunk.length - 16) {
+        lengthOfFrame = chunk.length - 16;
+      }
       String rawData = BinaryUtils.convertBinaryToAscii(chunk.substring(16, 16 + lengthOfFrame));
-      int checksumOfFrame = int.parse(chunk.substring(16 + lengthOfFrame, 16 + lengthOfFrame + 8), radix: 2);
-      int numberOfAllFrames = int.parse(chunk.substring(16 + lengthOfFrame + 8, 16 + lengthOfFrame + 12), radix: 2);
-      int checksumOfAllData = int.parse(chunk.substring(16 + lengthOfFrame + 12, 16 + lengthOfFrame + 16), radix: 2);
+      int checksumOfFrame = _parseBinaryString(chunk, 16 + lengthOfFrame, min(16 + lengthOfFrame + 8, chunk.length));
+      int numberOfAllFrames = _parseBinaryString(chunk, min(16 + lengthOfFrame + 8, chunk.length), min(16 + lengthOfFrame + 12, chunk.length));
+      int checksumOfAllData = _parseBinaryString(chunk, min(16 + lengthOfFrame + 12, chunk.length), min(16 + lengthOfFrame + 16, chunk.length));
 
       if (checksumOfFrame == _frameModelCreator.calculateChecksum(rawData)) {
         frames.add(FrameModel(
@@ -34,6 +37,14 @@ class FrameModelChunker {
     }
     return frames;
   }
+
+  int _parseBinaryString(String binaryString, int startIndex, int endIndex) {
+    if (startIndex < binaryString.length && endIndex <= binaryString.length) {
+      return int.parse(binaryString.substring(startIndex, endIndex), radix: 2);
+    }
+    return 0;
+  }
+
 
   String concatenateRawData(List<FrameModel> frames) {
     StringBuffer concatenatedRawData = StringBuffer();
