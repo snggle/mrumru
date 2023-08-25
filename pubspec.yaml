@@ -42,7 +42,9 @@ dependencies:
   # https://pub.dev/packages/crypto
   crypto: ^3.0.3
 
-
+  # Simple tools for reading and writing WAV and raw audio files.
+  # https://pub.dev/packages/wav
+  wav: ^1.3.0
 
 dev_dependencies:
   flutter_test:
