@@ -11,7 +11,6 @@ class FskDecoder {
 
   String decodeFrequenciesToBinary(List<int> samples) {
     StringBuffer decodedBinaryData = StringBuffer();
-
     for (int frequency in samples) {
       int chunk = (frequency - baseFrequency) ~/ frequencyStep;
       String chunkBits = chunk.toRadixString(2).padLeft(bitsPerFrequency, '0');

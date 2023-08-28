@@ -38,6 +38,10 @@ dependencies:
   # https://pub.dev/packages/path_provider
   path_provider: ^2.0.15
 
+  # Implementations of SHA, MD5, and HMAC cryptographic functions.
+  # https://pub.dev/packages/crypto
+  crypto: ^3.0.3
+
 
 
 dev_dependencies:
