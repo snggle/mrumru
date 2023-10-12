@@ -10,7 +10,7 @@ import 'package:mrumru/mrumru.dart';
 
 class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
   final AudioPlayer audioPlayer = AudioPlayer();
-  final AudioRecorder audioRecorder = AudioRecorder();
+  final AudioRecorderController audioRecorderController = AudioRecorderController();
   final FrameSettingsModel frameSettingsModel = FrameSettingsModel.withDefaults();
   final TextEditingController messageTextController = TextEditingController();
 
@@ -34,7 +34,7 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
   void startRecording() {
     try {
       emit(AudioEmissionListeningState());
-      audioRecorder.startRecording(audioSettingsModel);
+      audioRecorderController.startRecording(audioSettingsModel);
     } catch (e) {
       AppLogger().log(message: 'Cannot start recording: $e');
       emit(AudioEmissionEmptyState());
@@ -44,7 +44,7 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
   Future<void> stopRecording() async {
     try {
       AudioDecoder audioDecoder = AudioDecoder(audioSettingsModel: audioSettingsModel, frameSettingsModel: frameSettingsModel);
-      Uint8List recordedBytes = await audioRecorder.stopRecording();
+      Uint8List recordedBytes = await audioRecorderController.stopRecording();
       String receivedText = await audioDecoder.decodeRecordedAudio(recordedBytes);
       emit(AudioEmissionResultState(decodedMessage: receivedText));
     } catch (e) {
