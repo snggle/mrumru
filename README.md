@@ -8,6 +8,7 @@ git clone git@github.com:snggle/mrumru.git
 ```
 
 ## Usage
+
 The project runs on flutter version **3.13.9**. You can use [fvm](https://fvm.app/docs/getting_started/installation)
 for easy switching between versions
 ```bash

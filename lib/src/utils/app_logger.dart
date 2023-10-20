@@ -1,7 +1,6 @@
 import 'package:logger/logger.dart';
 import 'package:mrumru/src/utils/log_level.dart';
 
-
 class AppLogger {
   static final AppLogger _appLogger = AppLogger._internal();
 

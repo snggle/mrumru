@@ -1,3 +1,5 @@
+import 'dart:html';
+
 import 'package:example/cubit/audio_emission_cubit/a_audio_emission_state.dart';
 import 'package:example/cubit/audio_emission_cubit/audio_emission_cubit.dart';
 import 'package:example/cubit/audio_emission_cubit/states/audio_emission_listening_state.dart';
@@ -16,6 +18,10 @@ class ExamplePage extends StatefulWidget {
 class _ExamplePageState extends State<ExamplePage> {
   final AudioEmissionCubit audioEmissionCubit = AudioEmissionCubit();
 
+  void openWindow() {
+    window.open('index.html', '_blank');
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AudioEmissionCubit, AAudioEmissionState>(
@@ -26,6 +32,17 @@ class _ExamplePageState extends State<ExamplePage> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: ListView(
               children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: openWindow,
+                        child: const Text('Big Screen Mode'),
+                      ),
+                    ),
+                    const SizedBox(width: 18),
+                  ],
+                ),
                 const SizedBox(height: 16),
                 NumericField(
                   fieldName: 'baseFrequency',

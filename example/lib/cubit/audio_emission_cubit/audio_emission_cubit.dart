@@ -3,8 +3,8 @@ import 'package:example/cubit/audio_emission_cubit/a_audio_emission_state.dart';
 import 'package:example/cubit/audio_emission_cubit/states/audio_emission_empty_state.dart';
 import 'package:example/cubit/audio_emission_cubit/states/audio_emission_listening_state.dart';
 import 'package:example/cubit/audio_emission_cubit/states/audio_emission_result_state.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mrumru/mrumru.dart';
 
