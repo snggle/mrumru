@@ -18,6 +18,7 @@ class _ExamplePageState extends State<ExamplePage> {
 
   @override
   Widget build(BuildContext context) {
+
     return BlocBuilder<AudioEmissionCubit, AAudioEmissionState>(
       bloc: audioEmissionCubit,
       builder: (BuildContext context, AAudioEmissionState state) {

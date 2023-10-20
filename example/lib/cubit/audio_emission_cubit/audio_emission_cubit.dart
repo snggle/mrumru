@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:html';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:example/cubit/audio_emission_cubit/a_audio_emission_state.dart';
@@ -38,10 +39,10 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
     audioPlayer.stop();
   }
 
-  void startRecording() {
+  void startRecording()   {
     try {
         emit(AudioEmissionListeningState());
-        recorder.startRecording(audioSettingsModel);
+          recorder.startRecording(audioSettingsModel);
     } catch (e) {
       AppLogger().log(message: 'Cannot start recording: $e');
       emit(AudioEmissionEmptyState());
