@@ -14,7 +14,7 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
   final FrameSettingsModel frameSettingsModel = FrameSettingsModel.withDefaults();
   final TextEditingController messageTextController = TextEditingController();
 
-  late final AudioSettingsModel audioSettingsModel;
+  late AudioSettingsModel audioSettingsModel;
 
   AudioEmissionCubit() : super(AudioEmissionEmptyState()) {
     audioSettingsModel = AudioSettingsModel.withDefaults();
@@ -51,5 +51,33 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
       AppLogger().log(message: 'Cannot stop recording: $e');
       emit(AudioEmissionEmptyState());
     }
+  }
+
+  set baseFrequency(int baseFrequency) {
+    audioSettingsModel = audioSettingsModel.copyWith(baseFrequency: baseFrequency);
+  }
+
+  set bitDepth(int bitDepth) {
+    audioSettingsModel = audioSettingsModel.copyWith(bitDepth: bitDepth);
+  }
+
+  set bitsPerFrequency(int bitsPerFrequency) {
+    audioSettingsModel = audioSettingsModel.copyWith(bitsPerFrequency: bitsPerFrequency);
+  }
+
+  set channels(int channels) {
+    audioSettingsModel = audioSettingsModel.copyWith(channels: channels);
+  }
+
+  set chunksCount(int chunksCount) {
+    audioSettingsModel = audioSettingsModel.copyWith(chunksCount: chunksCount);
+  }
+
+  set frequencyGap(int frequencyGap) {
+    audioSettingsModel = audioSettingsModel.copyWith(frequencyGap: frequencyGap);
+  }
+
+  set symbolDuration(double symbolDuration) {
+    audioSettingsModel = audioSettingsModel.copyWith(symbolDuration: symbolDuration);
   }
 }

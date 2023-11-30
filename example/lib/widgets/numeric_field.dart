@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class NumericField extends StatelessWidget {
   final TextEditingController textController;
   final String fieldName;
-  final void Function(int) onFieldSubmitted;
+  final ValueChanged<num> onFieldSubmitted;
 
   const NumericField({
     required this.textController,
@@ -17,7 +17,7 @@ class NumericField extends StatelessWidget {
     return TextFormField(
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       decoration: InputDecoration(labelText: fieldName),
-      onFieldSubmitted: (String value) => onFieldSubmitted(int.parse(value)),
+      onFieldSubmitted: (String value) => onFieldSubmitted(num.parse(value)),
       initialValue: textController.text,
     );
   }

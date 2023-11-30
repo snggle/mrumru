@@ -6,80 +6,93 @@ import 'package:mrumru/src/audio/fsk/fsk_decoder.dart';
 import 'package:mrumru/src/frame/frame_model_decoder.dart';
 import 'package:mrumru/src/models/frame_collection_model.dart';
 import 'package:mrumru/src/utils/math_utils.dart';
+import 'package:wav/wav_file.dart';
 
 class AudioDecoder {
-  final WavDecoder wavDecoder;
   final AudioSettingsModel audioSettingsModel;
   final FrameSettingsModel frameSettingsModel;
-  final FrameModelDecoder frameModelDecoder;
   final FskDecoder fskDecoder;
+  final FrameModelDecoder frameModelDecoder;
 
-  AudioDecoder({required this.audioSettingsModel, required this.frameSettingsModel})
-      : fskDecoder = FskDecoder(
-          baseFrequency: audioSettingsModel.baseFrequency,
-          frequencyStep: audioSettingsModel.frequencyStep,
-          bitsPerFrequency: audioSettingsModel.bitsPerFrequency,
-        ),
-        wavDecoder = WavDecoder(
-          audioSettingsModel.channels,
-          audioSettingsModel.sampleRate,
-          audioSettingsModel.bitDepth,
-        ),
+  AudioDecoder({
+    required this.audioSettingsModel,
+    required this.frameSettingsModel,
+  })  : fskDecoder = FskDecoder(audioSettingsModel),
         frameModelDecoder = FrameModelDecoder(framesSettingsModel: frameSettingsModel);
 
   Future<String> decodeRecordedAudio(Uint8List wavBytes) async {
-    List<int> samples = wavDecoder.readSamplesFromWav(wavBytes);
-    List<int> frequencies = _parseSamplesToFrequencySequence(samples);
-    String binaryData = fskDecoder.decodeFrequenciesToBinary(frequencies);
+    Wav wav = Wav.read(wavBytes);
+    List<double> waveBytes = wav.toMono().toList();
+    List<int> detectedFrequencies = _parseWaveBytesToFrequencies(waveBytes);
+    String binaryData = fskDecoder.decodeFrequenciesToBinary(detectedFrequencies);
     FrameCollectionModel frameCollectionModel = frameModelDecoder.decodeBinaryData(binaryData);
+
     return frameCollectionModel.mergedRawData;
   }
 
-  List<int> _parseSamplesToFrequencySequence(List<int> samples) {
-    int sampleCount = audioSettingsModel.sampleRate * audioSettingsModel.symbolDuration;
-    int frequencyCount = samples.length ~/ sampleCount;
-    int maxFrequency = audioSettingsModel.baseFrequency + (audioSettingsModel.frequencyStep * (pow(2, audioSettingsModel.bitsPerFrequency).toInt()));
-    List<int> frequencies = <int>[];
+  List<int> _parseWaveBytesToFrequencies(List<double> waveBytes) {
+    int expectedSampleSize = audioSettingsModel.sampleSize;
+    int chunksCount = audioSettingsModel.chunksCount;
 
-    for (int frequencyIndex = 0; frequencyIndex < frequencyCount; frequencyIndex++) {
-      int startSampleIndex = frequencyIndex * sampleCount;
-      int endSampleIndex = startSampleIndex + sampleCount;
-      List<int> sampleBytes = samples.sublist(startSampleIndex, endSampleIndex);
+    int samplesCount = waveBytes.length ~/ expectedSampleSize;
+    int totalFrequenciesCount = samplesCount * chunksCount;
+    List<int> detectedFrequencies = List<int>.filled(totalFrequenciesCount, 0);
 
-      frequencies.add(_recognizeFrequency(sampleBytes, maxFrequency));
-    }
-    return frequencies;
-  }
+    for (int sampleIndex = 0; sampleIndex < samplesCount; sampleIndex++) {
+      List<double> chunkFrequencySample = _extractFrequencySample(waveBytes, sampleIndex);
 
-  int _recognizeFrequency(List<int> sampleBytes, int maxFrequency) {
-    int detectedFrequency = 0;
-    double maxAmplitude = 0;
-
-    for (int frequency = audioSettingsModel.baseFrequency; frequency < maxFrequency; frequency += audioSettingsModel.frequencyStep) {
-      double amplitude = _calculateAmplitude(sampleBytes, frequency);
-      if (amplitude > maxAmplitude) {
-        maxAmplitude = amplitude;
-        detectedFrequency = frequency;
+      for (int chunkIndex = 0; chunkIndex < chunksCount; chunkIndex++) {
+        int highestFrequency = _findHighestFrequency(chunkFrequencySample, chunkIndex);
+        int frequencyIndex = sampleIndex + (samplesCount * chunkIndex);
+        detectedFrequencies[frequencyIndex] = highestFrequency;
       }
     }
 
-    return detectedFrequency;
+    return detectedFrequencies;
   }
 
-  double _calculateAmplitude(List<int> samples, int frequency) {
-    int sampleCount = samples.length;
-    double angleStep = (2 * pi * frequency) / audioSettingsModel.sampleRate;
+  List<double> _extractFrequencySample(List<double> waveBytes, int sampleIndex) {
+    int expectedSampleSize = audioSettingsModel.sampleSize;
+    int startSampleIndex = sampleIndex * expectedSampleSize;
+    int endSampleIndex = startSampleIndex + expectedSampleSize;
+    return waveBytes.sublist(startSampleIndex, endSampleIndex);
+  }
 
+  int _findHighestFrequency(List<double> chunkFrequencySample, int chunkIndex) {
+    List<FrequencyCorrelationModel> frequencyCorrelations = _calculateFrequencyCorrelations(chunkFrequencySample, chunkIndex);
+    int highestFrequency =
+        frequencyCorrelations.reduce((FrequencyCorrelationModel a, FrequencyCorrelationModel b) => a.correlation > b.correlation ? a : b).frequency;
+    return highestFrequency;
+  }
+
+  List<FrequencyCorrelationModel> _calculateFrequencyCorrelations(List<double> chunkFrequencySample, int chunkIndex) {
+    List<FrequencyCorrelationModel> frequencyCorrelations = <FrequencyCorrelationModel>[];
+
+    for (int possibleFrequency in audioSettingsModel.possibleFrequencies) {
+      int frequencyRange = audioSettingsModel.frequencyRange;
+      int chunkFrequency = possibleFrequency + chunkIndex * frequencyRange;
+      double correlation = _calculateAmplitude(chunkFrequencySample, chunkFrequency);
+      frequencyCorrelations.add(FrequencyCorrelationModel(correlation: correlation, frequency: chunkFrequency));
+    }
+
+    return frequencyCorrelations;
+  }
+
+  double _calculateAmplitude(List<double> samples, int frequency) {
+    int sampleRate = audioSettingsModel.sampleRate;
+    int sampleCount = samples.length;
+    double angleStep = (2 * pi * frequency) / sampleRate;
     double sumCos = 0;
     double sumSin = 0;
 
     for (int i = 0; i < sampleCount; i++) {
-      double sampleValue = samples[i] / ((1 << 15) - 1);
+      double sampleValue = samples[i] / audioSettingsModel.amplitude;
       double sincValue = MathUtils.sinc(i.toDouble() / sampleCount - 0.5);
 
       sumCos += sampleValue * cos(i * angleStep) * sincValue;
       sumSin += sampleValue * sin(i * angleStep) * sincValue;
     }
+
     double calculatedAmplitude = 2 * sqrt(sumCos * sumCos + sumSin * sumSin) / sampleCount;
     return calculatedAmplitude;
   }
