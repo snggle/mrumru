@@ -8,12 +8,12 @@ git clone git@github.com:snggle/mrumru.git
 ```
 
 ## Usage
-The project runs on flutter version **3.7.10**. You can use [fvm](https://fvm.app/docs/getting_started/installation)
+The project runs on flutter version **3.13.9**. You can use [fvm](https://fvm.app/docs/getting_started/installation)
 for easy switching between versions
 ```bash
 # Install and use required flutter version
-fvm install 3.7.10
-fvm use 3.7.10
+fvm install 3.13.9
+fvm use 3.13.9
 
 # Install required packages in pubspec.yaml
 fvm flutter pub get
