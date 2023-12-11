@@ -19,12 +19,17 @@ class AudioGenerator {
   })  : frameModelBuilder = FrameModelBuilder(frameSettingsModel: frameSettingsModel),
         fskEncoder = FskEncoder(audioSettingsModel);
 
-  Uint8List generateAudioBytes(String textMessage) {
-    List<int> frequencies = _parseTextToFrequencySequence(textMessage);
-    List<double> samples = _buildSamples(frequencies);
-    List<double> samplesSum = _sumSamples(samples);
-    List<Float64List> channels = <Float64List>[Float64List.fromList(samplesSum)];
+  Uint8List generateWavFileBytes(String textMessage) {
+    List<double> waveBytes = generateSamples(textMessage);
+    List<Float64List> channels = <Float64List>[Float64List.fromList(waveBytes)];
     return Wav(channels, audioSettingsModel.sampleRate, WavFormat.float32).write();
+  }
+
+  List<double> generateSamples(String textMessage) {
+    List<int> frequencies = _parseTextToFrequencySequence(textMessage);
+    List<double> samples = _buildSamplesFromFrequencies(frequencies);
+    List<double> samplesSum = _sumSamples(samples);
+    return samplesSum;
   }
 
   List<int> _parseTextToFrequencySequence(String text) {
@@ -34,7 +39,7 @@ class AudioGenerator {
     return fskEncoder.encodeBinaryDataToFrequencies(filledBinaryData);
   }
 
-  List<double> _buildSamples(List<int> frequencies) {
+  List<double> _buildSamplesFromFrequencies(List<int> frequencies) {
     List<double> samples = <double>[];
 
     for (int frequency in frequencies) {
