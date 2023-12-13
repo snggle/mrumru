@@ -2,16 +2,19 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:mrumru/mrumru.dart';
+import 'package:mrumru/src/models/wav_utils.dart';
 import 'package:record/record.dart';
+import 'package:wav/wav.dart';
 
 class AudioRecorderController {
-  StreamSubscription<Uint8List>? recordingStreamSubscription;
   final AudioRecorder audioRecorder = AudioRecorder();
-  final List<Uint8List> receivedPackets = <Uint8List>[];
+  final List<double> receivedPackets = <double>[];
+
+  StreamSubscription<Uint8List>? recordingStreamSubscription;
 
   Future<void> startRecording(AudioSettingsModel audioSettingsModel) async {
     RecordConfig recordConfig = RecordConfig(
-      encoder: AudioEncoder.wav,
+      encoder: AudioEncoder.pcm16bits,
       bitRate: audioSettingsModel.bitDepth * audioSettingsModel.sampleRate * audioSettingsModel.channels,
       sampleRate: audioSettingsModel.sampleRate,
       numChannels: audioSettingsModel.channels,
@@ -21,15 +24,15 @@ class AudioRecorderController {
     recordingStreamSubscription = recordingStream.listen(_handlePacketReceived);
   }
 
-  Future<Uint8List> stopRecording() async {
+  Future<List<double>> stopRecording() async {
     await audioRecorder.stop();
     await recordingStreamSubscription?.cancel();
-    List<int> waveBytes = receivedPackets.reduce((Uint8List value, Uint8List element) => Uint8List.fromList(value + element));
-
-    return Uint8List.fromList(waveBytes);
+    return receivedPackets;
   }
 
-  void _handlePacketReceived(Uint8List packet) {
-    receivedPackets.add(packet);
+  Future<void> _handlePacketReceived(Uint8List packet) async {
+    Wav customWave = CustomWav.readWithoutHeaders(packet);
+    print(customWave.channels.first);
+    receivedPackets.addAll(customWave.channels.first);
   }
 }

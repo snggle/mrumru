@@ -44,7 +44,8 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
   Future<void> stopRecording() async {
     try {
       AudioDecoder audioDecoder = AudioDecoder(audioSettingsModel: audioSettingsModel, frameSettingsModel: frameSettingsModel);
-      Uint8List recordedBytes = await audioRecorderController.stopRecording();
+      List<double> recordedBytes = await audioRecorderController.stopRecording();
+
       String receivedText = await audioDecoder.decodeRecordedAudio(recordedBytes);
       emit(AudioEmissionResultState(decodedMessage: receivedText));
     } catch (e) {

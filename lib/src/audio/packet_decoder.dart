@@ -1,20 +1,18 @@
 import 'dart:math';
 
-import 'package:flutter/services.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/fsk/fsk_decoder.dart';
 import 'package:mrumru/src/frame/frame_model_decoder.dart';
 import 'package:mrumru/src/models/frame_collection_model.dart';
 import 'package:mrumru/src/utils/math_utils.dart';
-import 'package:wav/wav_file.dart';
 
-class AudioDecoder {
+class PacketDecoder {
   final AudioSettingsModel audioSettingsModel;
   final FrameSettingsModel frameSettingsModel;
   final FskDecoder fskDecoder;
   final FrameModelDecoder frameModelDecoder;
 
-  AudioDecoder({
+  PacketDecoder({
     required this.audioSettingsModel,
     required this.frameSettingsModel,
   })  : fskDecoder = FskDecoder(audioSettingsModel),
@@ -22,7 +20,9 @@ class AudioDecoder {
 
   Future<String> decodeRecordedAudio(List<double> waveBytes) async {
     List<int> detectedFrequencies = _parseWaveBytesToFrequencies(waveBytes);
+    print('freq: $detectedFrequencies');
     String binaryData = fskDecoder.decodeFrequenciesToBinary(detectedFrequencies);
+    print('binary: $binaryData');
     FrameCollectionModel frameCollectionModel = frameModelDecoder.decodeBinaryData(binaryData);
 
     return frameCollectionModel.mergedRawData;
