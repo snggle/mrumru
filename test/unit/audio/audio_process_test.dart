@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
+import 'package:wav/wav_file.dart';
 
 void main() async {
   group('Tests of AudioGenerator.generateAudioBytes() and AudioDecoder.decodeRecordedAudio()', () {
@@ -23,7 +24,8 @@ void main() async {
       // Because output of the "generateAudioBytes" method is very large it's not possible to create a mock of it
       // For this reason we are generating bytes using [generateAudioBytes] method
       // and then we are checking if we can decode it using [decodeRecordedAudio] method
-      String actualDecodedWavFileContent = await actualAudioDecoder.decodeRecordedAudio(Uint8List.fromList(actualGeneratedWavBytes));
+      Wav wav = Wav.read(Uint8List.fromList(actualGeneratedWavBytes));
+      String actualDecodedWavFileContent = await actualAudioDecoder.decodeRecordedAudio(wav.channels.first);
 
       // Assert
       expect(actualDecodedWavFileContent, expectedDecodedWavFileContent);
@@ -45,7 +47,8 @@ void main() async {
       // Because output of the "generateAudioBytes" method is very large it's not possible to create a mock of it
       // For this reason we are generating bytes using [generateAudioBytes] method
       // and then we are checking if we can decode it using [decodeRecordedAudio] method
-      String actualDecodedWavFileContent = await actualAudioDecoder.decodeRecordedAudio(Uint8List.fromList(actualGeneratedWavBytes));
+      Wav wav = Wav.read(Uint8List.fromList(actualGeneratedWavBytes));
+      String actualDecodedWavFileContent = await actualAudioDecoder.decodeRecordedAudio(wav.channels.first);
 
       // Assert
       expect(actualDecodedWavFileContent, expectedDecodedWavFileContent);
@@ -67,7 +70,8 @@ void main() async {
       // Because output of the "generateAudioBytes" method is very large it's not possible to create a mock of it
       // For this reason we are generating bytes using [generateAudioBytes] method
       // and then we are checking if we can decode it using [decodeRecordedAudio] method
-      String actualDecodedWavFileContent = await actualAudioDecoder.decodeRecordedAudio(Uint8List.fromList(actualGeneratedWavBytes));
+      Wav wav = Wav.read(Uint8List.fromList(actualGeneratedWavBytes));
+      String actualDecodedWavFileContent = await actualAudioDecoder.decodeRecordedAudio(wav.channels.first);
 
       // Assert
       expect(actualDecodedWavFileContent, expectedDecodedWavFileContent);
@@ -89,7 +93,8 @@ void main() async {
       // Because output of the "generateAudioBytes" method is very large it's not possible to create a mock of it
       // For this reason we are generating bytes using [generateAudioBytes] method
       // and then we are checking if we can decode it using [decodeRecordedAudio] method
-      String actualDecodedWavFileContent = await actualAudioDecoder.decodeRecordedAudio(Uint8List.fromList(actualGeneratedWavBytes));
+      Wav wav = Wav.read(Uint8List.fromList(actualGeneratedWavBytes));
+      String actualDecodedWavFileContent = await actualAudioDecoder.decodeRecordedAudio(wav.channels.first);
 
       // Assert
       expect(actualDecodedWavFileContent, expectedDecodedWavFileContent);

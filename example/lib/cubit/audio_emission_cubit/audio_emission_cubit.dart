@@ -10,10 +10,10 @@ import 'package:mrumru/mrumru.dart';
 
 class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
   final AudioPlayer audioPlayer = AudioPlayer();
-  final AudioRecorderController audioRecorderController = AudioRecorderController();
   final FrameSettingsModel frameSettingsModel = FrameSettingsModel.withDefaults();
   final TextEditingController messageTextController = TextEditingController();
 
+  late AudioRecorderController audioRecorderController;
   late AudioSettingsModel audioSettingsModel;
 
   AudioEmissionCubit() : super(AudioEmissionEmptyState()) {
@@ -33,8 +33,9 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
 
   void startRecording() {
     try {
+      audioRecorderController = AudioRecorderController(audioSettingsModel: audioSettingsModel);
       emit(AudioEmissionListeningState());
-      audioRecorderController.startRecording(audioSettingsModel);
+      audioRecorderController.startRecording();
     } catch (e) {
       AppLogger().log(message: 'Cannot start recording: $e');
       emit(AudioEmissionEmptyState());
@@ -44,8 +45,8 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
   Future<void> stopRecording() async {
     try {
       AudioDecoder audioDecoder = AudioDecoder(audioSettingsModel: audioSettingsModel, frameSettingsModel: frameSettingsModel);
-      Uint8List recordedBytes = await audioRecorderController.stopRecording();
-      String receivedText = await audioDecoder.decodeRecordedAudio(recordedBytes);
+      List<double> recordedWavBytes = await audioRecorderController.stopRecording();
+      String receivedText = await audioDecoder.decodeRecordedAudio(recordedWavBytes);
       emit(AudioEmissionResultState(decodedMessage: receivedText));
     } catch (e) {
       AppLogger().log(message: 'Cannot stop recording: $e');

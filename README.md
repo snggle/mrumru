@@ -22,7 +22,22 @@ fvm flutter pub get
 # Run project
 cd example
 fvm flutter run lib/main.dart
+
+# Run project as chrome extension
+cd example
+fvm flutter build web --web-renderer html --csp
+
+# Chrome steps
+1. Open chrome
+2. Navigate to extension
+3. Activate developer mode
+3. Load unpacked
+4. Navigate to example
+5. Navigate to build
+6. Choose web
 ```
+
+Open chrome
 
 To generate config files use
 ```bash

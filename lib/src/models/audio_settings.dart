@@ -25,7 +25,7 @@ class AudioSettingsModel with EquatableMixin {
     required this.symbolDuration,
   }) {
     amplitude = 1 / chunksCount;
-    sampleRate = (2.5 * chunksCount * maxFrequency).toInt();
+    sampleRate = (5 * chunksCount * maxFrequency).toInt();
     sampleSize = (sampleRate * symbolDuration).toInt();
     frequencyRange = maxFrequency + frequencyGap;
   }

@@ -1,5 +1,3 @@
-import 'dart:html';
-
 import 'package:example/cubit/audio_emission_cubit/a_audio_emission_state.dart';
 import 'package:example/cubit/audio_emission_cubit/audio_emission_cubit.dart';
 import 'package:example/cubit/audio_emission_cubit/states/audio_emission_listening_state.dart';
@@ -8,19 +6,15 @@ import 'package:example/widgets/numeric_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ExamplePage extends StatefulWidget {
-  const ExamplePage({super.key});
+class MobilePage extends StatefulWidget {
+  const MobilePage({super.key});
 
   @override
-  State<ExamplePage> createState() => _ExamplePageState();
+  State<MobilePage> createState() => _MobilePageState();
 }
 
-class _ExamplePageState extends State<ExamplePage> {
+class _MobilePageState extends State<MobilePage> {
   final AudioEmissionCubit audioEmissionCubit = AudioEmissionCubit();
-
-  void openWindow() {
-    window.open('index.html', '_blank');
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,17 +26,6 @@ class _ExamplePageState extends State<ExamplePage> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: ListView(
               children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: openWindow,
-                        child: const Text('Big Screen Mode'),
-                      ),
-                    ),
-                    const SizedBox(width: 18),
-                  ],
-                ),
                 const SizedBox(height: 16),
                 NumericField(
                   fieldName: 'baseFrequency',
