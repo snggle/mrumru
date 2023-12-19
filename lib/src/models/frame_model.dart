@@ -29,8 +29,8 @@ class FrameModel extends Equatable {
     String dataBinary = binaryString.substring(bitsCount, bitsCount += frameSettings.dataBitsLength);
     String expectedChecksum = binaryString.substring(bitsCount, bitsCount += frameSettings.checksumBitsLength);
 
-    while (binaryString.startsWith('1111000011110000')) {
-      binaryString = binaryString.substring(16);
+    while (dataBinary.startsWith('0' * 8)) {
+      dataBinary = dataBinary.substring(8);
     }
 
     String actualChecksum = CryptoUtils.calcChecksum(text: BinaryUtils.convertBinaryToAscii(dataBinary), length: frameSettings.checksumBitsLength);
@@ -55,11 +55,6 @@ class FrameModel extends Equatable {
     String framesCountBinary = BinaryUtils.parseIntToPaddedBinary(framesCount, frameSettings.framesCountBitsLength);
     String frameDataBinary = BinaryUtils.convertAsciiToBinary(rawData).padLeft(frameSettings.dataBitsLength, '0');
     String frameChecksumBinary = checksum;
-
-    if (frameIndex == 0) {
-      frameNumberBinary = '1111000011110000';
-    }
-
     return <String>[frameNumberBinary, framesCountBinary, frameDataBinary, frameChecksumBinary];
   }
 

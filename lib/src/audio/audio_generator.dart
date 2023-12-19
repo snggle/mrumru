@@ -31,7 +31,9 @@ class AudioGenerator {
     FrameCollectionModel frameCollectionModel = frameModelBuilder.buildFrameCollection(text);
     String binaryData = frameCollectionModel.mergedBinaryFrames;
     String filledBinaryData = _fillBinaryWithZeros(binaryData);
-    return fskEncoder.encodeBinaryDataToFrequencies(filledBinaryData);
+    String patternedBinaryData = _addPatternToBinary(filledBinaryData);
+    print(patternedBinaryData);
+    return fskEncoder.encodeBinaryDataToFrequencies(patternedBinaryData);
   }
 
   List<double> _buildSamples(List<int> frequencies) {
@@ -95,5 +97,9 @@ class AudioGenerator {
     int remainder = binaryData.length % divider;
     int zerosToAdd = remainder == 0 ? 0 : divider - remainder;
     return binaryData + List<String>.filled(zerosToAdd, '0').join('');
+  }
+
+  String _addPatternToBinary(String binaryData) {
+    return '1111000011110000$binaryData';
   }
 }

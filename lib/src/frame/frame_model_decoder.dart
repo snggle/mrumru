@@ -10,7 +10,6 @@ class FrameModelDecoder {
 
   FrameModelDecoder({required this.framesSettingsModel});
 
-  // TODO(Arek): Update method
 
   FrameCollectionModel decodeBinaryData(String binaryData) {
     List<FrameModel> frameModels = <FrameModel>[];
@@ -23,7 +22,7 @@ class FrameModelDecoder {
         frameModels.add(frameModel);
         AppLogger().log(message: 'Decoded frame at index $frameIndex ($frameModel)');
       } catch (_) {
-        AppLogger().log(message: 'Cannot decode frame at index $frameIndex');
+        AppLogger().log(message: 'Cannot decode frame at index$frameIndex');
       }
     }
     FrameCollectionModel frameCollectionModel = FrameCollectionModel(frameModels);

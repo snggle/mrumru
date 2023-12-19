@@ -25,6 +25,7 @@ class AudioDecoder {
     List<double> waveBytes = wav.toMono().toList();
     List<int> detectedFrequencies = _parseWaveBytesToFrequencies(waveBytes);
     String binaryData = fskDecoder.decodeFrequenciesToBinary(detectedFrequencies);
+    print(binaryData);
     FrameCollectionModel frameCollectionModel = frameModelDecoder.decodeBinaryData(binaryData);
 
     return frameCollectionModel.mergedRawData;
