@@ -10,11 +10,13 @@ class FrameModelDecoder {
 
   FrameModelDecoder({required this.framesSettingsModel});
 
+  // TODO(Arek): Update method
+
   FrameCollectionModel decodeBinaryData(String binaryData) {
     List<FrameModel> frameModels = <FrameModel>[];
-
-    for (int i = 0; i < binaryData.length; i += framesSettingsModel.frameSize) {
-      int frameIndex = i ~/ framesSettingsModel.frameSize;
+    int startIndex = binaryData.indexOf('1111000011110000') + 16;
+    for (int i = startIndex; i < binaryData.length; i += framesSettingsModel.frameSize) {
+      int frameIndex = (i - startIndex) ~/ framesSettingsModel.frameSize;
       try {
         String frameBinary = binaryData.substring(i, min(i + framesSettingsModel.frameSize, binaryData.length));
         FrameModel frameModel = FrameModel.fromBinaryString(frameBinary);
