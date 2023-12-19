@@ -1,3 +1,6 @@
+import 'dart:html';
+
+import 'package:auto_route/annotations.dart';
 import 'package:example/cubit/audio_emission_cubit/a_audio_emission_state.dart';
 import 'package:example/cubit/audio_emission_cubit/audio_emission_cubit.dart';
 import 'package:example/cubit/audio_emission_cubit/states/audio_emission_listening_state.dart';
@@ -6,14 +9,15 @@ import 'package:example/widgets/numeric_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class MobilePage extends StatefulWidget {
-  const MobilePage({super.key});
+@RoutePage()
+class ExtensionPage extends StatefulWidget {
+  const ExtensionPage({super.key});
 
   @override
-  State<MobilePage> createState() => _MobilePageState();
+  State<StatefulWidget> createState() => ExtensionPageState();
 }
 
-class _MobilePageState extends State<MobilePage> {
+class ExtensionPageState extends State<ExtensionPage> {
   final AudioEmissionCubit audioEmissionCubit = AudioEmissionCubit();
 
   @override
@@ -26,6 +30,17 @@ class _MobilePageState extends State<MobilePage> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: ListView(
               children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _openWindow,
+                        child: const Text('Big Screen Mode'),
+                      ),
+                    ),
+                    const SizedBox(width: 18),
+                  ],
+                ),
                 const SizedBox(height: 16),
                 NumericField(
                   fieldName: 'baseFrequency',
@@ -119,5 +134,9 @@ class _MobilePageState extends State<MobilePage> {
         );
       },
     );
+  }
+
+  void _openWindow() {
+    window.open('index.html', '_blank');
   }
 }

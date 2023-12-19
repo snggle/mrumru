@@ -31,10 +31,9 @@ fvm flutter build web --web-renderer html --csp
 1. Open chrome
 2. Navigate to extension
 3. Activate developer mode
-3. Load unpacked
-4. Navigate to example
-5. Navigate to build
-6. Choose web
+3. Press button "Load unpacked"
+4. Navigate to mrumru/example/build
+6. Choose mrumru/example/build/web
 ```
 
 Open chrome

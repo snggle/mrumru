@@ -30,11 +30,6 @@ dependencies:
   # https://pub.dev/packages/record
   record: ^5.0.1
 
-  # Permission plugin for Flutter. This plugin provides a cross-platform (iOS, Android) API to request and check permissions.
-  # https://pub.dev/packages/permission_handler
-  permission_handler: ^11.0.1
-  permission_handler_web: ^0.0.2
-
   # A Flutter plugin for finding commonly used locations on the filesystem. Supports Android, iOS, Linux, macOS and Windows. Not all methods are supported on all platforms.
   # https://pub.dev/packages/path_provider
   path_provider: ^2.1.1
