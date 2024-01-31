@@ -1,4 +1,4 @@
-import 'dart:math';
+import 'dart:math' as math;
 
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/fsk/fsk_decoder.dart';
@@ -18,8 +18,55 @@ class AudioDecoder {
   })  : fskDecoder = FskDecoder(audioSettingsModel),
         frameModelDecoder = FrameModelDecoder(framesSettingsModel: frameSettingsModel);
 
+  int detectSignalStartDynamic(List<double> signal, int sampleRate, List<double> templateFreqs, double windowLength, int maxStartOffset) {
+    int windowSize = (windowLength * sampleRate).toInt();
+    List<List<double>> templateSineWaves = <List<double>>[];
+
+    for (double freq in templateFreqs) {
+      List<double> t = List<double>.generate(windowSize, (int i) => i / sampleRate);
+      List<double> sineWave = t.map((double ti) => math.sin(2 * math.pi * freq * ti)).toList();
+      templateSineWaves.add(sineWave);
+    }
+
+    double bestCorrelation = 0.0;
+    int bestStart = 0;
+
+    List<double> correlation = List<double>.filled(signal.length - windowSize, 0.0);
+
+    for (int i = 0; i < math.min(signal.length - windowSize, (maxStartOffset * sampleRate).toInt()); i++) {
+      List<double> window = signal.sublist(i, i + windowSize);
+      double windowCorrelation = 0.0;
+
+      for (List<double> template in templateSineWaves) {
+        double sum = 0.0;
+        for (int j = 0; j < windowSize; j++) {
+          sum += window[j] * template[j];
+        }
+        windowCorrelation += sum.abs();
+      }
+
+      correlation[i] = windowCorrelation;
+    }
+
+    int maxCorrelationIdx = correlation.indexWhere((double val) => val == correlation.reduce(math.max));
+    double maxCorrelation = correlation[maxCorrelationIdx];
+
+    if (maxCorrelation > bestCorrelation) {
+      bestCorrelation = maxCorrelation;
+      bestStart = maxCorrelationIdx;
+    }
+
+    return bestStart;
+  }
+
   String decodeRecordedAudio(List<double> waveBytes) {
-    List<int> detectedFrequencies = _parseWaveBytesToFrequencies(waveBytes);
+    List<double> templateFreqs = audioSettingsModel.possibleFrequencies.map((int f) => f.toDouble()).toList();
+    double windowLength = 0.5;
+    int maxStartOffset = 5;
+    int startOffset = detectSignalStartDynamic(waveBytes, audioSettingsModel.sampleRate, templateFreqs, windowLength, maxStartOffset);
+    List<double> trimmedWaveBytes = waveBytes.sublist(startOffset);
+    List<int> detectedFrequencies = _parseWaveBytesToFrequencies(trimmedWaveBytes);
+    print(detectedFrequencies);
     String binaryData = fskDecoder.decodeFrequenciesToBinary(detectedFrequencies);
     FrameCollectionModel frameCollectionModel = frameModelDecoder.decodeBinaryData(binaryData);
 
@@ -39,7 +86,7 @@ class AudioDecoder {
 
       for (int chunkIndex = 0; chunkIndex < chunksCount; chunkIndex++) {
         int highestFrequency = _findHighestFrequency(chunkFrequencySample, chunkIndex);
-        int frequencyIndex = sampleIndex + (samplesCount * chunkIndex);
+        int frequencyIndex = sampleIndex * chunksCount + chunkIndex;
         detectedFrequencies[frequencyIndex] = highestFrequency;
       }
     }
@@ -77,7 +124,7 @@ class AudioDecoder {
   double _calculateAmplitude(List<double> samples, int frequency) {
     int sampleRate = audioSettingsModel.sampleRate;
     int sampleCount = samples.length;
-    double angleStep = (2 * pi * frequency) / sampleRate;
+    double angleStep = (2 * math.pi * frequency) / sampleRate;
     double sumCos = 0;
     double sumSin = 0;
 
@@ -85,11 +132,11 @@ class AudioDecoder {
       double sampleValue = samples[i] / audioSettingsModel.amplitude;
       double sincValue = MathUtils.sinc(i.toDouble() / sampleCount - 0.5);
 
-      sumCos += sampleValue * cos(i * angleStep) * sincValue;
-      sumSin += sampleValue * sin(i * angleStep) * sincValue;
+      sumCos += sampleValue * math.cos(i * angleStep) * sincValue;
+      sumSin += sampleValue * math.sin(i * angleStep) * sincValue;
     }
 
-    double calculatedAmplitude = 2 * sqrt(sumCos * sumCos + sumSin * sumSin) / sampleCount;
+    double calculatedAmplitude = 2 * math.sqrt(sumCos * sumCos + sumSin * sumSin) / sampleCount;
     return calculatedAmplitude;
   }
 }
