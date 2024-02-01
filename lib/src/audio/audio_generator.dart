@@ -37,6 +37,7 @@ class AudioGenerator {
     FrameCollectionModel frameCollectionModel = frameModelBuilder.buildFrameCollection(text);
     String binaryData = frameCollectionModel.mergedBinaryFrames;
     String filledBinaryData = _fillBinaryWithZeros(binaryData);
+    print('generated ${binaryData}');
     return fskEncoder.encodeBinaryDataToFrequencies(filledBinaryData);
   }
 
