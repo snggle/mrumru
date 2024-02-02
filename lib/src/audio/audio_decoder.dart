@@ -20,7 +20,8 @@ class AudioDecoder {
         frameModelDecoder = FrameModelDecoder(framesSettingsModel: frameSettingsModel);
 
   String decodeRecordedAudio(List<double> waveBytes) {
-    int start = SignalDetector().detectSignalStartDynamic(waveBytes, audioSettingsModel.sampleRate, audioSettingsModel.possibleFrequencies, 0.5, 1);
+    List<int> templateFrequencies = <int>[400, 1800, 3000, 4000, 5400, 6800, 7600, 8800];
+    int start = SignalDetector().detectSignalStartDynamic(waveBytes, audioSettingsModel.sampleRate, templateFrequencies, 0.5, 1);
     List<double> trimmedBytes = waveBytes.sublist(start);
     List<int> detectedFrequencies = _parseWaveBytesToFrequencies(trimmedBytes);
     String binaryData = fskDecoder.decodeFrequenciesToBinary(detectedFrequencies);
