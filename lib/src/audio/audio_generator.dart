@@ -50,15 +50,48 @@ class AudioGenerator {
     return samples;
   }
 
+  // List<double> _buildFrequencySample(int frequency) {
+  //   double amplitude = audioSettingsModel.amplitude;
+  //   int sampleSize = audioSettingsModel.sampleSize;
+  //   int sampleRate = audioSettingsModel.sampleRate;
+  //   List<double> sampleBytes = <double>[];
+  //
+  //   for (int i = 0; i < sampleSize; i++) {
+  //     double angle = (2 * pi * i * frequency) / sampleRate;
+  //     sampleBytes.add(amplitude * sin(angle));
+  //   }
+  //
+  //   return sampleBytes;
+  // }
+
   List<double> _buildFrequencySample(int frequency) {
+    double fadeInDurationInSeconds = 0.1;
+    double fadeOutDurationInSeconds = 0.1;
+
     double amplitude = audioSettingsModel.amplitude;
     int sampleSize = audioSettingsModel.sampleSize;
     int sampleRate = audioSettingsModel.sampleRate;
     List<double> sampleBytes = <double>[];
 
+    // Define the duration of the fade in and fade out (in samples)
+    int fadeInSamples = (sampleRate * fadeInDurationInSeconds).toInt();
+    int fadeOutSamples = (sampleRate * fadeOutDurationInSeconds).toInt();
+
     for (int i = 0; i < sampleSize; i++) {
       double angle = (2 * pi * i * frequency) / sampleRate;
-      sampleBytes.add(amplitude * sin(angle));
+
+      // Calculate the fade-in and fade-out multiplier
+      double fadeMultiplier = 1.0;
+      if (i < fadeInSamples) {
+        // Fade-in effect
+        fadeMultiplier = i / fadeInSamples;
+      } else if (i > sampleSize - fadeOutSamples) {
+        // Fade-out effect
+        fadeMultiplier = (sampleSize - i) / fadeOutSamples;
+      }
+
+      // Apply the fade multiplier to the amplitude
+      sampleBytes.add(amplitude * fadeMultiplier * sin(angle));
     }
 
     return sampleBytes;
