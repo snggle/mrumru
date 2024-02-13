@@ -1,10 +1,16 @@
+import 'dart:io';
 import 'dart:math';
 
+import 'dart:math' as math;
+import 'dart:typed_data';
 import 'package:mrumru/mrumru.dart';
+import 'package:mrumru/src/audio/audio_recognizer.dart';
 import 'package:mrumru/src/audio/fsk/fsk_decoder.dart';
 import 'package:mrumru/src/frame/frame_model_decoder.dart';
 import 'package:mrumru/src/models/frame_collection_model.dart';
 import 'package:mrumru/src/utils/math_utils.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:wav/wav.dart';
 
 class AudioDecoder {
   final AudioSettingsModel audioSettingsModel;
@@ -19,7 +25,23 @@ class AudioDecoder {
         frameModelDecoder = FrameModelDecoder(framesSettingsModel: frameSettingsModel);
 
   String decodeRecordedAudio(List<double> waveBytes) {
-    List<int> detectedFrequencies = _parseWaveBytesToFrequencies(waveBytes);
+    print('Start decoding audio');
+    AudioRecognizer audioRecognizer = AudioRecognizer(
+      sampleSize: audioSettingsModel.sampleSize,
+      sampleRate: audioSettingsModel.sampleRate,
+      startFrequencies: audioSettingsModel.startFrequencies,
+      endFrequencies: audioSettingsModel.endFrequencies,
+    );
+
+    String signature = DateTime.now().millisecondsSinceEpoch.toString();
+    saveFile(waveBytes, '${signature}full');
+
+    List<double> trimmedWave = audioRecognizer.trim(waveBytes);
+
+    saveFile(trimmedWave, '${signature}trimmed');
+
+    List<int> detectedFrequencies = _parseWaveBytesToFrequencies(trimmedWave);
+    print(detectedFrequencies);
     String binaryData = fskDecoder.decodeFrequenciesToBinary(detectedFrequencies);
     FrameCollectionModel frameCollectionModel = frameModelDecoder.decodeBinaryData(binaryData);
 
@@ -32,6 +54,9 @@ class AudioDecoder {
 
     int samplesCount = waveBytes.length ~/ expectedSampleSize;
     int totalFrequenciesCount = samplesCount * chunksCount;
+
+    print('Samples count: $samplesCount');
+    print('Total frequencies count: $totalFrequenciesCount');
     List<int> detectedFrequencies = List<int>.filled(totalFrequenciesCount, 0);
 
     for (int sampleIndex = 0; sampleIndex < samplesCount; sampleIndex++) {
@@ -44,7 +69,19 @@ class AudioDecoder {
       }
     }
 
+    detectedFrequencies = detectedFrequencies;
     return detectedFrequencies;
+  }
+
+  Future<void> saveFile(List<double> wave, String name) async {
+    Directory tempDir = await getApplicationDocumentsDirectory();
+    String path = tempDir.path;
+    // // // String path = './test';
+    List<Float64List> channels = <Float64List>[Float64List.fromList(wave)];
+    Uint8List uint8list = Wav(channels, audioSettingsModel.sampleRate, WavFormat.float32).write();
+    File file = await File('${path}/snggle/$name.wav').create(recursive: true);
+    await file.writeAsBytes(uint8list);
+    print('File $name saved to: ${file.path}');
   }
 
   List<double> _extractFrequencySample(List<double> waveBytes, int sampleIndex) {

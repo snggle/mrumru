@@ -9,14 +9,15 @@ void main() async {
   group('Tests of AudioGenerator.generateWavFileBytes() and AudioDecoder.decodeRecordedAudio()', () {
     test('Should generate and correctly decode .WAV file', () async {
       // Arrange
-      AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults();
+      AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults().copyWith(chunksCount: 8);
+      print(actualAudioSettingsModel.totalFrequencies);
       FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
 
       AudioGenerator actualAudioGenerator = AudioGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
       AudioDecoder actualAudioDecoder = AudioDecoder(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
 
       File actualWavFile = File('./test/integration/assets/mocked_wave_file.wav');
-      String actualInputString = '123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
+      String actualInputString = 'AAABBBCCCDDDEEEFFF';
       // Act
       // Create WAV file
       List<int> actualGeneratedWavBytes = actualAudioGenerator.generateWavFileBytes(actualInputString);
@@ -31,7 +32,7 @@ void main() async {
       String actualDecodedWavFileContent = actualAudioDecoder.decodeRecordedAudio(wav.channels.first);
 
       // Assert
-      String expectedDecodedWavFileContent = '123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
+      String expectedDecodedWavFileContent = 'AAABBBCCCDDDEEEFFF';
 
       expect(actualDecodedWavFileContent, expectedDecodedWavFileContent);
     });

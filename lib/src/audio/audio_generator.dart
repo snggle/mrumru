@@ -28,8 +28,24 @@ class AudioGenerator {
   List<double> generateSamples(String textMessage) {
     List<int> frequencies = _parseTextToFrequencySequence(textMessage);
     List<double> samples = _buildSamplesFromFrequencies(frequencies);
-    List<double> samplesSum = _sumSamples(samples);
-    return samplesSum;
+    List<double> samplesSum = _sumSamples(samples, audioSettingsModel.chunksCount);
+    return <double>[
+      ..._sumSamples(startSequence, 2),
+      ...samplesSum,
+      ..._sumSamples(endSequence, 2),
+    ];
+  }
+
+  List<double> get startSequence {
+    List<int> template = audioSettingsModel.startFrequencies;
+    List<double> samples = _buildSamplesFromFrequencies(template);
+    return samples;
+  }
+
+  List<double> get endSequence {
+    List<int> template = audioSettingsModel.endFrequencies;
+    List<double> samples = _buildSamplesFromFrequencies(template);
+    return samples;
   }
 
   List<int> _parseTextToFrequencySequence(String text) {
@@ -51,29 +67,48 @@ class AudioGenerator {
   }
 
   List<double> _buildFrequencySample(int frequency) {
+    double fadeInDurationInSeconds = 0.1;
+    double fadeOutDurationInSeconds = 0.1;
+
     double amplitude = audioSettingsModel.amplitude;
     int sampleSize = audioSettingsModel.sampleSize;
     int sampleRate = audioSettingsModel.sampleRate;
     List<double> sampleBytes = <double>[];
 
+    // Define the duration of the fade in and fade out (in samples)
+    int fadeInSamples = (sampleRate * fadeInDurationInSeconds).toInt();
+    int fadeOutSamples = (sampleRate * fadeOutDurationInSeconds).toInt();
+
     for (int i = 0; i < sampleSize; i++) {
       double angle = (2 * pi * i * frequency) / sampleRate;
-      sampleBytes.add(amplitude * sin(angle));
+
+      // Calculate the fade-in and fade-out multiplier
+      double fadeMultiplier = 1.0;
+      if (i < fadeInSamples) {
+        // Fade-in effect
+        fadeMultiplier = i / fadeInSamples;
+      } else if (i > sampleSize - fadeOutSamples) {
+        // Fade-out effect
+        fadeMultiplier = (sampleSize - i) / fadeOutSamples;
+      }
+
+      // Apply the fade multiplier to the amplitude
+      sampleBytes.add(amplitude * fadeMultiplier * sin(angle));
     }
 
     return sampleBytes;
   }
 
-  List<double> _sumSamples(List<double> samples) {
+  List<double> _sumSamples(List<double> samples, int chunksCount) {
     int length = samples.length;
-    int splitLength = length ~/ audioSettingsModel.chunksCount;
-    int remainder = length % audioSettingsModel.chunksCount;
+    int splitLength = length ~/ chunksCount;
+    int remainder = length % chunksCount;
 
     List<List<double>> splitSamples = <List<double>>[];
     int start = 0;
     int end = splitLength;
 
-    for (int i = 0; i < audioSettingsModel.chunksCount; i++) {
+    for (int i = 0; i < chunksCount; i++) {
       if (remainder > 0) {
         end += 1;
         remainder -= 1;
