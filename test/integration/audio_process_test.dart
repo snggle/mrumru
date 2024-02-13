@@ -20,7 +20,6 @@ void main() async {
       // Act
       // Create WAV file
       List<int> actualGeneratedWavBytes = actualAudioGenerator.generateWavFileBytes(actualInputString);
-      await actualWavFile.writeAsBytes(actualGeneratedWavBytes);
 
       // Read WAV file
       // Because output of the "generateWavFileBytes" method is very large it's not possible to create a mock of it

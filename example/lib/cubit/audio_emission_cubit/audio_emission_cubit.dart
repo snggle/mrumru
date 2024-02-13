@@ -1,12 +1,17 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:example/cubit/audio_emission_cubit/a_audio_emission_state.dart';
 import 'package:example/cubit/audio_emission_cubit/states/audio_emission_empty_state.dart';
 import 'package:example/cubit/audio_emission_cubit/states/audio_emission_listening_state.dart';
 import 'package:example/cubit/audio_emission_cubit/states/audio_emission_result_state.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mrumru/mrumru.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:wav/wav.dart';
 
 class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
   final AudioPlayer audioPlayer = AudioPlayer();
@@ -20,11 +25,14 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
     audioSettingsModel = AudioSettingsModel.withDefaults();
   }
 
-  void playSound() {
+  Future<void> playSound() async {
     AudioGenerator audioGenerator = AudioGenerator(audioSettingsModel: audioSettingsModel, frameSettingsModel: frameSettingsModel);
     List<int> audioBytes = audioGenerator.generateWavFileBytes(messageTextController.text);
+    Directory appDirectory = await getApplicationDocumentsDirectory();
     Source source = BytesSource(Uint8List.fromList(audioBytes));
-    audioPlayer.play(source);
+    File actualWavFile = File('$appDirectory/fade_generator.wav');
+    await actualWavFile.writeAsBytes(audioBytes);
+    unawaited(audioPlayer.play(source));
   }
 
   void stopSound() {
@@ -46,6 +54,11 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
     try {
       AudioDecoder audioDecoder = AudioDecoder(audioSettingsModel: audioSettingsModel, frameSettingsModel: frameSettingsModel);
       List<double> receivedWavBytes = await audioRecorderController.stopRecording();
+      List<Float64List> channels = <Float64List>[Float64List.fromList(receivedWavBytes)];
+      List<int> audioBytes = Wav(channels, audioSettingsModel.sampleRate, WavFormat.float32).write();
+      Directory appDirectory = await getApplicationDocumentsDirectory();
+      File actualWavFile = File('$appDirectory/fade_received.wav');
+      await actualWavFile.writeAsBytes(audioBytes);
       String receivedText = audioDecoder.decodeRecordedAudio(receivedWavBytes);
       emit(AudioEmissionResultState(decodedMessage: receivedText));
     } catch (e) {
