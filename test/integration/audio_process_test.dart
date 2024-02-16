@@ -15,11 +15,7 @@ void main() async {
       AudioGenerator actualAudioGenerator = AudioGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
       AudioDecoder actualAudioDecoder = AudioDecoder(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
 
-      File actualWavFile = File('./test/integration/assets/mocked_wave_file.wav');
-      String actualInputString = '123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
-      // Act
-      // Create WAV file
-      List<int> actualGeneratedWavBytes = actualAudioGenerator.generateWavFileBytes(actualInputString);
+      File actualWavFile = File('./test/integration/assets/trim_manual.wav');
 
       // Read WAV file
       // Because output of the "generateWavFileBytes" method is very large it's not possible to create a mock of it

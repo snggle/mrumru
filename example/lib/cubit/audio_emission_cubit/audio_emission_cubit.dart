@@ -30,9 +30,9 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
     List<int> audioBytes = audioGenerator.generateWavFileBytes(messageTextController.text);
     Directory appDirectory = await getApplicationDocumentsDirectory();
     Source source = BytesSource(Uint8List.fromList(audioBytes));
-    File actualWavFile = File('$appDirectory/fade_generator.wav');
+    File actualWavFile = File('${appDirectory.path}/fade_generator.wav');
     await actualWavFile.writeAsBytes(audioBytes);
-    unawaited(audioPlayer.play(source));
+    await audioPlayer.play(source);
   }
 
   void stopSound() {
@@ -57,7 +57,7 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
       List<Float64List> channels = <Float64List>[Float64List.fromList(receivedWavBytes)];
       List<int> audioBytes = Wav(channels, audioSettingsModel.sampleRate, WavFormat.float32).write();
       Directory appDirectory = await getApplicationDocumentsDirectory();
-      File actualWavFile = File('$appDirectory/fade_received.wav');
+      File actualWavFile = File('${appDirectory.path}/fade_received.wav');
       await actualWavFile.writeAsBytes(audioBytes);
       String receivedText = audioDecoder.decodeRecordedAudio(receivedWavBytes);
       emit(AudioEmissionResultState(decodedMessage: receivedText));
