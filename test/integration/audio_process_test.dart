@@ -9,7 +9,7 @@ void main() async {
   group('Tests of AudioGenerator.generateWavFileBytes() and AudioDecoder.decodeRecordedAudio()', () {
     test('Should generate and correctly decode .WAV file', () async {
       // Arrange
-      AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults().copyWith(chunksCount: 8);
+      AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults();
       print(actualAudioSettingsModel.totalFrequencies);
       FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
 
@@ -17,7 +17,7 @@ void main() async {
       AudioDecoder actualAudioDecoder = AudioDecoder(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
 
       File actualWavFile = File('./test/integration/assets/mocked_wave_file.wav');
-      String actualInputString = 'AAABBBCCCDDDEEEFFF';
+      String actualInputString = 'ABCDEFGHIJK';
       // Act
       // Create WAV file
       List<int> actualGeneratedWavBytes = actualAudioGenerator.generateWavFileBytes(actualInputString);
@@ -38,3 +38,4 @@ void main() async {
     });
   });
 }
+

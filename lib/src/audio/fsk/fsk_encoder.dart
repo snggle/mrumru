@@ -1,4 +1,5 @@
 import 'package:mrumru/src/models/audio_settings.dart';
+import 'package:mrumru/src/utils/binary_utils.dart';
 
 class FskEncoder {
   final int bitsPerFrequency;
@@ -15,21 +16,45 @@ class FskEncoder {
         frequencyGap = audioSettingsModel.frequencyGap;
 
   List<int> encodeBinaryDataToFrequencies(String binaryData) {
+    print('Base binary: $binaryData');
+    String tmpBinary = BinaryUtils.splitAndCombine(binaryData, bitsPerFrequency, chunksCount);
+    print('Exp binary: $tmpBinary');
     List<int> encodedFrequencies = <int>[];
-    int chunkSize = binaryData.length ~/ chunksCount;
-    int frequenciesCount = (binaryData.length / bitsPerFrequency).ceil();
+    int chunkSize = tmpBinary.length ~/ chunksCount;
+    int frequenciesCount = (tmpBinary.length / bitsPerFrequency).ceil();
 
     for (int i = 0; i < frequenciesCount; i++) {
       int frequencyStartIndex = i * bitsPerFrequency;
-      String frequencyBits = _extractFrequencyBits(frequencyStartIndex, binaryData);
+      String frequencyBits = _extractFrequencyBits(frequencyStartIndex, tmpBinary);
       int frequency = baseFrequency + int.parse(frequencyBits, radix: 2) * frequencyGap;
       int chunkShift = (frequencyStartIndex / chunkSize).floor() * (maxFrequency + frequencyGap);
       int chunkFrequency = frequency + chunkShift;
 
+      print('Chunk: ${(frequencyStartIndex / chunkSize).floor()} Encode $frequencyBits as $chunkFrequency (Base representation: ${frequency})');
+
       encodedFrequencies.add(chunkFrequency);
     }
 
+    printChunkFrequencies(encodedFrequencies);
     return encodedFrequencies;
+  }
+
+  void printChunkFrequencies(List<int> frequencies) {
+    int frequenciesPerChunk = frequencies.length ~/ chunksCount;
+    List<List<int>> chunks = <List<int>>[];
+    for (int chunkIndex = 0; chunkIndex < chunksCount; chunkIndex++) {
+      List<int> chunkBinaries = <int>[];
+      for (int i = 0; i < frequenciesPerChunk; i++) {
+        int index = chunkIndex * frequenciesPerChunk + i;
+        chunkBinaries.add(frequencies[index]);
+      }
+      chunks.add(chunkBinaries);
+    }
+    print('****************************************************');
+    for(int i = 0; i < chunksCount; i++) {
+      print('Chunk $i: ${chunks[i]}');
+    }
+    print('****************************************************');
   }
 
   String _extractFrequencyBits(int frequencyStartIndex, String binaryData) {

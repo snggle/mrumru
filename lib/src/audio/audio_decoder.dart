@@ -25,22 +25,13 @@ class AudioDecoder {
         frameModelDecoder = FrameModelDecoder(framesSettingsModel: frameSettingsModel);
 
   String decodeRecordedAudio(List<double> waveBytes) {
-    print('Start decoding audio');
-    AudioRecognizer audioRecognizer = AudioRecognizer(
-      sampleSize: audioSettingsModel.sampleSize,
-      sampleRate: audioSettingsModel.sampleRate,
-      startFrequencies: audioSettingsModel.startFrequencies,
-      endFrequencies: audioSettingsModel.endFrequencies,
-    );
-
     String signature = DateTime.now().millisecondsSinceEpoch.toString();
-    saveFile(waveBytes, '${signature}full');
+    // saveFile(waveBytes, '${signature}full');
 
-    List<double> trimmedWave = audioRecognizer.trim(waveBytes);
+    // List<double> trimmedWave = audioRecognizer.trim(waveBytes);
+    // saveFile(trimmedWave, '${signature}trimmed');
 
-    saveFile(trimmedWave, '${signature}trimmed');
-
-    List<int> detectedFrequencies = _parseWaveBytesToFrequencies(trimmedWave);
+    List<int> detectedFrequencies = _parseWaveBytesToFrequencies(waveBytes);
     print(detectedFrequencies);
     String binaryData = fskDecoder.decodeFrequenciesToBinary(detectedFrequencies);
     FrameCollectionModel frameCollectionModel = frameModelDecoder.decodeBinaryData(binaryData);
