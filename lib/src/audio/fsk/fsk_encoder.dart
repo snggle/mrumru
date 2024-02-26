@@ -16,9 +16,7 @@ class FskEncoder {
         frequencyGap = audioSettingsModel.frequencyGap;
 
   List<int> encodeBinaryDataToFrequencies(String binaryData) {
-    print('Base binary: $binaryData');
     String tmpBinary = BinaryUtils.splitAndCombine(binaryData, bitsPerFrequency, chunksCount);
-    print('Exp binary: $tmpBinary');
     List<int> encodedFrequencies = <int>[];
     int chunkSize = tmpBinary.length ~/ chunksCount;
     int frequenciesCount = (tmpBinary.length / bitsPerFrequency).ceil();
@@ -29,8 +27,6 @@ class FskEncoder {
       int frequency = baseFrequency + int.parse(frequencyBits, radix: 2) * frequencyGap;
       int chunkShift = (frequencyStartIndex / chunkSize).floor() * (maxFrequency + frequencyGap);
       int chunkFrequency = frequency + chunkShift;
-
-      print('Chunk: ${(frequencyStartIndex / chunkSize).floor()} Encode $frequencyBits as $chunkFrequency (Base representation: ${frequency})');
 
       encodedFrequencies.add(chunkFrequency);
     }
@@ -50,11 +46,6 @@ class FskEncoder {
       }
       chunks.add(chunkBinaries);
     }
-    print('****************************************************');
-    for(int i = 0; i < chunksCount; i++) {
-      print('Chunk $i: ${chunks[i]}');
-    }
-    print('****************************************************');
   }
 
   String _extractFrequencyBits(int frequencyStartIndex, String binaryData) {

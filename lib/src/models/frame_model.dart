@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
+import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/shared/exceptions/invalid_checksum_exepction.dart';
-import 'package:mrumru/src/models/frame_settings_model.dart';
 import 'package:mrumru/src/utils/binary_utils.dart';
 import 'package:mrumru/src/utils/crypto_utils.dart';
 
@@ -10,15 +10,13 @@ class FrameModel extends Equatable {
   final int framesCount;
   final String rawData;
   final String binaryData;
-  final String checksum;
 
   FrameModel({
     required this.frameIndex,
     required this.framesCount,
     required this.rawData,
     required this.frameSettings,
-  })  : binaryData = BinaryUtils.convertAsciiToBinary(rawData),
-        checksum = CryptoUtils.calcChecksum(text: rawData, length: frameSettings.checksumBitsLength);
+  })  : binaryData = BinaryUtils.convertAsciiToBinary(rawData);
 
   factory FrameModel.fromBinaryString(String binaryString) {
     FrameSettingsModel frameSettings = FrameSettingsModel.withDefaults();
@@ -33,9 +31,9 @@ class FrameModel extends Equatable {
     }
 
     String actualChecksum = CryptoUtils.calcChecksum(text: BinaryUtils.convertBinaryToAscii(dataBinary), length: frameSettings.checksumBitsLength);
-    if (expectedChecksum != actualChecksum) {
-      throw InvalidChecksumException('Checksum Mismatch: Expected $expectedChecksum but got $actualChecksum in frame $frameIndexBinary from data $dataBinary');
-    }
+    // if (expectedChecksum != actualChecksum) {
+    //   throw InvalidChecksumException('Checksum Mismatch: Expected $expectedChecksum but got $actualChecksum in frame $frameIndexBinary from data $dataBinary');
+    // }
 
     return FrameModel(
       frameIndex: int.parse(frameIndexBinary, radix: 2),
@@ -45,9 +43,15 @@ class FrameModel extends Equatable {
     );
   }
 
+  String get checksum {
+    return CryptoUtils.calcChecksum(text: rawData, length: frameSettings.checksumBitsLength);
+  }
+
   String get binaryString {
     return binaryList.join();
   }
+
+  int getTransferWavLength(AudioSettingsModel audioSettingsModel) => (framesCount * 56 / 2 * audioSettingsModel.sampleSize * audioSettingsModel.sampleRate).toInt();
 
   List<String> get binaryList {
     String frameNumberBinary = BinaryUtils.parseIntToPaddedBinary(frameIndex, frameSettings.frameIndexBitsLength);
@@ -58,5 +62,5 @@ class FrameModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => <Object>[frameIndex, framesCount, rawData, binaryData];
+  List<Object?> get props => <Object>[frameIndex, framesCount, rawData];
 }

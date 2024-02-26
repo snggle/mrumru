@@ -27,7 +27,6 @@ class AudioGenerator {
 
   List<double> generateSamples(String textMessage) {
     List<int> frequencies = _parseTextToFrequencySequence(textMessage);
-    print('Expected frequencies: $frequencies');
     List<double> samples = _buildSamplesFromFrequencies(frequencies);
     List<double> samplesSum = _sumSamples(samples, audioSettingsModel.chunksCount);
     return <double>[

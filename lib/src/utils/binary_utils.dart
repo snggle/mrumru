@@ -1,4 +1,11 @@
 class BinaryUtils {
+  static List<String> splitBinary(String binary, int chunkSize) {
+    RegExp regex = RegExp('.{1,$chunkSize}');
+    List<String> chunks = regex.allMatches(binary).map((RegExpMatch match) => match.group(0)!).toList(growable: false);
+
+    return chunks;
+  }
+
   static String convertAsciiToBinary(String asciiText) {
     return asciiText.codeUnits.map((int x) => x.toRadixString(2).padLeft(8, '0')).join();
   }
@@ -37,17 +44,6 @@ class BinaryUtils {
       chunkIndex = (chunkIndex + 1) % chunksCount;
     }
 
-    print('****************************************************');
-    for (int i = 0; i < chunksCount; i++) {
-      print('Chunk $i: ${chunks[i]}');
-    }
-    print('****************************************************');
-
-
     return chunks.map((List<String> chunk) => chunk.join('')).join('');
   }
 }
-
-
-// 00000000000000110100000101000010010000110100010011001011000000010000001101000101010001100100011101001000101111100000001000000011000000000100100101001010010010111111111100111100
-// 000000000000001101000001010000100100001101000100110010110000000100000011010001010100011001000111010010001011111000000010000000110000000001001001010010100100101111111111

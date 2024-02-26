@@ -1,30 +1,61 @@
-import 'dart:math';
-
+import 'package:flutter/cupertino.dart';
+import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/models/frame_collection_model.dart';
-import 'package:mrumru/src/models/frame_model.dart';
-import 'package:mrumru/src/models/frame_settings_model.dart';
-import 'package:mrumru/src/utils/app_logger.dart';
+import 'package:mrumru/src/utils/binary_utils.dart';
+import 'package:mrumru/src/utils/log_level.dart';
 
 class FrameModelDecoder {
   final FrameSettingsModel framesSettingsModel;
+  final ValueChanged<FrameModel>? onFrameDecoded;
+  final ValueChanged<FrameModel>? onFirstFrameDecoded;
+  final ValueChanged<FrameModel>? onLastFrameDecoded;
 
-  FrameModelDecoder({required this.framesSettingsModel});
+  List<FrameModel> decodedFrames = <FrameModel>[];
+  StringBuffer completeBinary = StringBuffer();
+  int cursor = 0;
 
-  FrameCollectionModel decodeBinaryData(String binaryData) {
-    List<FrameModel> frameModels = <FrameModel>[];
+  FrameModelDecoder({
+    required this.framesSettingsModel,
+    this.onFrameDecoded,
+    this.onFirstFrameDecoded,
+    this.onLastFrameDecoded,
+  });
 
-    for (int i = 0; i < binaryData.length; i += framesSettingsModel.frameSize) {
-      int frameIndex = i ~/ framesSettingsModel.frameSize;
-      try {
-        String frameBinary = binaryData.substring(i, min(i + framesSettingsModel.frameSize, binaryData.length));
-        FrameModel frameModel = FrameModel.fromBinaryString(frameBinary);
-        frameModels.add(frameModel);
-        AppLogger().log(message: 'Decoded frame at index $frameIndex ($frameModel)');
-      } catch (_) {
-        AppLogger().log(message: 'Cannot decode frame at index $frameIndex');
-      }
+  void addBinaries(List<String> binaries) {
+    for (String binary in binaries) {
+      completeBinary.write(binary);
     }
-    FrameCollectionModel frameCollectionModel = FrameCollectionModel(frameModels);
-    return frameCollectionModel;
+    if (completeBinary.length >= framesSettingsModel.frameSize) {
+      _decodeFrames();
+    }
+  }
+
+  FrameCollectionModel get decodedContent {
+    return FrameCollectionModel(decodedFrames);
+  }
+
+  void _decodeFrames() {
+    String encodedFrames = completeBinary.toString().substring(cursor);
+    List<String> frameBinaries = BinaryUtils.splitBinary(encodedFrames, framesSettingsModel.frameSize);
+    for (String frameBinary in frameBinaries) {
+      _decodeFrame(frameBinary);
+    }
+  }
+
+  void _decodeFrame(String frameBinary) {
+    if(frameBinary.length < framesSettingsModel.frameSize) {
+      return;
+    }
+    FrameModel frameModel = FrameModel.fromBinaryString(frameBinary);
+    decodedFrames.add(frameModel);
+    AppLogger().log(message: 'FrameModelDecoder: Frame decoded: $frameModel. Total: ${frameModel.framesCount}', logLevel: LogLevel.debug);
+    cursor += frameModel.binaryString.length;
+    if(frameModel.frameIndex == 0) {
+      onFirstFrameDecoded?.call(frameModel);
+    }
+    if(frameModel.frameIndex == frameModel.framesCount - 1) {
+      onLastFrameDecoded?.call(frameModel);
+    }
+    onFrameDecoded?.call(frameModel);
   }
 }
