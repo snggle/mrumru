@@ -38,11 +38,6 @@ class _ExamplePageState extends State<ExamplePage> {
                   textController: TextEditingController(text: audioEmissionCubit.audioSettingsModel.frequencyGap.toString()),
                 ),
                 NumericField(
-                  fieldName: 'bitDepth',
-                  onFieldSubmitted: (num value) => audioEmissionCubit.bitDepth = value.toInt(),
-                  textController: TextEditingController(text: audioEmissionCubit.audioSettingsModel.bitDepth.toString()),
-                ),
-                NumericField(
                   fieldName: 'channels',
                   onFieldSubmitted: (num value) => audioEmissionCubit.channels = value.toInt(),
                   textController: TextEditingController(text: audioEmissionCubit.audioSettingsModel.channels.toString()),

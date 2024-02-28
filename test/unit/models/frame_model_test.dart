@@ -47,4 +47,20 @@ void main() {
       expect(actualBinaryStringList, expectedBinaryStringList);
     });
   });
+
+  group('Tests of FrameModel.getTransferWavLength()', () {
+    test('Should [return transfer wav length] from given [frame model] and [audio settings model]', () {
+      // Arrange
+      AudioSettingsModel audioSettingsModel = AudioSettingsModel.withDefaults();
+      FrameModel actualFrameModel = FrameModel(frameIndex: 0, framesCount: 10, rawData: '1', frameSettings: actualFrameSettings);
+
+      // Act
+      int actualTransferWavLength = actualFrameModel.getTransferWavLength(audioSettingsModel);
+
+      // Assert
+      int expectedTransferWavLength = 108416000000;
+
+      expect(actualTransferWavLength, expectedTransferWavLength);
+    });
+  });
 }
