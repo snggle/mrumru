@@ -1,23 +1,38 @@
 import 'dart:async';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:mrumru/mrumru.dart';
+import 'package:mrumru/src/audio/packet_recognizer.dart';
+import 'package:mrumru/src/models/frame_collection_model.dart';
 import 'package:mrumru/src/utils/wav_utils.dart';
 import 'package:record/record.dart';
 import 'package:wav/wav.dart';
 
 class AudioRecorderController {
   final AudioRecorder audioRecorder = AudioRecorder();
-  final List<double> receivedSamples = <double>[];
+  final ValueChanged<FrameModel>? onFrameReceived;
+  final VoidCallback onRecordingCompleted;
   final AudioSettingsModel audioSettingsModel;
+  final FrameSettingsModel frameSettingsModel;
+  late final PacketRecognizer packetRecognizer;
   StreamSubscription<Uint8List>? recordingStreamSubscription;
 
-  AudioRecorderController({required this.audioSettingsModel});
+  AudioRecorderController({
+    required this.audioSettingsModel,
+    required this.onRecordingCompleted,
+    required this.onFrameReceived,
+    required this.frameSettingsModel,
+  });
 
   Future<void> startRecording() async {
+    packetRecognizer = PacketRecognizer(
+      audioSettingsModel: audioSettingsModel,
+      frameSettingsModel: frameSettingsModel,
+      onFrameDecoded: onFrameReceived,
+      onDecodingCompleted: stopRecording,
+    );
     RecordConfig recordConfig = RecordConfig(
       encoder: AudioEncoder.pcm16bits,
-      bitRate: audioSettingsModel.bitDepth * audioSettingsModel.sampleRate * audioSettingsModel.channels,
       sampleRate: audioSettingsModel.sampleRate,
       numChannels: audioSettingsModel.channels,
     );
@@ -25,14 +40,15 @@ class AudioRecorderController {
     recordingStreamSubscription = recordingStream.listen(_handlePacketReceived);
   }
 
-  Future<List<double>> stopRecording() async {
+  Future<FrameCollectionModel> stopRecording() async {
     await audioRecorder.stop();
     await recordingStreamSubscription?.cancel();
-    return receivedSamples;
+    onRecordingCompleted();
+    return packetRecognizer.decodedContent;
   }
 
   void _handlePacketReceived(Uint8List packet) {
     Wav customWave = WavUtils.readPCM16Bytes(packet, audioSettingsModel);
-    receivedSamples.addAll(customWave.channels.first);
+    packetRecognizer.addPacket(customWave.channels.first);
   }
 }

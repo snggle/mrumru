@@ -1,0 +1,25 @@
+import 'package:mrumru/src/models/audio_settings.dart';
+
+class DecodedFrequency {
+  final int chunkFrequency;
+  final int chunkIndex;
+
+  const DecodedFrequency({
+    required this.chunkFrequency,
+    required this.chunkIndex,
+  });
+
+  String calcBinary(AudioSettingsModel audioSettingsModel) {
+    int correctedFrequency = _calculateCorrectedFrequency(audioSettingsModel);
+    return _convertFrequencyToBits(correctedFrequency, audioSettingsModel);
+  }
+
+  int _calculateCorrectedFrequency(AudioSettingsModel audioSettingsModel) {
+    return chunkFrequency - chunkIndex * audioSettingsModel.frequencyRange;
+  }
+
+  String _convertFrequencyToBits(int correctedFrequency, AudioSettingsModel audioSettingsModel) {
+    int bitsCount = (correctedFrequency - audioSettingsModel.baseFrequency) ~/ audioSettingsModel.frequencyGap;
+    return bitsCount.toRadixString(2).padLeft(audioSettingsModel.bitsPerFrequency, '0');
+  }
+}

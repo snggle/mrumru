@@ -1,9 +1,12 @@
 import 'dart:io';
+import 'dart:math';
+import 'dart:typed_data';
 
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:wav/wav_file.dart';
+import 'package:mrumru/src/audio/packet_recognizer.dart';
+import 'package:mrumru/src/models/frame_collection_model.dart';
+import 'package:wav/wav.dart';
 
 void main() async {
   group('Tests of AudioGenerator.generateWavFileBytes() and AudioDecoder.decodeRecordedAudio()', () {
@@ -13,10 +16,9 @@ void main() async {
       FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
 
       AudioGenerator actualAudioGenerator = AudioGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
-      AudioDecoder actualAudioDecoder = AudioDecoder(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
 
       File actualWavFile = File('./test/integration/assets/mocked_wave_file.wav');
-      String actualInputString = '123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
+      String actualInputString = 'Lorem ipsum dolor sit amet';
       // Act
       // Create WAV file
       List<int> actualGeneratedWavBytes = actualAudioGenerator.generateWavFileBytes(actualInputString);
@@ -28,12 +30,41 @@ void main() async {
       Uint8List actualWavFileBytes = await actualWavFile.readAsBytes();
 
       Wav wav = Wav.read(Uint8List.fromList(actualWavFileBytes));
-      String actualDecodedWavFileContent = actualAudioDecoder.decodeRecordedAudio(wav.channels.first);
+      List<double> actualWave = wav.channels.first;
+
+      List<List<double>> samples = <List<double>>[];
+      for (int i = 0; i < actualWave.length; i += actualAudioSettingsModel.sampleSize) {
+        samples.add(actualWave.sublist(i, min(i + actualAudioSettingsModel.sampleSize, actualWave.length)));
+      }
+
+      PacketRecognizer actualPacketRecognizer = PacketRecognizer(
+        audioSettingsModel: actualAudioSettingsModel,
+        frameSettingsModel: actualFrameSettingsModel,
+        onDecodingCompleted: () {},
+        onFrameDecoded: (FrameModel frameModel) {},
+      );
+
+      for (List<double> sample in samples) {
+        actualPacketRecognizer.addPacket(sample);
+        await Future<void>.delayed(const Duration(milliseconds: 100));
+      }
+
+      FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
 
       // Assert
-      String expectedDecodedWavFileContent = '123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
+      FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(
+        <FrameModel>[
+          FrameModel(frameIndex: 0, framesCount: 7, rawData: 'Lore', frameSettings: actualFrameSettingsModel),
+          FrameModel(frameIndex: 1, framesCount: 7, rawData: 'm ip', frameSettings: actualFrameSettingsModel),
+          FrameModel(frameIndex: 2, framesCount: 7, rawData: 'sum ', frameSettings: actualFrameSettingsModel),
+          FrameModel(frameIndex: 3, framesCount: 7, rawData: 'dolo', frameSettings: actualFrameSettingsModel),
+          FrameModel(frameIndex: 4, framesCount: 7, rawData: 'r si', frameSettings: actualFrameSettingsModel),
+          FrameModel(frameIndex: 5, framesCount: 7, rawData: 't am', frameSettings: actualFrameSettingsModel),
+          FrameModel(frameIndex: 6, framesCount: 7, rawData: 'et', frameSettings: actualFrameSettingsModel)
+        ],
+      );
 
-      expect(actualDecodedWavFileContent, expectedDecodedWavFileContent);
+      expect(actualFrameCollectionModel, expectedFrameCollectionModel);
     });
   });
 }

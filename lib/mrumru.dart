@@ -1,9 +1,7 @@
-export 'package:mrumru/src/audio/audio_decoder.dart';
 export 'package:mrumru/src/audio/audio_generator.dart';
 export 'package:mrumru/src/audio/audio_recorder_controller.dart';
 export 'package:mrumru/src/models/audio_settings.dart';
 export 'package:mrumru/src/models/frame_model.dart';
 export 'package:mrumru/src/models/frame_settings_model.dart';
-export 'package:mrumru/src/models/frequency_correlation_model.dart';
 export 'package:mrumru/src/mrumru.dart';
 export 'package:mrumru/src/utils/app_logger.dart';

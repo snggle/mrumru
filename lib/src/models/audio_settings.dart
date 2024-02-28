@@ -3,6 +3,9 @@ import 'dart:math';
 import 'package:equatable/equatable.dart';
 
 class AudioSettingsModel with EquatableMixin {
+  final List<int> startFrequencies = <int>[500, 700];
+  final List<int> endFrequencies = <int>[900, 1100];
+
   final int baseFrequency;
   final int bitDepth;
   final int bitsPerFrequency;
@@ -25,7 +28,7 @@ class AudioSettingsModel with EquatableMixin {
     required this.symbolDuration,
   }) {
     amplitude = 1 / chunksCount;
-    sampleRate = (2.5 * chunksCount * maxFrequency).toInt();
+    sampleRate = max(44000, 2.5 * chunksCount * maxFrequency).toInt();
     sampleSize = (sampleRate * symbolDuration).toInt();
     frequencyRange = maxFrequency + frequencyGap;
   }
@@ -36,9 +39,9 @@ class AudioSettingsModel with EquatableMixin {
       bitDepth: 16,
       bitsPerFrequency: 2,
       channels: 1,
-      chunksCount: 2,
+      chunksCount: 8,
       frequencyGap: 200,
-      symbolDuration: 0.5,
+      symbolDuration: 0.1,
     );
   }
 
@@ -72,6 +75,18 @@ class AudioSettingsModel with EquatableMixin {
     List<int> possibleFrequencies = List<int>.generate(numPossibleFrequencies, (int i) => baseFrequency + i * frequencyGap);
 
     return possibleFrequencies;
+  }
+
+  List<int> get totalFrequencies {
+    List<int> result = <int>[];
+    for (int chunkIndex = 0; chunkIndex < chunksCount; chunkIndex++) {
+      for (int possibleFrequency in possibleFrequencies) {
+        int chunkFrequency = possibleFrequency + chunkIndex * frequencyRange;
+        result.add(chunkFrequency);
+      }
+    }
+
+    return result;
   }
 
   @override

@@ -160,6 +160,7 @@ void main() {
       expect(actualBinaryString, expectedBinaryString);
     });
   });
+
   group('Test of BinaryUtils.parseIntToPaddedBinary()', () {
     test('Should return 24 as binary padded with 20 leading zeros for 26 digits', () {
       // Arrange
@@ -198,6 +199,21 @@ void main() {
       // Assert
       String expectedPaddedBinary = '00000000000000000000011010';
       expect(actualPaddedBinary, expectedPaddedBinary);
+    });
+  });
+
+  group('Tests of BinaryUtils.splitAndCombine()', () {
+    test('', () {
+      // Arrange
+      String actualBinary = '101101110111001000100100101101110111001000100100';
+
+      // Act
+      String actualSplitAndCombined = BinaryUtils.splitAndCombine(actualBinary, 2, 4);
+
+      // Assert
+      String expectedSplitAndCombined = '100010001110111001000100111011100101010111001100';
+
+      expect(actualSplitAndCombined, expectedSplitAndCombined);
     });
   });
 }
