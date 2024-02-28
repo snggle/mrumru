@@ -19,12 +19,21 @@ class AudioGenerator {
   })  : frameModelBuilder = FrameModelBuilder(frameSettingsModel: frameSettingsModel),
         fskEncoder = FskEncoder(audioSettingsModel);
 
-  Uint8List generateAudioBytes(String textMessage) {
-    List<int> frequencies = _parseTextToFrequencySequence(textMessage);
-    List<double> samples = _buildSamples(frequencies);
-    List<double> samplesSum = _sumSamples(samples);
-    List<Float64List> channels = <Float64List>[Float64List.fromList(samplesSum)];
+  Uint8List generateWavFileBytes(String textMessage) {
+    List<double> waveBytes = generateSamples(textMessage);
+    List<Float64List> channels = <Float64List>[Float64List.fromList(waveBytes)];
     return Wav(channels, audioSettingsModel.sampleRate, WavFormat.float32).write();
+  }
+
+  List<double> generateSamples(String textMessage) {
+    List<int> frequencies = _parseTextToFrequencySequence(textMessage);
+    List<double> samples = _buildSamplesFromFrequencies(frequencies);
+    List<double> samplesSum = _sumSamples(samples, audioSettingsModel.chunksCount);
+    return <double>[
+      ..._sumSamples(_startSequence, 2),
+      ...samplesSum,
+      ..._sumSamples(_endSequence, 2),
+    ];
   }
 
   List<int> _parseTextToFrequencySequence(String text) {
@@ -34,41 +43,23 @@ class AudioGenerator {
     return fskEncoder.encodeBinaryDataToFrequencies(filledBinaryData);
   }
 
-  List<double> _buildSamples(List<int> frequencies) {
-    List<double> samples = <double>[];
-
-    for (int frequency in frequencies) {
-      List<double> sampleBytes = _buildFrequencySample(frequency);
-      samples.addAll(sampleBytes);
-    }
-
-    return samples;
+  String _fillBinaryWithZeros(String binaryData) {
+    int divider = audioSettingsModel.bitsPerFrequency * audioSettingsModel.chunksCount;
+    int remainder = binaryData.length % divider;
+    int zerosToAdd = remainder == 0 ? 0 : divider - remainder;
+    return binaryData + List<String>.filled(zerosToAdd, '0').join('');
   }
 
-  List<double> _buildFrequencySample(int frequency) {
-    double amplitude = audioSettingsModel.amplitude;
-    int sampleSize = audioSettingsModel.sampleSize;
-    int sampleRate = audioSettingsModel.sampleRate;
-    List<double> sampleBytes = <double>[];
-
-    for (int i = 0; i < sampleSize; i++) {
-      double angle = (2 * pi * i * frequency) / sampleRate;
-      sampleBytes.add(amplitude * sin(angle));
-    }
-
-    return sampleBytes;
-  }
-
-  List<double> _sumSamples(List<double> samples) {
+  List<double> _sumSamples(List<double> samples, int chunksCount) {
     int length = samples.length;
-    int splitLength = length ~/ audioSettingsModel.chunksCount;
-    int remainder = length % audioSettingsModel.chunksCount;
+    int splitLength = length ~/ chunksCount;
+    int remainder = length % chunksCount;
 
     List<List<double>> splitSamples = <List<double>>[];
     int start = 0;
     int end = splitLength;
 
-    for (int i = 0; i < audioSettingsModel.chunksCount; i++) {
+    for (int i = 0; i < chunksCount; i++) {
       if (remainder > 0) {
         end += 1;
         remainder -= 1;
@@ -90,10 +81,55 @@ class AudioGenerator {
     return summedSamples;
   }
 
-  String _fillBinaryWithZeros(String binaryData) {
-    int divider = audioSettingsModel.bitsPerFrequency * audioSettingsModel.chunksCount;
-    int remainder = binaryData.length % divider;
-    int zerosToAdd = remainder == 0 ? 0 : divider - remainder;
-    return binaryData + List<String>.filled(zerosToAdd, '0').join('');
+  List<double> get _startSequence {
+    List<int> template = audioSettingsModel.startFrequencies;
+    List<double> samples = _buildSamplesFromFrequencies(template);
+    return samples;
+  }
+
+  List<double> get _endSequence {
+    List<int> template = audioSettingsModel.endFrequencies;
+    List<double> samples = _buildSamplesFromFrequencies(template);
+    return samples;
+  }
+
+  List<double> _buildSamplesFromFrequencies(List<int> frequencies) {
+    List<double> samples = <double>[];
+
+    for (int frequency in frequencies) {
+      List<double> sampleBytes = _buildFrequencySample(frequency);
+      samples.addAll(sampleBytes);
+    }
+
+    return samples;
+  }
+
+  List<double> _buildFrequencySample(int frequency) {
+    List<double> sampleBytes = <double>[];
+
+    for (int i = 0; i < audioSettingsModel.sampleSize; i++) {
+      double angle = (2 * pi * i * frequency) / audioSettingsModel.sampleRate;
+      double fadeMultiplier = _calcFadeMultiplier(i);
+
+      sampleBytes.add(audioSettingsModel.amplitude * fadeMultiplier * sin(angle));
+    }
+
+    return sampleBytes;
+  }
+
+  double _calcFadeMultiplier(int index) {
+    int sampleRate = audioSettingsModel.sampleRate;
+    int sampleSize = audioSettingsModel.sampleSize;
+    double fadeDuration = audioSettingsModel.fadeDuration;
+    int fadeSize = (sampleRate * fadeDuration).toInt();
+    double fadeMultiplier = 1.0;
+
+    if (index < fadeSize) {
+      fadeMultiplier = index / fadeSize;
+    } else if (index > sampleSize - fadeSize) {
+      fadeMultiplier = (sampleSize - index) / fadeSize;
+    }
+
+    return fadeMultiplier;
   }
 }

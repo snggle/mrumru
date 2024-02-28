@@ -1,35 +1,63 @@
 import 'dart:async';
-import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart';
 import 'package:mrumru/mrumru.dart';
+import 'package:mrumru/src/audio/packet_event_queue/received_packet_event.dart';
+import 'package:mrumru/src/audio/packet_recognizer.dart';
+import 'package:mrumru/src/utils/wav_utils.dart';
 import 'package:record/record.dart';
+import 'package:wav/wav.dart';
 
 class AudioRecorderController {
-  StreamSubscription<Uint8List>? recordingStreamSubscription;
   final AudioRecorder audioRecorder = AudioRecorder();
-  final List<Uint8List> receivedPackets = <Uint8List>[];
+  final ValueChanged<FrameModel>? onFrameReceived;
+  final VoidCallback onRecordingCompleted;
+  final AudioSettingsModel audioSettingsModel;
+  final FrameSettingsModel frameSettingsModel;
+  late final PacketRecognizer packetRecognizer;
+  StreamSubscription<Uint8List>? recordingStreamSubscription;
 
-  Future<void> startRecording(AudioSettingsModel audioSettingsModel) async {
+  AudioRecorderController({
+    required this.audioSettingsModel,
+    required this.onRecordingCompleted,
+    required this.onFrameReceived,
+    required this.frameSettingsModel,
+  });
+
+  Future<void> startRecording() async {
     RecordConfig recordConfig = RecordConfig(
-      encoder: AudioEncoder.wav,
-      bitRate: audioSettingsModel.bitDepth * audioSettingsModel.sampleRate * audioSettingsModel.channels,
+      encoder: AudioEncoder.pcm16bits,
       sampleRate: audioSettingsModel.sampleRate,
       numChannels: audioSettingsModel.channels,
     );
-
     Stream<Uint8List> recordingStream = await audioRecorder.startStream(recordConfig);
-    recordingStreamSubscription = recordingStream.listen(_handlePacketReceived);
+
+    packetRecognizer = PacketRecognizer(
+      audioSettingsModel: audioSettingsModel,
+      frameSettingsModel: frameSettingsModel,
+      onFrameDecoded: onFrameReceived,
+      onDecodingCompleted: _completeDecoding,
+    );
+
+    unawaited(packetRecognizer.startDecoding());
+
+    recordingStreamSubscription = recordingStream.listen(_addEvent);
   }
 
-  Future<Uint8List> stopRecording() async {
-    await audioRecorder.stop();
-    await recordingStreamSubscription?.cancel();
-    List<int> waveBytes = receivedPackets.reduce((Uint8List value, Uint8List element) => Uint8List.fromList(value + element));
-
-    return Uint8List.fromList(waveBytes);
+  void stopRecording() {
+    packetRecognizer.stopRecording();
   }
 
-  void _handlePacketReceived(Uint8List packet) {
-    receivedPackets.add(packet);
+  Future<void> _completeDecoding() async {
+    if (await audioRecorder.isRecording()) {
+      await audioRecorder.stop();
+      await recordingStreamSubscription?.cancel();
+      onRecordingCompleted();
+    }
+  }
+
+  void _addEvent(Uint8List packet) {
+    Wav customWave = WavUtils.readPCM16Bytes(packet, audioSettingsModel);
+    packetRecognizer.addPacket(ReceivedPacketEvent(customWave.channels.first));
   }
 }

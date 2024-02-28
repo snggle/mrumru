@@ -1,4 +1,5 @@
 class BinaryUtils {
+
   static String convertAsciiToBinary(String asciiText) {
     return asciiText.codeUnits.map((int x) => x.toRadixString(2).padLeft(8, '0')).join();
   }
@@ -21,5 +22,12 @@ class BinaryUtils {
 
   static String parseIntToPaddedBinary(int value, int digits) {
     return value.toRadixString(2).padLeft(digits, '0');
+  }
+
+  static List<String> splitBinary(String binary, int chunkSize) {
+    RegExp regex = RegExp('.{1,$chunkSize}');
+    List<String> chunks = regex.allMatches(binary).map((RegExpMatch match) => match.group(0)!).toList(growable: false);
+
+    return chunks;
   }
 }

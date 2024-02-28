@@ -4,41 +4,50 @@ import 'package:equatable/equatable.dart';
 
 class AudioSettingsModel with EquatableMixin {
   final int baseFrequency;
-  final int bitDepth;
   final int bitsPerFrequency;
   final int channels;
   final int chunksCount;
   final int frequencyGap;
+  final double fadeDuration;
   final double symbolDuration;
+  final List<int> startFrequencies;
+  final List<int> endFrequencies;
   late final double amplitude;
   late final int frequencyRange;
+  late final int maxStartOffset;
   late final int sampleRate;
   late final int sampleSize;
 
   AudioSettingsModel({
     required this.baseFrequency,
-    required this.bitDepth,
     required this.bitsPerFrequency,
     required this.channels,
     required this.chunksCount,
     required this.frequencyGap,
+    required this.fadeDuration,
     required this.symbolDuration,
+    required this.startFrequencies,
+    required this.endFrequencies,
+    int? sampleRate,
   }) {
+    this.sampleRate = sampleRate ?? max(44000, 2.5 * chunksCount * maxFrequency).toInt();
     amplitude = 1 / chunksCount;
-    sampleRate = (2.5 * chunksCount * maxFrequency).toInt();
-    sampleSize = (sampleRate * symbolDuration).toInt();
+    sampleSize = (this.sampleRate * symbolDuration).toInt();
     frequencyRange = maxFrequency + frequencyGap;
+    maxStartOffset = (7 * sampleSize).toInt();
   }
 
   factory AudioSettingsModel.withDefaults() {
     return AudioSettingsModel(
       baseFrequency: 400,
-      bitDepth: 16,
       bitsPerFrequency: 2,
       channels: 1,
-      chunksCount: 2,
+      chunksCount: 4,
       frequencyGap: 200,
-      symbolDuration: 0.5,
+      fadeDuration: 0.1,
+      symbolDuration: 0.2,
+      startFrequencies: <int>[500, 700],
+      endFrequencies: <int>[900, 1100],
     );
   }
 
@@ -49,16 +58,23 @@ class AudioSettingsModel with EquatableMixin {
     int? channels,
     int? chunksCount,
     int? frequencyGap,
+    int? sampleRate,
+    double? fadeDuration,
     double? symbolDuration,
+    List<int>? startFrequencies,
+    List<int>? endFrequencies,
   }) {
     return AudioSettingsModel(
       baseFrequency: baseFrequency ?? this.baseFrequency,
-      bitDepth: bitDepth ?? this.bitDepth,
       bitsPerFrequency: bitsPerFrequency ?? this.bitsPerFrequency,
       channels: channels ?? this.channels,
       chunksCount: chunksCount ?? this.chunksCount,
       frequencyGap: frequencyGap ?? this.frequencyGap,
+      fadeDuration: fadeDuration ?? this.fadeDuration,
+      sampleRate: sampleRate ?? this.sampleRate,
       symbolDuration: symbolDuration ?? this.symbolDuration,
+      startFrequencies: startFrequencies ?? this.startFrequencies,
+      endFrequencies: endFrequencies ?? this.endFrequencies,
     );
   }
 
@@ -78,13 +94,16 @@ class AudioSettingsModel with EquatableMixin {
   List<Object?> get props => <Object>[
         amplitude,
         baseFrequency,
-        bitDepth,
         bitsPerFrequency,
         channels,
         chunksCount,
         frequencyGap,
         frequencyRange,
+        fadeDuration,
+        maxStartOffset,
         symbolDuration,
+        startFrequencies,
+        endFrequencies,
         sampleRate,
         sampleSize,
       ];
