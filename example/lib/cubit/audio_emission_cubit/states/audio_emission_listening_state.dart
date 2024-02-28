@@ -1,6 +1,5 @@
-import 'package:example/cubit/audio_emission_cubit/a_audio_emission_state.dart';
+import 'package:example/cubit/audio_emission_cubit/states/audio_emission_result_state.dart';
 
-class AudioEmissionListeningState extends AAudioEmissionState {
-  @override
-  List<Object?> get props => <Object>[];
+class AudioEmissionListeningState extends AudioEmissionResultState {
+  AudioEmissionListeningState({required super.decodedMessage});
 }

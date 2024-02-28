@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:mrumru/src/models/audio_settings.dart';
 
 class FskEncoder {
@@ -15,31 +17,41 @@ class FskEncoder {
         frequencyGap = audioSettingsModel.frequencyGap;
 
   List<int> encodeBinaryDataToFrequencies(String binaryData) {
+    String chunkedBinary = _chunkBinary(binaryData, bitsPerFrequency, chunksCount);
     List<int> encodedFrequencies = <int>[];
-    int chunkSize = binaryData.length ~/ chunksCount;
-    int frequenciesCount = (binaryData.length / bitsPerFrequency).ceil();
+    int chunkSize = chunkedBinary.length ~/ chunksCount;
+    int frequenciesCount = (chunkedBinary.length / bitsPerFrequency).ceil();
 
     for (int i = 0; i < frequenciesCount; i++) {
       int frequencyStartIndex = i * bitsPerFrequency;
-      String frequencyBits = _extractFrequencyBits(frequencyStartIndex, binaryData);
+      String frequencyBits = _extractFrequencyBits(frequencyStartIndex, chunkedBinary);
       int frequency = baseFrequency + int.parse(frequencyBits, radix: 2) * frequencyGap;
-      int chunkShift = (frequencyStartIndex / chunkSize).floor() * (maxFrequency + frequencyGap);
+      int chunkShift = (frequencyStartIndex ~/ chunkSize) * (maxFrequency + frequencyGap);
       int chunkFrequency = frequency + chunkShift;
-
       encodedFrequencies.add(chunkFrequency);
     }
-
     return encodedFrequencies;
+  }
+
+  String _chunkBinary(String binary, int bitsPerFrequency, int chunksCount) {
+    List<String> parts = <String>[];
+    for (int i = 0; i < binary.length; i += bitsPerFrequency) {
+      parts.add(binary.substring(i, i + bitsPerFrequency));
+    }
+
+    List<List<String>> chunks = List<List<String>>.generate(chunksCount, (_) => <String>[]);
+
+    int chunkIndex = 0;
+    for (String part in parts) {
+      chunks[chunkIndex].add(part);
+      chunkIndex = (chunkIndex + 1) % chunksCount;
+    }
+
+    return chunks.map((List<String> chunk) => chunk.join('')).join('');
   }
 
   String _extractFrequencyBits(int frequencyStartIndex, String binaryData) {
     int frequencyEndIndex = frequencyStartIndex + bitsPerFrequency;
-
-    if (frequencyEndIndex < binaryData.length) {
-      return binaryData.substring(frequencyStartIndex, frequencyEndIndex);
-    } else {
-      String chunkBits = binaryData.substring(frequencyStartIndex, binaryData.length);
-      return chunkBits.padRight(bitsPerFrequency, '0');
-    }
+    return binaryData.substring(frequencyStartIndex, math.min(frequencyEndIndex, binaryData.length)).padRight(bitsPerFrequency, '0');
   }
 }
