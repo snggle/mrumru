@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:mrumru/mrumru.dart';
+import 'package:mrumru/src/audio/packet_event.dart';
 import 'package:mrumru/src/audio/packet_recognizer.dart';
 import 'package:mrumru/src/models/frame_collection_model.dart';
 import 'package:mrumru/src/utils/wav_utils.dart';
@@ -36,19 +37,21 @@ class AudioRecorderController {
       sampleRate: audioSettingsModel.sampleRate,
       numChannels: audioSettingsModel.channels,
     );
+    packetRecognizer.recordingStatus(status: true);
     Stream<Uint8List> recordingStream = await audioRecorder.startStream(recordConfig);
-    recordingStreamSubscription = recordingStream.listen(_handlePacketReceived);
+    recordingStreamSubscription = recordingStream.listen(_addEvent);
   }
 
   Future<FrameCollectionModel> stopRecording() async {
     await audioRecorder.stop();
     await recordingStreamSubscription?.cancel();
     onRecordingCompleted();
+    packetRecognizer.recordingStatus(status: false);
     return packetRecognizer.decodedContent;
   }
 
-  void _handlePacketReceived(Uint8List packet) {
+  void _addEvent(Uint8List packet) {
     Wav customWave = WavUtils.readPCM16Bytes(packet, audioSettingsModel);
-    packetRecognizer.addPacket(customWave.channels.first);
+    packetRecognizer.addPacket(ReceivedPacketEvent(customWave.channels.first));
   }
 }

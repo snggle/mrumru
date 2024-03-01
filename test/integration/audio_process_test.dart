@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
+import 'package:mrumru/src/audio/packet_event.dart';
 import 'package:mrumru/src/audio/packet_recognizer.dart';
 import 'package:mrumru/src/models/frame_collection_model.dart';
 import 'package:wav/wav.dart';
@@ -36,7 +37,7 @@ void main() async {
       for (int i = 0; i < actualWave.length; i += actualAudioSettingsModel.sampleSize) {
         samples.add(actualWave.sublist(i, min(i + actualAudioSettingsModel.sampleSize, actualWave.length)));
       }
-
+      List<ReceivedPacketEvent> actualReceivedPacketEvents = samples.map(ReceivedPacketEvent.new).toList();
       PacketRecognizer actualPacketRecognizer = PacketRecognizer(
         audioSettingsModel: actualAudioSettingsModel,
         frameSettingsModel: actualFrameSettingsModel,
@@ -44,9 +45,9 @@ void main() async {
         onFrameDecoded: (FrameModel frameModel) {},
       );
 
-      for (List<double> sample in samples) {
-        actualPacketRecognizer.addPacket(sample);
-        await Future<void>.delayed(const Duration(milliseconds: 100));
+      for (ReceivedPacketEvent packets in actualReceivedPacketEvents) {
+        await actualPacketRecognizer.addPacket(packets);
+        await Future<void>.delayed(const Duration(milliseconds: 10));
       }
 
       FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
