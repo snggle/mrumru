@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/packet_event.dart';
 import 'package:mrumru/src/audio/packet_recognizer.dart';
+import 'package:mrumru/src/audio/recording_status.dart';
 import 'package:mrumru/src/models/frame_collection_model.dart';
 import 'package:mrumru/src/utils/wav_utils.dart';
 import 'package:record/record.dart';
@@ -31,13 +32,12 @@ class AudioRecorderController {
       frameSettingsModel: frameSettingsModel,
       onFrameDecoded: onFrameReceived,
       onDecodingCompleted: stopRecording,
-    );
+    )..updateRecordingStatus(RecordingStatus.onAir);
     RecordConfig recordConfig = RecordConfig(
       encoder: AudioEncoder.pcm16bits,
       sampleRate: audioSettingsModel.sampleRate,
       numChannels: audioSettingsModel.channels,
     );
-    packetRecognizer.recordingStatus(status: true);
     Stream<Uint8List> recordingStream = await audioRecorder.startStream(recordConfig);
     recordingStreamSubscription = recordingStream.listen(_addEvent);
   }
@@ -46,7 +46,7 @@ class AudioRecorderController {
     await audioRecorder.stop();
     await recordingStreamSubscription?.cancel();
     onRecordingCompleted();
-    packetRecognizer.recordingStatus(status: false);
+    packetRecognizer.updateRecordingStatus(RecordingStatus.offline);
     return packetRecognizer.decodedContent;
   }
 

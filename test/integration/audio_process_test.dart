@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/packet_event.dart';
 import 'package:mrumru/src/audio/packet_recognizer.dart';
+import 'package:mrumru/src/audio/recording_status.dart';
 import 'package:mrumru/src/models/frame_collection_model.dart';
 import 'package:wav/wav.dart';
 
@@ -43,14 +44,17 @@ void main() async {
         frameSettingsModel: actualFrameSettingsModel,
         onDecodingCompleted: () {},
         onFrameDecoded: (FrameModel frameModel) {},
-      );
+      )..updateRecordingStatus(RecordingStatus.onAir);
 
       for (ReceivedPacketEvent packets in actualReceivedPacketEvents) {
-        await actualPacketRecognizer.addPacket(packets);
-        await Future<void>.delayed(const Duration(milliseconds: 10));
+        actualPacketRecognizer.addPacket(packets);
+        await Future<void>.delayed(const Duration(milliseconds: 600));
       }
 
       FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
+
+      actualPacketRecognizer.updateRecordingStatus(RecordingStatus.offline);
+      await actualPacketRecognizer.decodingCompleter.future;
 
       // Assert
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(

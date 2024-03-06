@@ -40,7 +40,6 @@ dependencies:
 
   just_audio: ^0.9.35
 
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
