@@ -43,14 +43,16 @@ void main() async {
         frameSettingsModel: actualFrameSettingsModel,
         onDecodingCompleted: () {},
         onFrameDecoded: (FrameModel frameModel) {},
-      );
-
+      )..recordingStatus(status: true);
       for (ReceivedPacketEvent packets in actualReceivedPacketEvents) {
-        await actualPacketRecognizer.addPacket(packets);
-        await Future<void>.delayed(const Duration(milliseconds: 10));
+        actualPacketRecognizer.addPacket(packets);
+        await Future<void>.delayed(const Duration(milliseconds: 600));
       }
 
       FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
+
+      actualPacketRecognizer.recordingStatus(status: false);
+      await actualPacketRecognizer.decodingCompleter.future;
 
       // Assert
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(

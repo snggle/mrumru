@@ -9,7 +9,9 @@ class AppLogger {
 
   AppLogger._internal();
 
-  final Logger _logger = Logger();
+  final Logger _logger = Logger(
+    printer: SimplePrinter(),
+  );
 
   void log({required String message, LogLevel logLevel = LogLevel.warning}) {
     switch (logLevel) {
