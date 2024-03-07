@@ -3,15 +3,15 @@ import 'package:mrumru/src/audio/packet_event.dart';
 // Priority queue
 class PacketsQueue {
   final List<PacketEvent> _queue = <PacketEvent>[];
-
-  Future<List<double>> readWave(int size) async {
+  
+  Future<List<double>> readSingle(int sampleSize) async {
     List<double> wave = <double>[];
-    while (wave.length < size) {
+    while (wave.length < sampleSize) {
       PacketEvent event = pop();
       wave.addAll(event.packet);
     }
-    List<double> data = wave.sublist(0, size);
-    List<double> remainingData = wave.sublist(size);
+    List<double> data = wave.sublist(0, sampleSize);
+    List<double> remainingData = wave.sublist(sampleSize);
     if (remainingData.isNotEmpty) {
       push(RemainingPacketEvent(remainingData));
     }
@@ -33,11 +33,13 @@ class PacketsQueue {
   bool get isNotEmpty => _queue.isNotEmpty;
 
   int get eventCount => _queue.length;
+  
+  int get waveLength => _queue.fold(0, (int previousValue, PacketEvent packetEvent) => previousValue + packetEvent.length);
 
   bool isLongerThan(int length) {
     int totalLength = 0;
     for (PacketEvent packet in _queue) {
-      totalLength += packet.packet.length;
+      totalLength += packet.length;
       if (totalLength >= length) {
         return true;
       }

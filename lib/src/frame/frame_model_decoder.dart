@@ -22,6 +22,7 @@ class FrameModelDecoder {
   });
 
   void addBinaries(List<String> binaries) {
+    AppLogger().log(message: 'Adding binaries to decoder: $binaries', logLevel: LogLevel.debug);
     for (String binary in binaries) {
       completeBinary.write(binary);
     }

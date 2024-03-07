@@ -1,6 +1,7 @@
+import 'package:equatable/equatable.dart';
 import 'package:mrumru/src/models/audio_settings.dart';
 
-class DecodedFrequency {
+class DecodedFrequency extends Equatable {
   final int chunkFrequency;
   final int chunkIndex;
 
@@ -22,4 +23,7 @@ class DecodedFrequency {
     int bitsCount = (correctedFrequency - audioSettingsModel.baseFrequency) ~/ audioSettingsModel.frequencyGap;
     return bitsCount.toRadixString(2).padLeft(audioSettingsModel.bitsPerFrequency, '0');
   }
+
+  @override
+  List<Object?> get props => <Object?>[chunkFrequency, chunkIndex];
 }

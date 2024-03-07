@@ -25,7 +25,7 @@ class IndexCorrelationCalculator {
   List<_IndexCorrelation> _calculateCorrelations(List<double> wave, List<List<double>> templates) {
     List<_IndexCorrelation> correlations = <_IndexCorrelation>[];
 
-    for (int i = 0; i <= wave.length - audioSettingsModel.sampleSize; i++) {
+    for (int i = 0; i <= wave.length - audioSettingsModel.sampleSize; i += 50) {
       List<double> window = wave.sublist(i, i + audioSettingsModel.sampleSize);
       double correlation = _calculateWindowCorrelation(window, templates);
       correlations.add(_IndexCorrelation(index: i, correlation: correlation));

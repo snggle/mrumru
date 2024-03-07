@@ -39,9 +39,9 @@ class AudioSettingsModel with EquatableMixin {
       bitDepth: 16,
       bitsPerFrequency: 2,
       channels: 1,
-      chunksCount: 8,
+      chunksCount: 4,
       frequencyGap: 200,
-      symbolDuration: 0.1,
+      symbolDuration: 0.2,
     );
   }
 

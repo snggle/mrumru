@@ -1,7 +1,8 @@
 abstract class PacketEvent {
-  List<double> packet;
+  final List<double> packet;
+  final int length;
 
-  PacketEvent(this.packet);
+  PacketEvent(this.packet) : length = packet.length;
 }
 
 class ReceivedPacketEvent extends PacketEvent {
