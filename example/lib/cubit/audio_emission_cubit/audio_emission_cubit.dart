@@ -10,10 +10,10 @@ import 'package:mrumru/mrumru.dart';
 
 class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
   final AudioPlayer audioPlayer = AudioPlayer();
-  final AudioRecorderController audioRecorderController = AudioRecorderController();
   final FrameSettingsModel frameSettingsModel = FrameSettingsModel.withDefaults();
   final TextEditingController messageTextController = TextEditingController();
 
+  late AudioRecorderController audioRecorderController;
   late AudioSettingsModel audioSettingsModel;
 
   AudioEmissionCubit() : super(AudioEmissionEmptyState()) {
@@ -22,7 +22,7 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
 
   void playSound() {
     AudioGenerator audioGenerator = AudioGenerator(audioSettingsModel: audioSettingsModel, frameSettingsModel: frameSettingsModel);
-    List<int> audioBytes = audioGenerator.generateAudioBytes(messageTextController.text);
+    List<int> audioBytes = audioGenerator.generateWavFileBytes(messageTextController.text);
     Source source = BytesSource(Uint8List.fromList(audioBytes));
     audioPlayer.play(source);
   }
@@ -33,24 +33,22 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
 
   void startRecording() {
     try {
-      emit(AudioEmissionListeningState());
-      audioRecorderController.startRecording(audioSettingsModel);
+      audioRecorderController = AudioRecorderController(
+        audioSettingsModel: audioSettingsModel,
+        frameSettingsModel: frameSettingsModel,
+        onRecordingCompleted: _handleRecordingCompleted,
+        onFrameReceived: _handleFrameReceived,
+      );
+      emit(AudioEmissionListeningState(decodedMessage: ''));
+      audioRecorderController.startRecording();
     } catch (e) {
       AppLogger().log(message: 'Cannot start recording: $e');
       emit(AudioEmissionEmptyState());
     }
   }
 
-  Future<void> stopRecording() async {
-    try {
-      AudioDecoder audioDecoder = AudioDecoder(audioSettingsModel: audioSettingsModel, frameSettingsModel: frameSettingsModel);
-      Uint8List recordedBytes = await audioRecorderController.stopRecording();
-      String receivedText = await audioDecoder.decodeRecordedAudio(recordedBytes);
-      emit(AudioEmissionResultState(decodedMessage: receivedText));
-    } catch (e) {
-      AppLogger().log(message: 'Cannot stop recording: $e');
-      emit(AudioEmissionEmptyState());
-    }
+  void stopRecording() {
+    audioRecorderController.stopRecording();
   }
 
   set baseFrequency(int baseFrequency) {
@@ -79,5 +77,17 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
 
   set symbolDuration(double symbolDuration) {
     audioSettingsModel = audioSettingsModel.copyWith(symbolDuration: symbolDuration);
+  }
+
+  void _handleRecordingCompleted() {
+    emit(AudioEmissionResultState(decodedMessage: (state as AudioEmissionListeningState).decodedMessage));
+  }
+
+  void _handleFrameReceived(FrameModel frameModel) {
+    String decodedMessage = frameModel.rawData;
+    if (state is AudioEmissionResultState) {
+      decodedMessage = '${(state as AudioEmissionResultState).decodedMessage}$decodedMessage';
+    }
+    emit(AudioEmissionListeningState(decodedMessage: decodedMessage));
   }
 }

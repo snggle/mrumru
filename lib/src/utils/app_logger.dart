@@ -1,7 +1,6 @@
 import 'package:logger/logger.dart';
 import 'package:mrumru/src/utils/log_level.dart';
 
-
 class AppLogger {
   static final AppLogger _appLogger = AppLogger._internal();
 
@@ -9,7 +8,9 @@ class AppLogger {
 
   AppLogger._internal();
 
-  final Logger _logger = Logger();
+  final Logger _logger = Logger(
+    printer: SimplePrinter(),
+  );
 
   void log({required String message, LogLevel logLevel = LogLevel.warning}) {
     switch (logLevel) {
