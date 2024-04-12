@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/packet_event_queue/received_packet_event.dart';
-import 'package:mrumru/src/audio/packet_recognizer.dart';
+import 'package:mrumru/src/recorder/packet_recognizer.dart';
 import 'package:mrumru/src/models/frame_collection_model.dart';
 
 void main() async {
@@ -23,7 +23,7 @@ void main() async {
         onFrameDecoded: (FrameModel frameModel) {},
       );
 
-      AudioGenerator actualAudioGenerator = AudioGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
+      SampleGenerator actualAudioGenerator = SampleGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
 
       // Act
       List<double> actualWave = actualAudioGenerator.generateSamples(actualInputString);
@@ -58,7 +58,7 @@ void main() async {
         onFrameDecoded: (FrameModel frameModel) {},
       );
 
-      AudioGenerator actualAudioGenerator = AudioGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
+      SampleGenerator actualAudioGenerator = SampleGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
 
       // Act
       List<double> actualWave = actualAudioGenerator.generateSamples(actualInputString);
@@ -93,7 +93,7 @@ void main() async {
         onFrameDecoded: (FrameModel frameModel) {},
       );
 
-      AudioGenerator actualAudioGenerator = AudioGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
+      SampleGenerator actualAudioGenerator = SampleGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
 
       // Act
       List<double> actualWave = actualAudioGenerator.generateSamples(actualInputString);
@@ -128,7 +128,7 @@ void main() async {
         onFrameDecoded: (FrameModel frameModel) {},
       );
 
-      AudioGenerator actualAudioGenerator = AudioGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
+      SampleGenerator actualAudioGenerator = SampleGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
 
       // Act
       List<double> actualWave = actualAudioGenerator.generateSamples(actualInputString);

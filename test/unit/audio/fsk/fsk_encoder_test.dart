@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/audio/fsk/fsk_encoder.dart';
+import 'package:mrumru/src/emitter/fsk_encoder.dart';
 import 'package:mrumru/src/models/audio_settings.dart';
 
 void main() {

@@ -39,6 +39,7 @@ dependencies:
   audioplayers: ^5.2.0
 
   just_audio: ^0.9.35
+  mp_audio_stream: ^0.1.5
 
 
 dev_dependencies:

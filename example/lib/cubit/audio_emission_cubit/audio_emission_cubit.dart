@@ -9,26 +9,28 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mrumru/mrumru.dart';
 
 class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
-  final AudioPlayer audioPlayer = AudioPlayer();
   final FrameSettingsModel frameSettingsModel = FrameSettingsModel.withDefaults();
   final TextEditingController messageTextController = TextEditingController();
 
   late AudioRecorderController audioRecorderController;
   late AudioSettingsModel audioSettingsModel;
 
+  AudioEmitter? audioEmitter;
+
   AudioEmissionCubit() : super(AudioEmissionEmptyState()) {
     audioSettingsModel = AudioSettingsModel.withDefaults();
   }
 
-  void playSound() {
-    AudioGenerator audioGenerator = AudioGenerator(audioSettingsModel: audioSettingsModel, frameSettingsModel: frameSettingsModel);
-    List<int> audioBytes = audioGenerator.generateWavFileBytes(messageTextController.text);
-    Source source = BytesSource(Uint8List.fromList(audioBytes));
-    audioPlayer.play(source);
+  void playSound(String text) {
+    audioEmitter = AudioEmitter(
+      audioSink: StreamAudioSink(),
+      audioSettingsModel: audioSettingsModel,
+      frameSettingsModel: frameSettingsModel,
+    )..play(text);
   }
 
   void stopSound() {
-    audioPlayer.stop();
+    audioEmitter?.stop();
   }
 
   void startRecording() {
@@ -49,34 +51,6 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
 
   void stopRecording() {
     audioRecorderController.stopRecording();
-  }
-
-  set baseFrequency(int baseFrequency) {
-    audioSettingsModel = audioSettingsModel.copyWith(baseFrequency: baseFrequency);
-  }
-
-  set bitDepth(int bitDepth) {
-    audioSettingsModel = audioSettingsModel.copyWith(bitDepth: bitDepth);
-  }
-
-  set bitsPerFrequency(int bitsPerFrequency) {
-    audioSettingsModel = audioSettingsModel.copyWith(bitsPerFrequency: bitsPerFrequency);
-  }
-
-  set channels(int channels) {
-    audioSettingsModel = audioSettingsModel.copyWith(channels: channels);
-  }
-
-  set chunksCount(int chunksCount) {
-    audioSettingsModel = audioSettingsModel.copyWith(chunksCount: chunksCount);
-  }
-
-  set frequencyGap(int frequencyGap) {
-    audioSettingsModel = audioSettingsModel.copyWith(frequencyGap: frequencyGap);
-  }
-
-  set symbolDuration(double symbolDuration) {
-    audioSettingsModel = audioSettingsModel.copyWith(symbolDuration: symbolDuration);
   }
 
   void _handleRecordingCompleted() {

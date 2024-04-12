@@ -6,7 +6,7 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/packet_event_queue/received_packet_event.dart';
-import 'package:mrumru/src/audio/packet_recognizer.dart';
+import 'package:mrumru/src/recorder/packet_recognizer.dart';
 import 'package:mrumru/src/models/frame_collection_model.dart';
 import 'package:wav/wav.dart';
 
@@ -23,7 +23,7 @@ void main() async {
         onFrameDecoded: (FrameModel frameModel) {},
       );
 
-      AudioGenerator actualAudioGenerator = AudioGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
+      SampleGenerator actualAudioGenerator = SampleGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
 
       File actualWavFile = File('./test/integration/assets/mocked_wave_file.wav');
       String actualInputString = '123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
