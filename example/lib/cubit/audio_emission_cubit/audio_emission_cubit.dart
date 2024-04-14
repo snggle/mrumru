@@ -12,7 +12,7 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
   final FrameSettingsModel frameSettingsModel = FrameSettingsModel.withDefaults();
   final TextEditingController messageTextController = TextEditingController();
 
-  late AudioRecorderController audioRecorderController;
+  late AudioRecorder audioRecorderController;
   late AudioSettingsModel audioSettingsModel;
 
   AudioEmitter? audioEmitter;
@@ -35,11 +35,10 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
 
   void startRecording() {
     try {
-      audioRecorderController = AudioRecorderController(
+      audioRecorderController = AudioRecorder(
         audioSettingsModel: audioSettingsModel,
         frameSettingsModel: frameSettingsModel,
-        onRecordingCompleted: _handleRecordingCompleted,
-        onFrameReceived: _handleFrameReceived,
+        audioSource: StreamAudioSource(audioSettingsModel: audioSettingsModel),
       );
       emit(AudioEmissionListeningState(decodedMessage: ''));
       audioRecorderController.startRecording();

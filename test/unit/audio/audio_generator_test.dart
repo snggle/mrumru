@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/packet_event_queue/received_packet_event.dart';
-import 'package:mrumru/src/recorder/packet_recognizer.dart';
+import 'package:mrumru/src/recorder/packet_recognizer/packet_recognizer.dart';
 import 'package:mrumru/src/models/frame_collection_model.dart';
 
 void main() async {
@@ -30,7 +30,7 @@ void main() async {
 
       List<ReceivedPacketEvent> actualTestEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
 
-      unawaited(actualPacketRecognizer.startDecoding());
+      unawaited(actualPacketRecognizer.start());
 
       for (ReceivedPacketEvent packets in actualTestEvents) {
         actualPacketRecognizer.addPacket(packets);
@@ -39,7 +39,7 @@ void main() async {
 
       FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
 
-      await actualPacketRecognizer.stopRecording();
+      await actualPacketRecognizer.stop();
 
       // Assert
       String actualDecodedString = actualFrameCollectionModel.mergedRawData;
@@ -65,7 +65,7 @@ void main() async {
 
       List<ReceivedPacketEvent> actualTestEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
 
-      unawaited(actualPacketRecognizer.startDecoding());
+      unawaited(actualPacketRecognizer.start());
 
       for (ReceivedPacketEvent packets in actualTestEvents) {
         actualPacketRecognizer.addPacket(packets);
@@ -74,7 +74,7 @@ void main() async {
 
       FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
 
-      await actualPacketRecognizer.stopRecording();
+      await actualPacketRecognizer.stop();
 
       // Assert
       String actualDecodedString = actualFrameCollectionModel.mergedRawData;
@@ -100,7 +100,7 @@ void main() async {
 
       List<ReceivedPacketEvent> actualTestEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
 
-      unawaited(actualPacketRecognizer.startDecoding());
+      unawaited(actualPacketRecognizer.start());
 
       for (ReceivedPacketEvent packets in actualTestEvents) {
         actualPacketRecognizer.addPacket(packets);
@@ -109,7 +109,7 @@ void main() async {
 
       FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
 
-      await actualPacketRecognizer.stopRecording();
+      await actualPacketRecognizer.stop();
 
       // Assert
       String actualDecodedString = actualFrameCollectionModel.mergedRawData;
@@ -135,7 +135,7 @@ void main() async {
 
       List<ReceivedPacketEvent> actualTestEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
 
-      unawaited(actualPacketRecognizer.startDecoding());
+      unawaited(actualPacketRecognizer.start());
 
       for (ReceivedPacketEvent packets in actualTestEvents) {
         actualPacketRecognizer.addPacket(packets);
@@ -144,7 +144,7 @@ void main() async {
 
       FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
 
-      await actualPacketRecognizer.stopRecording();
+      await actualPacketRecognizer.stop();
 
       // Assert
       String actualDecodedString = actualFrameCollectionModel.mergedRawData;

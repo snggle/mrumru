@@ -1,13 +1,13 @@
 import 'package:mrumru/mrumru.dart';
 
 class PacketEventQueue {
-  List<APacketEvent> eventQueue = <APacketEvent>[];
+  List<APacketRecognizerDataEvent> eventQueue = <APacketRecognizerDataEvent>[];
 
-  PacketEventQueue({List<APacketEvent>? queue}) : eventQueue = queue ?? <APacketEvent>[];
+  PacketEventQueue({List<APacketRecognizerDataEvent>? queue}) : eventQueue = queue ?? <APacketRecognizerDataEvent>[];
 
   bool isLongerThan(int waveSize) {
     int totalLength = 0;
-    for (APacketEvent packet in eventQueue) {
+    for (APacketRecognizerDataEvent packet in eventQueue) {
       totalLength += packet.length;
       if (totalLength >= waveSize) {
         return true;
@@ -19,7 +19,7 @@ class PacketEventQueue {
   Future<List<double>> readWave(int waveSize) async {
     List<double> wave = <double>[];
     while (wave.length < waveSize) {
-      APacketEvent packetEvent = pop();
+      APacketRecognizerDataEvent packetEvent = pop();
       wave.addAll(packetEvent.packet);
     }
     List<double> data = wave.sublist(0, waveSize);
@@ -30,7 +30,7 @@ class PacketEventQueue {
     return data;
   }
 
-  APacketEvent pop() {
+  APacketRecognizerDataEvent pop() {
     if (eventQueue.isNotEmpty) {
       return eventQueue.removeAt(0);
     } else {
@@ -38,7 +38,7 @@ class PacketEventQueue {
     }
   }
 
-  void push(APacketEvent packetEvent) {
+  void push(APacketRecognizerDataEvent packetEvent) {
     if (packetEvent is ReceivedPacketEvent) {
       eventQueue.add(packetEvent);
     } else if (packetEvent is RemainingPacketEvent) {

@@ -6,7 +6,7 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/packet_event_queue/received_packet_event.dart';
-import 'package:mrumru/src/recorder/packet_recognizer.dart';
+import 'package:mrumru/src/recorder/packet_recognizer/packet_recognizer.dart';
 import 'package:mrumru/src/models/frame_collection_model.dart';
 import 'package:wav/wav.dart';
 
@@ -40,7 +40,7 @@ void main() async {
       List<double> actualWave = Wav.read(Uint8List.fromList(actualWavFileBytes)).channels.first;
       List<ReceivedPacketEvent> testEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
 
-      unawaited(actualPacketRecognizer.startDecoding());
+      unawaited(actualPacketRecognizer.start());
 
       for (ReceivedPacketEvent actualTestEvent in testEvents) {
         actualPacketRecognizer.addPacket(actualTestEvent);
@@ -49,7 +49,7 @@ void main() async {
 
       FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
 
-      await actualPacketRecognizer.stopRecording();
+      await actualPacketRecognizer.stop();
 
       // Assert
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(

@@ -10,6 +10,17 @@ class DecodedFrequencyModel extends Equatable {
     required this.chunkIndex,
   });
 
+  DecodedFrequencyModel.fromJson(Map<String, dynamic> json)
+      : chunkFrequency = json['chunkFrequency'] as int,
+        chunkIndex = json['chunkIndex'] as int;
+
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'chunkFrequency': chunkFrequency,
+      'chunkIndex': chunkIndex,
+    };
+  }
+
   String calcBinary(AudioSettingsModel audioSettingsModel) {
     int correctedFrequency = _calculateCorrectedFrequency(audioSettingsModel);
     return _convertFrequencyToBits(correctedFrequency, audioSettingsModel);
