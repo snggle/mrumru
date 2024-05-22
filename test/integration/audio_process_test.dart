@@ -5,9 +5,9 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/audio/packet_event_queue/received_packet_event.dart';
-import 'package:mrumru/src/audio/packet_recognizer.dart';
-import 'package:mrumru/src/models/frame_collection_model.dart';
+import 'package:mrumru/src/audio/recorder/packet_recognizer.dart';
+import 'package:mrumru/src/audio/recorder/queue/events/received_packet_event.dart';
+import 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
 import 'package:wav/wav.dart';
 
 void main() async {
