@@ -5,9 +5,6 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/audio/packet_event_queue/received_packet_event.dart';
-import 'package:mrumru/src/audio/packet_recognizer.dart';
-import 'package:mrumru/src/models/frame_collection_model.dart';
 import 'package:wav/wav.dart';
 
 void main() async {
@@ -16,64 +13,70 @@ void main() async {
       // Arrange
       AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults();
       FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
-      PacketRecognizer actualPacketRecognizer = PacketRecognizer(
+      File actualWavFile = File('./test/integration/assets/mocked_wave_file.wav');
+      String actualInputString = '123456789:;<=>';
+      File file = File(actualWavFile.path);
+      IAudioSink fileAudioSink = FileAudioSink(file);
+      AudioEmitterNotifier? audioEmitterNotifier;
+
+      AudioEmitter audioEmitter = AudioEmitter(
+        audioSink: fileAudioSink,
         audioSettingsModel: actualAudioSettingsModel,
         frameSettingsModel: actualFrameSettingsModel,
-        onDecodingCompleted: () {},
-        onFrameDecoded: (FrameModel frameModel) {},
-      );
+        audioEmitterNotifier: audioEmitterNotifier,
+      )..play(actualInputString);
 
-      AudioGenerator actualAudioGenerator = AudioGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
+      await Future<void>.delayed(const Duration(seconds: 2));
 
-      File actualWavFile = File('./test/integration/assets/mocked_wave_file.wav');
-      String actualInputString = '123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
-      // Act
-      // Create WAV file
-      List<int> actualGeneratedWavBytes = actualAudioGenerator.generateWavFileBytes(actualInputString);
-      await actualWavFile.writeAsBytes(actualGeneratedWavBytes);
-
-      // Read WAV file
-      // Because output of the "generateWavFileBytes" method is very large it's not possible to create a mock of it
-      // For this reason we save the output to a .WAV file and then read it and try to decode it
+      await fileAudioSink.finish();
       Uint8List actualWavFileBytes = await actualWavFile.readAsBytes();
 
       List<double> actualWave = Wav.read(Uint8List.fromList(actualWavFileBytes)).channels.first;
       List<ReceivedPacketEvent> testEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
 
-      unawaited(actualPacketRecognizer.startDecoding());
+      final FrameModelDecoder frameModelDecoder = FrameModelDecoder(
+        framesSettingsModel: actualFrameSettingsModel,
+        onFirstFrameDecoded: (_) {
+          print('First frame decoded');
+        },
+        onLastFrameDecoded: (_) {
+          print('Last frame decoded');
+        },
+        onFrameDecoded: (_) {
+          print('Frame decoded');
+        },
+      );
+
+      final PacketRecognizer packetRecognizer = PacketRecognizer(
+        audioSettingsModel: actualAudioSettingsModel,
+        onDecodingCompleted: () {
+          print('Decoding completed');
+        },
+        onFrequenciesDecoded: (List<DecodedFrequencyModel> frequencies) {
+          print('Frequencies decoded: ${frequencies.length}');
+          final List<String> binaries = frequencies.map((DecodedFrequencyModel frequency) => frequency.calcBinary(actualAudioSettingsModel)).toList();
+          frameModelDecoder.addBinaries(binaries);
+        },
+      );
+
+      unawaited(packetRecognizer.start());
 
       for (ReceivedPacketEvent actualTestEvent in testEvents) {
-        actualPacketRecognizer.addPacket(actualTestEvent);
+        await packetRecognizer.addPacket(actualTestEvent.packet);
         await Future<void>.delayed(const Duration(milliseconds: 600));
       }
 
-      FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
+      FrameCollectionModel actualFrameCollectionModel = frameModelDecoder.decodedContent;
 
-      await actualPacketRecognizer.stopRecording();
+      await packetRecognizer.stop();
 
       // Assert
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(
         <FrameModel>[
-          FrameModel(frameIndex: 0, framesCount: 20, rawData: '1234', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 1, framesCount: 20, rawData: '5678', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 2, framesCount: 20, rawData: '9:;<', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 3, framesCount: 20, rawData: '=>?@', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 4, framesCount: 20, rawData: 'ABCD', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 5, framesCount: 20, rawData: 'EFGH', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 6, framesCount: 20, rawData: 'IJKL', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 7, framesCount: 20, rawData: 'MNOP', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 8, framesCount: 20, rawData: 'QRST', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 9, framesCount: 20, rawData: 'UVWX', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 10, framesCount: 20, rawData: 'YZ[]', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 11, framesCount: 20, rawData: '^_`a', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 12, framesCount: 20, rawData: 'bcde', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 13, framesCount: 20, rawData: 'fghi', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 14, framesCount: 20, rawData: 'jklm', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 15, framesCount: 20, rawData: 'nopq', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 16, framesCount: 20, rawData: 'rstu', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 17, framesCount: 20, rawData: 'vwxy', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 18, framesCount: 20, rawData: 'z{|}', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 19, framesCount: 20, rawData: '~', frameSettings: actualFrameSettingsModel)
+          FrameModel(frameIndex: 0, framesCount: 4, rawData: '1234', frameSettings: actualFrameSettingsModel),
+          FrameModel(frameIndex: 1, framesCount: 4, rawData: '5678', frameSettings: actualFrameSettingsModel),
+          FrameModel(frameIndex: 2, framesCount: 4, rawData: '9:;<', frameSettings: actualFrameSettingsModel),
+          FrameModel(frameIndex: 3, framesCount: 4, rawData: '=>', frameSettings: actualFrameSettingsModel),
         ],
       );
 
