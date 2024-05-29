@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/models/frame_collection_model.dart';
-import 'package:mrumru/src/utils/binary_utils.dart';
-import 'package:mrumru/src/utils/log_level.dart';
+import 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
+import 'package:mrumru/src/shared/utils/app_logger.dart';
+import 'package:mrumru/src/shared/utils/binary_utils.dart';
+import 'package:mrumru/src/shared/utils/log_level.dart';
 
 class FrameModelDecoder {
   final FrameSettingsModel framesSettingsModel;
