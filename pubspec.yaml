@@ -1,6 +1,6 @@
 name: mrumru
 description: Data Over Audio
-version: 0.0.3
+version: 0.0.4
 publish_to: 'none'
 
 environment:
@@ -22,19 +22,6 @@ dependencies:
   # Small, easy to use and extensible logger which prints beautiful logs.
   # https://pub.dev/packages/logger
   logger: 2.0.2+1
-
-  # A Flutter plugin to play multiple simultaneously audio files, works for Android, iOS, Linux, macOS, Windows, and web.
-  # https://pub.dev/packages/audioplayers
-  audioplayers: 5.2.0
-
-  # Permission plugin for Flutter. This plugin provides a cross-platform (iOS, Android) API to request and check permissions.
-  # https://pub.dev/packages/permission_handler
-  permission_handler: 11.0.1
-  permission_handler_web: 0.0.2
-
-  # A Flutter plugin for finding commonly used locations on the filesystem. Supports Android, iOS, Linux, macOS and Windows. Not all methods are supported on all platforms.
-  # https://pub.dev/packages/path_provider
-  path_provider: 2.1.2
 
   # Implementations of SHA, MD5, and HMAC cryptographic functions.
   # https://pub.dev/packages/crypto

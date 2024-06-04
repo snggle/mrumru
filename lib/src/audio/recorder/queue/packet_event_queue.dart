@@ -1,6 +1,6 @@
 import 'package:mrumru/src/audio/recorder/queue/events/a_packet_event.dart';
-import 'package:mrumru/src/audio/recorder/queue/events/received_packet_event.dart';
-import 'package:mrumru/src/audio/recorder/queue/events/remaining_packet_event.dart';
+import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dart';
+import 'package:mrumru/src/audio/recorder/queue/events/packet_remaining_event.dart';
 
 class PacketEventQueue {
   List<APacketEvent> eventQueue = <APacketEvent>[];
@@ -27,7 +27,7 @@ class PacketEventQueue {
     List<double> data = wave.sublist(0, waveSize);
     List<double> remainingData = wave.sublist(waveSize);
     if (remainingData.isNotEmpty) {
-      push(RemainingPacketEvent(remainingData));
+      push(PacketRemainingEvent(remainingData));
     }
     return data;
   }
@@ -41,9 +41,9 @@ class PacketEventQueue {
   }
 
   void push(APacketEvent packetEvent) {
-    if (packetEvent is ReceivedPacketEvent) {
+    if (packetEvent is PacketReceivedEvent) {
       eventQueue.add(packetEvent);
-    } else if (packetEvent is RemainingPacketEvent) {
+    } else if (packetEvent is PacketRemainingEvent) {
       eventQueue.insert(0, packetEvent);
     }
   }

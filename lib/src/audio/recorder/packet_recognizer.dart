@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/audio/recorder/correlation/frequency_correlation_calculator.dart';
-import 'package:mrumru/src/audio/recorder/correlation/index_correlation_calculator.dart';
-import 'package:mrumru/src/audio/recorder/queue/events/received_packet_event.dart';
-import 'package:mrumru/src/audio/recorder/queue/events/remaining_packet_event.dart';
+import 'package:mrumru/src/audio/recorder/correlation/chunk_frequency_correlation_calculator.dart';
+import 'package:mrumru/src/audio/recorder/correlation/start_index_correlation_calculator.dart';
+import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dart';
+import 'package:mrumru/src/audio/recorder/queue/events/packet_remaining_event.dart';
 import 'package:mrumru/src/audio/recorder/queue/packet_event_queue.dart';
 import 'package:mrumru/src/frame/frame_model_decoder.dart';
 import 'package:mrumru/src/shared/models/decoded_frequency_model.dart';
@@ -54,9 +54,9 @@ class PacketRecognizer {
     _decodingCompleter.complete(true);
   }
 
-  void addPacket(ReceivedPacketEvent packet) {
+  void addPacket(PacketReceivedEvent packetReceivedEvent) {
     AppLogger().log(message: 'Received packet', logLevel: LogLevel.debug);
-    _packetsQueue.push(packet);
+    _packetsQueue.push(packetReceivedEvent);
   }
 
   Future<void> stopRecording() async {
@@ -66,7 +66,7 @@ class PacketRecognizer {
   }
 
   void _handleFirstFrameDecoded(FrameModel frameModel) {
-    _endOffset = frameModel.getTransferWavLength(audioSettingsModel);
+    _endOffset = frameModel.calculateTransferWavLength(audioSettingsModel);
     AppLogger().log(message: 'End offset found: $_endOffset', logLevel: LogLevel.debug);
   }
 
@@ -83,7 +83,7 @@ class PacketRecognizer {
     _startOffset = await compute(_computeStartOffset, <dynamic>[waveToProcess, audioSettingsModel]);
 
     List<double> remainingData = waveToProcess.sublist(_startOffset!);
-    _packetsQueue.push(RemainingPacketEvent(remainingData));
+    _packetsQueue.push(PacketRemainingEvent(remainingData));
     AppLogger().log(message: 'Start offset found: $_startOffset', logLevel: LogLevel.debug);
   }
 
@@ -99,13 +99,13 @@ class PacketRecognizer {
     List<double> waveToProcess = await _packetsQueue.readWave(audioSettingsModel.sampleSize);
     List<DecodedFrequencyModel> frequencies = await _translateSampleToFrequency(waveToProcess);
     _decodeFrequencies(frequencies);
-   }
+  }
 
   Future<List<DecodedFrequencyModel>> _translateSampleToFrequency(List<double> sample) async {
-    FrequencyCorrelationCalculator correlationCalculator = FrequencyCorrelationCalculator(audioSettingsModel: audioSettingsModel);
+    ChunkFrequencyCorrelationCalculator chunkFrequencyCorrelationCalculator = ChunkFrequencyCorrelationCalculator(audioSettingsModel: audioSettingsModel);
     List<DecodedFrequencyModel> decodedFrequencies = List<DecodedFrequencyModel>.generate(audioSettingsModel.chunksCount, (int chunkIndex) {
-      int bestFrequency = correlationCalculator.findBestFrequency(sample, chunkIndex);
-      return DecodedFrequencyModel(chunkFrequency: bestFrequency, chunkIndex: chunkIndex);
+      int chunkFrequency = chunkFrequencyCorrelationCalculator.findFrequencyWithHighestCorrelation(sample, chunkIndex);
+      return DecodedFrequencyModel(chunkFrequency: chunkFrequency, chunkIndex: chunkIndex);
     });
     return decodedFrequencies;
   }
@@ -120,6 +120,6 @@ Future<int> _computeStartOffset(List<dynamic> props) async {
   List<double> wave = props[0] as List<double>;
   AudioSettingsModel audioSettingsModel = props[1] as AudioSettingsModel;
 
-  IndexCorrelationCalculator correlationCalculator = IndexCorrelationCalculator(audioSettingsModel: audioSettingsModel);
-  return correlationCalculator.findBestIndex(wave, audioSettingsModel.startFrequencies);
+  StartIndexCorrelationCalculator startIndexCorrelationCalculator = StartIndexCorrelationCalculator(audioSettingsModel: audioSettingsModel);
+  return startIndexCorrelationCalculator.findIndexWithHighestCorrelation(wave, audioSettingsModel.startFrequencies);
 }

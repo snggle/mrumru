@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/recorder/packet_recognizer.dart';
-import 'package:mrumru/src/audio/recorder/queue/events/received_packet_event.dart';
+import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dart';
 import 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
 
 void main() async {
@@ -28,12 +28,12 @@ void main() async {
       // Act
       List<double> actualWave = actualAudioGenerator.generateSamples(actualInputString);
 
-      List<ReceivedPacketEvent> actualTestEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
+      List<PacketReceivedEvent> actualTestEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
 
       unawaited(actualPacketRecognizer.startDecoding());
 
-      for (ReceivedPacketEvent packets in actualTestEvents) {
-        actualPacketRecognizer.addPacket(packets);
+      for (PacketReceivedEvent packetReceivedEvent in actualTestEvents) {
+        actualPacketRecognizer.addPacket(packetReceivedEvent);
         await Future<void>.delayed(const Duration(milliseconds: 100));
       }
 
@@ -63,12 +63,12 @@ void main() async {
       // Act
       List<double> actualWave = actualAudioGenerator.generateSamples(actualInputString);
 
-      List<ReceivedPacketEvent> actualTestEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
+      List<PacketReceivedEvent> actualTestEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
 
       unawaited(actualPacketRecognizer.startDecoding());
 
-      for (ReceivedPacketEvent packets in actualTestEvents) {
-        actualPacketRecognizer.addPacket(packets);
+      for (PacketReceivedEvent packetReceivedEvent in actualTestEvents) {
+        actualPacketRecognizer.addPacket(packetReceivedEvent);
         await Future<void>.delayed(const Duration(milliseconds: 100));
       }
 
@@ -98,12 +98,12 @@ void main() async {
       // Act
       List<double> actualWave = actualAudioGenerator.generateSamples(actualInputString);
 
-      List<ReceivedPacketEvent> actualTestEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
+      List<PacketReceivedEvent> actualTestEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
 
       unawaited(actualPacketRecognizer.startDecoding());
 
-      for (ReceivedPacketEvent packets in actualTestEvents) {
-        actualPacketRecognizer.addPacket(packets);
+      for (PacketReceivedEvent packetReceivedEvent in actualTestEvents) {
+        actualPacketRecognizer.addPacket(packetReceivedEvent);
         await Future<void>.delayed(const Duration(milliseconds: 100));
       }
 
@@ -133,12 +133,12 @@ void main() async {
       // Act
       List<double> actualWave = actualAudioGenerator.generateSamples(actualInputString);
 
-      List<ReceivedPacketEvent> actualTestEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
+      List<PacketReceivedEvent> actualTestEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
 
       unawaited(actualPacketRecognizer.startDecoding());
 
-      for (ReceivedPacketEvent packets in actualTestEvents) {
-        actualPacketRecognizer.addPacket(packets);
+      for (PacketReceivedEvent packetReceivedEvent in actualTestEvents) {
+        actualPacketRecognizer.addPacket(packetReceivedEvent);
         await Future<void>.delayed(const Duration(milliseconds: 100));
       }
 
@@ -154,11 +154,11 @@ void main() async {
   });
 }
 
-List<ReceivedPacketEvent> _prepareTestEvents(int sampleSize, List<double> wave) {
+List<PacketReceivedEvent> _prepareTestEvents(int sampleSize, List<double> wave) {
   List<List<double>> samples = <List<double>>[];
   for (int i = 0; i < wave.length; i += sampleSize) {
     samples.add(wave.sublist(i, min(i + sampleSize, wave.length)));
   }
-  List<ReceivedPacketEvent> receivedPacketEvents = samples.map(ReceivedPacketEvent.new).toList();
-  return receivedPacketEvents;
+  List<PacketReceivedEvent> packetReceivedEvents = samples.map(PacketReceivedEvent.new).toList();
+  return packetReceivedEvents;
 }

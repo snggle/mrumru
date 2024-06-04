@@ -1,16 +1,16 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/src/audio/recorder/queue/events/a_packet_event.dart';
-import 'package:mrumru/src/audio/recorder/queue/events/received_packet_event.dart';
-import 'package:mrumru/src/audio/recorder/queue/events/remaining_packet_event.dart';
+import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dart';
+import 'package:mrumru/src/audio/recorder/queue/events/packet_remaining_event.dart';
 import 'package:mrumru/src/audio/recorder/queue/packet_event_queue.dart';
 
 void main() {
-  group('Test of PacketQueue.push() method process', () {
+  group('Test of PacketEventQueue.push() method process', () {
     PacketEventQueue actualPacketEventQueue = PacketEventQueue();
-    ReceivedPacketEvent actualFirstPacketEvent = ReceivedPacketEvent(List<double>.filled(8, 0));
-    ReceivedPacketEvent actualSecondPacketEvent = ReceivedPacketEvent(List<double>.filled(8, 1));
+    PacketReceivedEvent actualFirstPacketEvent = PacketReceivedEvent(List<double>.filled(8, 0));
+    PacketReceivedEvent actualSecondPacketEvent = PacketReceivedEvent(List<double>.filled(8, 1));
 
-    test('Should [add ReceivedPacketEvent] to queue if [queue EMPTY]', () {
+    test('Should [add PacketReceivedEvent] to queue if [queue EMPTY]', () {
       // Act
       actualPacketEventQueue.push(actualFirstPacketEvent);
 
@@ -20,7 +20,7 @@ void main() {
       expect(actualPacketEventQueue.eventQueue, expectedPacketEventQueue);
     });
 
-    test('Should [add ReceivedPacketEvent] to queue if [queue NOT EMPTY]', () {
+    test('Should [add PacketReceivedEvent] to queue if [queue NOT EMPTY]', () {
       // Act
       actualPacketEventQueue.push(actualSecondPacketEvent);
 
@@ -30,9 +30,9 @@ void main() {
       expect(actualPacketEventQueue.eventQueue, expectedPacketEventQueue);
     });
 
-    test('Should [add RemainingPacketEvent] to queue as first element', () {
+    test('Should [add PacketRemainingEvent] to queue as first element', () {
       // Arrange
-      RemainingPacketEvent actualRemainingPacket = RemainingPacketEvent(List<double>.filled(8, 2));
+      PacketRemainingEvent actualRemainingPacket = PacketRemainingEvent(List<double>.filled(8, 2));
 
       // Act
       actualPacketEventQueue.push(actualRemainingPacket);
@@ -44,9 +44,9 @@ void main() {
     });
   });
 
-  group('Test of PacketQueue.isLongerThan() method', () {
+  group('Test of PacketEventQueue.isLongerThan() method', () {
     List<double> actualSamples = List<double>.filled(8, 0);
-    ReceivedPacketEvent actualPacketEvent = ReceivedPacketEvent(actualSamples);
+    PacketReceivedEvent actualPacketEvent = PacketReceivedEvent(actualSamples);
     PacketEventQueue actualPacketEventQueue = PacketEventQueue(queue: <APacketEvent>[actualPacketEvent]);
 
     test('Should [return TRUE] if [queue LONGER] than given length', () {
@@ -77,8 +77,8 @@ void main() {
     });
   });
 
-  group('Test of PacketQueue.readWave() method', () {
-    ReceivedPacketEvent actualPacket = ReceivedPacketEvent(List<double>.filled(8, 0));
+  group('Test of PacketEventQueue.readWave() method', () {
+    PacketReceivedEvent actualPacket = PacketReceivedEvent(List<double>.filled(8, 0));
 
     test('Should [return wave] from queue with given size', () async {
       // Arrange
@@ -110,9 +110,9 @@ void main() {
     });
   });
 
-  group('Test of PacketQueue.pop() method process', () {
-    ReceivedPacketEvent actualFirstPacket = ReceivedPacketEvent(List<double>.filled(8, 0));
-    ReceivedPacketEvent actualSecondPacket = ReceivedPacketEvent(List<double>.filled(8, 1));
+  group('Test of PacketEventQueue.pop() method process', () {
+    PacketReceivedEvent actualFirstPacket = PacketReceivedEvent(List<double>.filled(8, 0));
+    PacketReceivedEvent actualSecondPacket = PacketReceivedEvent(List<double>.filled(8, 1));
     PacketEventQueue actualPacketEventQueue = PacketEventQueue(queue: <APacketEvent>[actualFirstPacket, actualSecondPacket]);
 
     test('Should [remove and return] first event in the queue and [leave queue with one element]', () {
@@ -120,7 +120,7 @@ void main() {
       APacketEvent actualPoppedPacketEvent = actualPacketEventQueue.pop();
 
       // Assert
-      ReceivedPacketEvent expectedPoppedEvent = ReceivedPacketEvent(List<double>.filled(8, 0));
+      PacketReceivedEvent expectedPoppedEvent = PacketReceivedEvent(List<double>.filled(8, 0));
 
       expect(actualPoppedPacketEvent.packet, expectedPoppedEvent.packet);
     });
@@ -130,7 +130,7 @@ void main() {
       APacketEvent actualPoppedPacketEvent = actualPacketEventQueue.pop();
 
       // Assert
-      ReceivedPacketEvent expectedPoppedEvent = ReceivedPacketEvent(List<double>.filled(8, 1));
+      PacketReceivedEvent expectedPoppedEvent = PacketReceivedEvent(List<double>.filled(8, 1));
 
       expect(actualPoppedPacketEvent.packet, expectedPoppedEvent.packet);
     });

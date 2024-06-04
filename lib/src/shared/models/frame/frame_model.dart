@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/shared/exceptions/invalid_checksum_exepction.dart';
+import 'package:mrumru/src/shared/exceptions/invalid_checksum_exception.dart';
 import 'package:mrumru/src/shared/utils/binary_utils.dart';
 import 'package:mrumru/src/shared/utils/crypto_utils.dart';
 
@@ -49,8 +49,9 @@ class FrameModel extends Equatable {
     return binaryList.join();
   }
 
-  int getTransferWavLength(AudioSettingsModel audioSettingsModel) =>
-      (framesCount * 56 / 2 * audioSettingsModel.sampleSize * audioSettingsModel.sampleRate).toInt();
+  int calculateTransferWavLength(AudioSettingsModel audioSettingsModel) {
+    return (framesCount * 56 / 2 * audioSettingsModel.sampleSize * audioSettingsModel.sampleRate).toInt();
+  }
 
   List<String> get binaryList {
     String frameNumberBinary = BinaryUtils.parseIntToPaddedBinary(frameIndex, frameSettings.frameIndexBitsLength);
