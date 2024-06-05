@@ -6,25 +6,47 @@ library mrumru;
 ///
 /// Usage:
 ///   ```
-///   // Creates an instance of [AudioGenerator] with the provided [audioSettingsModel] and [frameSettingsModel].
-///   AudioGenerator audioGenerator = AudioGenerator(audioSettingsModel: audioSettingsModel, frameSettingsModel: frameSettingsModel);
+///   // Creates an instance of [AudioGenerator].
+///   AudioGenerator audioGenerator = AudioGenerator(
+///     audioSink: AudioSink(),
+///     audioSettingsModel: AudioSettingsModel(),
+///     frameSettingsModel: FrameSettingsModel(),
+///     audioGeneratorNotifier: AudioGeneratorNotifier(),
+///   );
 ///
-///   // Generates audio samples from the provided [textMessage].
-///   List<double> waveBytes = audioGenerator.generateSamples(textMessage);
-///
-///   // Generates a WAV file from the provided [textMessage].
-///   Uint8List audioBytes = audioGenerator.generateWavFileBytes(textMessage);
+///   // Generates audio samples from the provided [textMessage] and adds them to the given [AudioSink]
+///   audioGenerator.generate(textMessage);
 ///   ```
 export 'package:mrumru/src/audio/generator/audio_generator.dart';
+export 'package:mrumru/src/audio/generator/audio_generator_notifier.dart';
+
+/// Sinks provides more organized way of providing or saving samples. It can be used to pass audio samples as multiple data types, such as streams, files, etc
+///
+/// Usage:
+///   ```
+///   // Audio multi sink used to pass audio samples to multiple sinks.
+///   AudioMultiSink audioMultiSink = AudioMultiSink(<IAudioSink>[audioFileSink, audioStreamSink]);
+///
+///   // Audio file sink used to save audio samples to a file.
+///   AudioFileSink audioFileSink = AudioFileSink(file);
+///
+///   // Audio stream sink used to pass audio samples to a stream.
+///   AudioStreamSink audioStreamSink = AudioStreamSink();
+///
+///  ```
+export 'package:mrumru/src/audio/generator/sink/audio_file_sink.dart';
+export 'package:mrumru/src/audio/generator/sink/audio_multi_sink.dart';
+export 'package:mrumru/src/audio/generator/sink/audio_stream_sink.dart';
+export 'package:mrumru/src/audio/generator/sink/i_audio_sink.dart';
 
 /// Records audio samples from the microphone.
 ///
 /// Usage:
 ///   ```
-///   // Creates an instance of [AudioRecorderController] with the provided [audioSettingsModel], [frameSettingsModel], [onRecordingCompleted] and [onFrameReceived].
+///   // Creates an instance of [AudioRecorderController].
 ///   AudioRecorderController audioRecorderController = AudioRecorderController(
-///     audioSettingsModel: audioSettingsModel,
-///     frameSettingsModel: frameSettingsModel,
+///     audioSettingsModel: AudioSettingsModel(),
+///     frameSettingsModel: FrameSettingsModel(),
 ///     onRecordingCompleted: () {},
 ///     onFrameReceived: (FrameModel frameModel) {},
 ///   );
@@ -41,14 +63,14 @@ export 'package:mrumru/src/audio/recorder/audio_recorder_controller.dart';
 ///
 /// Usage:
 ///  ```
-///   // Creates an instance of [AudioSettingsModel] with the provided [sampleRate], [channels], [baseFrequency], [bitDepth], [bitsPerFrequency] and [chunksCount].
+///   // Creates an instance of [AudioSettingsModel].
 ///   AudioSettingsModel audioSettingsModel = AudioSettingsModel(
-///    sampleRate: 44100,
-///    channels: 1,
-///    baseFrequency: 1000,
-///    bitDepth: 16,
-///    bitsPerFrequency: 4,
-///    chunksCount: 4,
+///     sampleRate: 44100,
+///     channels: 1,
+///     baseFrequency: 1000,
+///     bitDepth: 16,
+///     bitsPerFrequency: 4,
+///     chunksCount: 4,
 ///   );
 ///
 ///
@@ -71,12 +93,12 @@ export 'package:mrumru/src/shared/models/audio_settings_model.dart';
 ///
 /// Usage:
 ///  ```
-///   // Creates an instance of [FrameModel] with the provided [frameIndex], [framesCount], [rawData] and [frameSettings].
+///   // Creates an instance of [FrameModel].
 ///   FrameModel frameModel = FrameModel(
 ///     frameIndex: 0,
 ///     framesCount: 20,
 ///     rawData: '1234',
-///     frameSettings: frameSettingsModel,
+///     frameSettings: FrameSettingsModel(),
 ///   );
 ///
 ///   // Get [mergedBinaryFrames] from [FrameModel] created from decoded content of the frame.
@@ -97,12 +119,12 @@ export 'package:mrumru/src/shared/models/frame/frame_model.dart';
 ///
 /// Usage:
 ///  ```
-///   // Creates an instance of [FrameSettingsModel] with the provided [frameIndexBitsLength], [framesCountBitsLength], [dataBitsLength] and [checksumBitsLength].
+///   // Creates an instance of [FrameSettingsModel].
 ///   FrameSettingsModel frameSettingsModel = FrameSettingsModel(
-///    frameIndexBitsLength: 4,
-///    framesCountBitsLength: 4,
-///    dataBitsLength: 8,
-///    checksumBitsLength: 4,
+///     frameIndexBitsLength: 4,
+///     framesCountBitsLength: 4,
+///     dataBitsLength: 8,
+///     checksumBitsLength: 4,
 ///   );
 ///
 ///   // Creates an instance of [FrameSettingsModel] with default values.

@@ -2,56 +2,70 @@ import 'dart:math' as math;
 
 import 'package:mrumru/mrumru.dart';
 
+/// The [FskEncoder] class provides functionalities to convert binary data into
+/// a list of frequencies using Frequency Shift Keying (FSK).
 class FskEncoder {
-  final int bitsPerFrequency;
-  final int baseFrequency;
-  final int chunksCount;
-  final int maxFrequency;
-  final int frequencyGap;
+  /// The settings model for audio configuration.
+  final AudioSettingsModel _audioSettingsModel;
 
-  FskEncoder(AudioSettingsModel audioSettingsModel)
-      : bitsPerFrequency = audioSettingsModel.bitsPerFrequency,
-        baseFrequency = audioSettingsModel.baseFrequency,
-        chunksCount = audioSettingsModel.chunksCount,
-        maxFrequency = audioSettingsModel.maxFrequency,
-        frequencyGap = audioSettingsModel.frequencyGap;
+  /// Creates an instance of [FskEncoder].
+  FskEncoder(this._audioSettingsModel);
 
-  List<int> encodeBinaryDataToFrequencies(String binaryData) {
-    String chunkedBinary = _chunkBinary(binaryData, bitsPerFrequency, chunksCount);
+  /// This method encodes the binary data into frequencies, chunks them, and adds
+  /// start and end frequencies based on the audio settings.
+  List<List<int>> buildFrequencies(String binary) {
+    List<int> baseFrequencies = _encodeBinaryToFrequencies(binary);
+    List<List<int>> chunkedFrequenciesList = _chunkFrequencies(baseFrequencies)
+      ..insert(0, _audioSettingsModel.startFrequencies)
+      ..add(_audioSettingsModel.endFrequencies);
+
+    return chunkedFrequenciesList;
+  }
+
+  /// This method converts each segment of binary data into a corresponding frequency
+  /// based on the audio settings.
+  List<int> _encodeBinaryToFrequencies(String binaryData) {
     List<int> encodedFrequencies = <int>[];
-    int chunkSize = chunkedBinary.length ~/ chunksCount;
-    int frequenciesCount = (chunkedBinary.length / bitsPerFrequency).ceil();
+    int frequenciesCount = (binaryData.length / _audioSettingsModel.bitsPerFrequency).ceil();
 
     for (int i = 0; i < frequenciesCount; i++) {
-      int frequencyStartIndex = i * bitsPerFrequency;
-      String frequencyBits = _extractFrequencyBits(frequencyStartIndex, chunkedBinary);
-      int frequency = baseFrequency + int.parse(frequencyBits, radix: 2) * frequencyGap;
-      int chunkShift = (frequencyStartIndex ~/ chunkSize) * (maxFrequency + frequencyGap);
-      int chunkFrequency = frequency + chunkShift;
-      encodedFrequencies.add(chunkFrequency);
+      int frequency = _calculateFrequency(binaryData, i);
+      encodedFrequencies.add(frequency);
     }
     return encodedFrequencies;
   }
 
-  String _chunkBinary(String binary, int bitsPerFrequency, int chunksCount) {
-    List<String> parts = <String>[];
-    for (int i = 0; i < binary.length; i += bitsPerFrequency) {
-      parts.add(binary.substring(i, i + bitsPerFrequency));
-    }
+  /// This method converts a segment of binary data into a frequency by parsing
+  /// the bits and applying the frequency gap.
+  int _calculateFrequency(String binaryData, int index) {
+    int frequencyStartIndex = index * _audioSettingsModel.bitsPerFrequency;
+    int frequencyEndIndex = frequencyStartIndex + _audioSettingsModel.bitsPerFrequency;
 
-    List<List<String>> chunks = List<List<String>>.generate(chunksCount, (_) => <String>[]);
+    String frequencyBits =
+        binaryData.substring(frequencyStartIndex, math.min(frequencyEndIndex, binaryData.length)).padRight(_audioSettingsModel.bitsPerFrequency, '0');
 
-    int chunkIndex = 0;
-    for (String part in parts) {
-      chunks[chunkIndex].add(part);
-      chunkIndex = (chunkIndex + 1) % chunksCount;
-    }
-
-    return chunks.map((List<String> chunk) => chunk.join('')).join('');
+    return _audioSettingsModel.baseFrequency + int.parse(frequencyBits, radix: 2) * _audioSettingsModel.frequencyGap;
   }
 
-  String _extractFrequencyBits(int frequencyStartIndex, String binaryData) {
-    int frequencyEndIndex = frequencyStartIndex + bitsPerFrequency;
-    return binaryData.substring(frequencyStartIndex, math.min(frequencyEndIndex, binaryData.length)).padRight(bitsPerFrequency, '0');
+  /// This method splits the base frequencies into smaller chunks and adjusts
+  /// the frequencies by applying a chunk shift based on the audio settings.
+  List<List<int>> _chunkFrequencies(List<int> baseFrequencies) {
+    List<List<int>> chunkFrequenciesList = <List<int>>[];
+    for (int i = 0; i < baseFrequencies.length; i += _audioSettingsModel.chunksCount) {
+      chunkFrequenciesList.add(baseFrequencies.sublist(i, i + _audioSettingsModel.chunksCount));
+    }
+
+    List<List<int>> chunkedFrequenciesList = <List<int>>[];
+    for (List<int> chunkFrequencies in chunkFrequenciesList) {
+      List<int> chunkedFrequencies = <int>[];
+      for (int i = 0; i < chunkFrequencies.length; i++) {
+        int frequency = chunkFrequencies[i];
+        int chunkShift = i * (_audioSettingsModel.maxFrequency + _audioSettingsModel.frequencyGap);
+        int chunkFrequency = frequency + chunkShift;
+        chunkedFrequencies.add(chunkFrequency);
+      }
+      chunkedFrequenciesList.add(chunkedFrequencies);
+    }
+    return chunkedFrequenciesList;
   }
 }

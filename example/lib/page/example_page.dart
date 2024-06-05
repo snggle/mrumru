@@ -1,5 +1,7 @@
 import 'package:example/cubit/audio_emission_cubit/a_audio_emission_state.dart';
 import 'package:example/cubit/audio_emission_cubit/audio_emission_cubit.dart';
+import 'package:example/cubit/audio_emission_cubit/states/audio_emission_empty_state.dart';
+import 'package:example/cubit/audio_emission_cubit/states/audio_emission_generating_state.dart';
 import 'package:example/cubit/audio_emission_cubit/states/audio_emission_listening_state.dart';
 import 'package:example/cubit/audio_emission_cubit/states/audio_emission_result_state.dart';
 import 'package:example/widgets/numeric_field.dart';
@@ -15,6 +17,7 @@ class ExamplePage extends StatefulWidget {
 
 class _ExamplePageState extends State<ExamplePage> {
   final AudioEmissionCubit audioEmissionCubit = AudioEmissionCubit();
+  final TextEditingController messageTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +57,7 @@ class _ExamplePageState extends State<ExamplePage> {
                 ),
                 TextFormField(
                   decoration: const InputDecoration(labelText: 'message'),
-                  controller: audioEmissionCubit.messageTextController,
+                  controller: messageTextController,
                 ),
                 const SizedBox(height: 16),
                 const Text('Emit audio'),
@@ -63,14 +66,21 @@ class _ExamplePageState extends State<ExamplePage> {
                   children: <Widget>[
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: audioEmissionCubit.playSound,
+                        onPressed: state is AudioEmissionGeneratingState ? null : () => audioEmissionCubit.playSound(messageTextController.text),
                         child: const Text('Start emission'),
                       ),
                     ),
                     const SizedBox(width: 18),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: audioEmissionCubit.stopSound,
+                        onPressed: state is AudioEmissionGeneratingState ? null : () => audioEmissionCubit.playSoundAndSave(messageTextController.text),
+                        child: const Text('Start emission and save'),
+                      ),
+                    ),
+                    const SizedBox(width: 18),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: state is AudioEmissionEmptyState ? null : audioEmissionCubit.stopSound,
                         child: const Text('Stop emission'),
                       ),
                     ),
