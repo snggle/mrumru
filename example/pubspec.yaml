@@ -26,10 +26,6 @@ dependencies:
   # https://pub.dev/packages/equatable
   equatable: 2.0.5
   
-  #  This is a simple Service Locator for Dart and Flutter projects
-  #  https://pub.dev/packages/get_it
-  get_it: 7.6.4
-  
   # Small, easy to use and extensible logger which prints beautiful logs.
   # https://pub.dev/packages/logger
   logger: 2.0.2+1

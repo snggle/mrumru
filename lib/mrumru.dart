@@ -16,6 +16,7 @@ library mrumru;
 ///   Uint8List audioBytes = audioGenerator.generateWavFileBytes(textMessage);
 ///   ```
 export 'package:mrumru/src/audio/generator/audio_generator.dart';
+
 /// Records audio samples from the microphone.
 ///
 /// Usage:
@@ -35,6 +36,7 @@ export 'package:mrumru/src/audio/generator/audio_generator.dart';
 ///   audioRecorderController.stopRecording();
 ///  ```
 export 'package:mrumru/src/audio/recorder/audio_recorder_controller.dart';
+
 /// Adds audio settings that can be modified to customize the audio structure.
 ///
 /// Usage:
@@ -63,7 +65,8 @@ export 'package:mrumru/src/audio/recorder/audio_recorder_controller.dart';
 ///   List<int> possibleFrequencies = audioSettingsModel.possibleFrequencies;
 ///
 ///   ```
-export 'package:mrumru/src/shared/models/audio_settings.dart';
+export 'package:mrumru/src/shared/models/audio_settings_model.dart';
+
 /// Provides model of frame used to encode and decode data.
 ///
 /// Usage:
@@ -89,6 +92,7 @@ export 'package:mrumru/src/shared/models/audio_settings.dart';
 ///   int transferWavLength = frameModel.getTransferWavLength(audioSettingsModel);
 ///  ```
 export 'package:mrumru/src/shared/models/frame/frame_model.dart';
+
 /// Adds frame settings that are can be modified to customize the frame structure.
 ///
 /// Usage:

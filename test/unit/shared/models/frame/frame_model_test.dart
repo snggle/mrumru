@@ -48,14 +48,14 @@ void main() {
     });
   });
 
-  group('Tests of FrameModel.getTransferWavLength()', () {
+  group('Tests of FrameModel.calculateTransferWavLength()', () {
     test('Should [return transfer wav length] from given [frame model] and [audio settings model]', () {
       // Arrange
       AudioSettingsModel audioSettingsModel = AudioSettingsModel.withDefaults();
       FrameModel actualFrameModel = FrameModel(frameIndex: 0, framesCount: 10, rawData: '1', frameSettings: actualFrameSettings);
 
       // Act
-      int actualTransferWavLength = actualFrameModel.getTransferWavLength(audioSettingsModel);
+      int actualTransferWavLength = actualFrameModel.calculateTransferWavLength(audioSettingsModel);
 
       // Assert
       int expectedTransferWavLength = 108416000000;
