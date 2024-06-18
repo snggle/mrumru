@@ -1,164 +1,103 @@
-import 'dart:async';
-import 'dart:math';
+import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/audio/recorder/packet_recognizer.dart';
-import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dart';
-import 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
+import 'package:wav/wav.dart';
+
+import '../../../utils/test_utils.dart';
 
 void main() async {
-  group('Tests of AudioGenerator.generateSamples() and PackageRecognizer decoding process', () {
-    String actualInputString = 'Lorem ipsum dolor sit amet';
-    String expectedDecodedSamples = 'Lorem ipsum dolor sit amet';
+  String actualMessage = '12345678';
+  File actualWavTestFile = File('${Directory.systemTemp.path}/test.wav');
 
-    test('Should [generate samples] and correctly decode them if [chunksCount == 1]', () async {
+  group('Test of AudioGenerator.generate()', () {
+    test('Should [generate wave] from given message (chunksCount == 1)', () async {
       // Arrange
-      AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults().copyWith(chunksCount: 1);
-      FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
-      PacketRecognizer actualPacketRecognizer = PacketRecognizer(
-        audioSettingsModel: actualAudioSettingsModel,
-        frameSettingsModel: actualFrameSettingsModel,
-        onDecodingCompleted: () {},
-        onFrameDecoded: (FrameModel frameModel) {},
-      );
-
-      AudioGenerator actualAudioGenerator = AudioGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
+      AudioFileSink audioFileSink = AudioFileSink(actualWavTestFile);
 
       // Act
-      List<double> actualWave = actualAudioGenerator.generateSamples(actualInputString);
-
-      List<PacketReceivedEvent> actualTestEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
-
-      unawaited(actualPacketRecognizer.startDecoding());
-
-      for (PacketReceivedEvent packetReceivedEvent in actualTestEvents) {
-        actualPacketRecognizer.addPacket(packetReceivedEvent);
-        await Future<void>.delayed(const Duration(milliseconds: 100));
-      }
-
-      FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
-
-      await actualPacketRecognizer.stopRecording();
+      await AudioGenerator(
+        audioSink: audioFileSink,
+        audioSettingsModel: AudioSettingsModel.withDefaults().copyWith(chunksCount: 1),
+        frameSettingsModel: FrameSettingsModel.withDefaults(),
+        audioGeneratorNotifier: AudioGeneratorNotifier(),
+      ).generate(actualMessage);
+      await audioFileSink.future;
+      Uint8List actualWavFileBytes = await actualWavTestFile.readAsBytes();
+      List<double> actualWave = Wav.read(actualWavFileBytes).channels.first;
 
       // Assert
-      String actualDecodedString = actualFrameCollectionModel.mergedRawData;
+      List<double> expectedWave = await TestUtils.readAsDoubleFromFile(File('test/unit/audio/assets/mocked_audio_wave_chunks_count_1.txt'));
 
-      expect(actualDecodedString, expectedDecodedSamples);
+      // Values are rounded to 10 decimal places to avoid operating system differences in the generated calculated values
+      expect(TestUtils.roundList(actualWave, 10), TestUtils.roundList(expectedWave, 10));
     });
 
-    test('Should [generate samples] and correctly decode them if [chunksCount == 2]', () async {
+    test('Should [generate wave] from given message (chunksCount == 2)', () async {
       // Arrange
-      AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults().copyWith(chunksCount: 2);
-      FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
-      PacketRecognizer actualPacketRecognizer = PacketRecognizer(
-        audioSettingsModel: actualAudioSettingsModel,
-        frameSettingsModel: actualFrameSettingsModel,
-        onDecodingCompleted: () {},
-        onFrameDecoded: (FrameModel frameModel) {},
-      );
-
-      AudioGenerator actualAudioGenerator = AudioGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
+      AudioFileSink audioFileSink = AudioFileSink(actualWavTestFile);
 
       // Act
-      List<double> actualWave = actualAudioGenerator.generateSamples(actualInputString);
-
-      List<PacketReceivedEvent> actualTestEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
-
-      unawaited(actualPacketRecognizer.startDecoding());
-
-      for (PacketReceivedEvent packetReceivedEvent in actualTestEvents) {
-        actualPacketRecognizer.addPacket(packetReceivedEvent);
-        await Future<void>.delayed(const Duration(milliseconds: 100));
-      }
-
-      FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
-
-      await actualPacketRecognizer.stopRecording();
+      await AudioGenerator(
+        audioSink: audioFileSink,
+        audioSettingsModel: AudioSettingsModel.withDefaults().copyWith(chunksCount: 2),
+        frameSettingsModel: FrameSettingsModel.withDefaults(),
+        audioGeneratorNotifier: AudioGeneratorNotifier(),
+      ).generate(actualMessage);
+      await audioFileSink.future;
+      Uint8List actualWavFileBytes = await actualWavTestFile.readAsBytes();
+      List<double> actualWave = Wav.read(actualWavFileBytes).channels.first;
 
       // Assert
-      String actualDecodedString = actualFrameCollectionModel.mergedRawData;
+      List<double> expectedWave = await TestUtils.readAsDoubleFromFile(File('test/unit/audio/assets/mocked_audio_wave_chunks_count_2.txt'));
 
-      expect(actualDecodedString, expectedDecodedSamples);
+      // Values are rounded to 10 decimal places to avoid operating system differences in the generated calculated values
+      expect(TestUtils.roundList(actualWave, 10), TestUtils.roundList(expectedWave, 10));
     });
 
-    test('Should [generate samples] and correctly decode them if [chunksCount == 4]', () async {
+    test('Should [generate wave] from given message (chunksCount == 4)', () async {
       // Arrange
-      AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults().copyWith(chunksCount: 4);
-      FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
-      PacketRecognizer actualPacketRecognizer = PacketRecognizer(
-        audioSettingsModel: actualAudioSettingsModel,
-        frameSettingsModel: actualFrameSettingsModel,
-        onDecodingCompleted: () {},
-        onFrameDecoded: (FrameModel frameModel) {},
-      );
-
-      AudioGenerator actualAudioGenerator = AudioGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
+      AudioFileSink audioFileSink = AudioFileSink(actualWavTestFile);
 
       // Act
-      List<double> actualWave = actualAudioGenerator.generateSamples(actualInputString);
-
-      List<PacketReceivedEvent> actualTestEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
-
-      unawaited(actualPacketRecognizer.startDecoding());
-
-      for (PacketReceivedEvent packetReceivedEvent in actualTestEvents) {
-        actualPacketRecognizer.addPacket(packetReceivedEvent);
-        await Future<void>.delayed(const Duration(milliseconds: 100));
-      }
-
-      FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
-
-      await actualPacketRecognizer.stopRecording();
+      await AudioGenerator(
+        audioSink: audioFileSink,
+        audioSettingsModel: AudioSettingsModel.withDefaults().copyWith(chunksCount: 4),
+        frameSettingsModel: FrameSettingsModel.withDefaults(),
+        audioGeneratorNotifier: AudioGeneratorNotifier(),
+      ).generate(actualMessage);
+      await audioFileSink.future;
+      Uint8List actualWavFileBytes = await actualWavTestFile.readAsBytes();
+      List<double> actualWave = Wav.read(actualWavFileBytes).channels.first;
 
       // Assert
-      String actualDecodedString = actualFrameCollectionModel.mergedRawData;
+      List<double> expectedWave = await TestUtils.readAsDoubleFromFile(File('test/unit/audio/assets/mocked_audio_wave_chunks_count_4.txt'));
 
-      expect(actualDecodedString, expectedDecodedSamples);
+      // Values are rounded to 10 decimal places to avoid operating system differences in the generated calculated values
+      expect(TestUtils.roundList(actualWave, 10), TestUtils.roundList(expectedWave, 10));
     });
 
-    test('Should [generate samples] and correctly decode them if [chunksCount == 8]', () async {
+    test('Should [generate wave] from given message (chunksCount == 8)', () async {
       // Arrange
-      AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults().copyWith(chunksCount: 8);
-      FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
-      PacketRecognizer actualPacketRecognizer = PacketRecognizer(
-        audioSettingsModel: actualAudioSettingsModel,
-        frameSettingsModel: actualFrameSettingsModel,
-        onDecodingCompleted: () {},
-        onFrameDecoded: (FrameModel frameModel) {},
-      );
-
-      AudioGenerator actualAudioGenerator = AudioGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
+      AudioFileSink audioFileSink = AudioFileSink(actualWavTestFile);
 
       // Act
-      List<double> actualWave = actualAudioGenerator.generateSamples(actualInputString);
-
-      List<PacketReceivedEvent> actualTestEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
-
-      unawaited(actualPacketRecognizer.startDecoding());
-
-      for (PacketReceivedEvent packetReceivedEvent in actualTestEvents) {
-        actualPacketRecognizer.addPacket(packetReceivedEvent);
-        await Future<void>.delayed(const Duration(milliseconds: 100));
-      }
-
-      FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
-
-      await actualPacketRecognizer.stopRecording();
+      await AudioGenerator(
+        audioSink: audioFileSink,
+        audioSettingsModel: AudioSettingsModel.withDefaults().copyWith(chunksCount: 8),
+        frameSettingsModel: FrameSettingsModel.withDefaults(),
+        audioGeneratorNotifier: AudioGeneratorNotifier(),
+      ).generate(actualMessage);
+      await audioFileSink.future;
+      Uint8List actualWavFileBytes = await actualWavTestFile.readAsBytes();
+      List<double> actualWave = Wav.read(actualWavFileBytes).channels.first;
 
       // Assert
-      String actualDecodedString = actualFrameCollectionModel.mergedRawData;
+      List<double> expectedWave = await TestUtils.readAsDoubleFromFile(File('test/unit/audio/assets/mocked_audio_wave_chunks_count_8.txt'));
 
-      expect(actualDecodedString, expectedDecodedSamples);
+      // Values are rounded to 10 decimal places to avoid operating system differences in the generated calculated values
+      expect(TestUtils.roundList(actualWave, 10), TestUtils.roundList(expectedWave, 10));
     });
   });
-}
-
-List<PacketReceivedEvent> _prepareTestEvents(int sampleSize, List<double> wave) {
-  List<List<double>> samples = <List<double>>[];
-  for (int i = 0; i < wave.length; i += sampleSize) {
-    samples.add(wave.sublist(i, min(i + sampleSize, wave.length)));
-  }
-  List<PacketReceivedEvent> packetReceivedEvents = samples.map(PacketReceivedEvent.new).toList();
-  return packetReceivedEvents;
 }

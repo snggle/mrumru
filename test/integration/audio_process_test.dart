@@ -11,11 +11,15 @@ import 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
 import 'package:wav/wav.dart';
 
 void main() async {
-  group('Tests of AudioGenerator.generateWavFileBytes() and PacketRecognizer.decodedContent', () {
+  group('Tests of AudioGenerator.generate() and PacketRecognizer.decodedContent()', () {
     test('Should generate and correctly decode .WAV file', () async {
       // Arrange
       AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults();
       FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
+      File actualWavFile = File('./test/integration/assets/mocked_wave_file.wav');
+      String actualInputString = '123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
+      AudioFileSink audioFileSink = AudioFileSink(actualWavFile);
+
       PacketRecognizer actualPacketRecognizer = PacketRecognizer(
         audioSettingsModel: actualAudioSettingsModel,
         frameSettingsModel: actualFrameSettingsModel,
@@ -23,33 +27,28 @@ void main() async {
         onFrameDecoded: (FrameModel frameModel) {},
       );
 
-      AudioGenerator actualAudioGenerator = AudioGenerator(audioSettingsModel: actualAudioSettingsModel, frameSettingsModel: actualFrameSettingsModel);
+      // Act (AudioGenerator)
+      await AudioGenerator(
+        audioSink: audioFileSink,
+        audioSettingsModel: actualAudioSettingsModel,
+        frameSettingsModel: actualFrameSettingsModel,
+      ).generate(actualInputString);
 
-      File actualWavFile = File('./test/integration/assets/mocked_wave_file.wav');
-      String actualInputString = '123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
-      // Act
-      // Create WAV file
-      List<int> actualGeneratedWavBytes = actualAudioGenerator.generateWavFileBytes(actualInputString);
-      await actualWavFile.writeAsBytes(actualGeneratedWavBytes);
-
-      // Read WAV file
-      // Because output of the "generateWavFileBytes" method is very large it's not possible to create a mock of it
-      // For this reason we save the output to a .WAV file and then read it and try to decode it
+      await audioFileSink.future;
       Uint8List actualWavFileBytes = await actualWavFile.readAsBytes();
+      List<double> actualWave = Wav.read(actualWavFileBytes).channels.first;
 
-      List<double> actualWave = Wav.read(Uint8List.fromList(actualWavFileBytes)).channels.first;
+      // Act (PacketRecognizer)
       List<PacketReceivedEvent> testEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
 
       unawaited(actualPacketRecognizer.startDecoding());
 
       for (PacketReceivedEvent packetReceivedEvent in testEvents) {
         actualPacketRecognizer.addPacket(packetReceivedEvent);
-        await Future<void>.delayed(const Duration(milliseconds: 600));
+        await Future<void>.delayed(const Duration(milliseconds: 100));
       }
 
       FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
-
-      await actualPacketRecognizer.stopRecording();
 
       // Assert
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(
@@ -87,6 +86,6 @@ List<PacketReceivedEvent> _prepareTestEvents(int sampleSize, List<double> wave) 
   for (int i = 0; i < wave.length; i += sampleSize) {
     samples.add(wave.sublist(i, min(i + sampleSize, wave.length)));
   }
-  List<PacketReceivedEvent> packetReceivedEvents = samples.map(PacketReceivedEvent.new).toList();
-  return packetReceivedEvents;
+  List<PacketReceivedEvent> packetReceivedEvent = samples.map(PacketReceivedEvent.new).toList();
+  return packetReceivedEvent;
 }

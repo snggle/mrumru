@@ -1,18 +1,24 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:example/cubit/audio_emission_cubit/a_audio_emission_state.dart';
 import 'package:example/cubit/audio_emission_cubit/states/audio_emission_empty_state.dart';
+import 'package:example/cubit/audio_emission_cubit/states/audio_emission_generating_state.dart';
 import 'package:example/cubit/audio_emission_cubit/states/audio_emission_listening_state.dart';
 import 'package:example/cubit/audio_emission_cubit/states/audio_emission_result_state.dart';
 import 'package:example/shared/utils/app_logger.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mrumru/mrumru.dart';
+import 'package:path_provider/path_provider.dart';
 
 class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
   final AudioPlayer audioPlayer = AudioPlayer();
   final FrameSettingsModel frameSettingsModel = FrameSettingsModel.withDefaults();
   final TextEditingController messageTextController = TextEditingController();
+
+  AudioGenerator? audioGenerator;
 
   late AudioRecorderController audioRecorderController;
   late AudioSettingsModel audioSettingsModel;
@@ -21,15 +27,44 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
     audioSettingsModel = AudioSettingsModel.withDefaults();
   }
 
-  void playSound() {
-    AudioGenerator audioGenerator = AudioGenerator(audioSettingsModel: audioSettingsModel, frameSettingsModel: frameSettingsModel);
-    List<int> audioBytes = audioGenerator.generateWavFileBytes(messageTextController.text);
-    Source source = BytesSource(Uint8List.fromList(audioBytes));
-    audioPlayer.play(source);
+  Future<void> playSound(String text) async {
+    AudioStreamSink audioStreamSink = AudioStreamSink();
+    emit(AudioEmissionGeneratingState());
+    audioGenerator = AudioGenerator(
+      audioSink: audioStreamSink,
+      audioSettingsModel: audioSettingsModel,
+      frameSettingsModel: frameSettingsModel,
+    );
+    await audioGenerator!.generate(text);
+
+    await audioStreamSink.future;
+
+    emit(AudioEmissionEmptyState());
+  }
+
+  Future<void> playSoundAndSave(String text) async {
+    Directory appDirectory = await getApplicationDocumentsDirectory();
+    File wavFile = File('${appDirectory.path}/generated_wav.wav');
+    AudioMultiSink audioMultiSink = AudioMultiSink(<IAudioSink>[
+      AudioStreamSink(),
+      AudioFileSink(wavFile),
+    ]);
+    emit(AudioEmissionGeneratingState());
+    audioGenerator = AudioGenerator(
+      audioSink: audioMultiSink,
+      audioSettingsModel: audioSettingsModel,
+      frameSettingsModel: frameSettingsModel,
+    );
+    unawaited(audioGenerator?.generate(text));
+
+    await audioMultiSink.future;
+
+    emit(AudioEmissionEmptyState());
   }
 
   void stopSound() {
-    audioPlayer.stop();
+    audioGenerator?.stop();
+    emit(AudioEmissionEmptyState());
   }
 
   void startRecording() {
@@ -74,10 +109,6 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
 
   set frequencyGap(int frequencyGap) {
     audioSettingsModel = audioSettingsModel.copyWith(frequencyGap: frequencyGap);
-  }
-
-  set symbolDuration(double symbolDuration) {
-    audioSettingsModel = audioSettingsModel.copyWith(symbolDuration: symbolDuration);
   }
 
   void _handleRecordingCompleted() {

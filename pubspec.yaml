@@ -1,6 +1,6 @@
 name: mrumru
 description: Data Over Audio
-version: 0.0.4
+version: 0.0.5
 publish_to: 'none'
 
 environment:
@@ -15,8 +15,8 @@ dependencies:
   # https://pub.dev/packages/equatable
   equatable: 2.0.5
   
-  #  This is a simple Service Locator for Dart and Flutter projects
-  #  https://pub.dev/packages/get_it
+  # This is a simple Service Locator for Dart and Flutter projects.
+  # https://pub.dev/packages/get_it
   get_it: 7.6.4
   
   # Small, easy to use and extensible logger which prints beautiful logs.
@@ -30,6 +30,14 @@ dependencies:
   # Simple tools for reading and writing WAV and raw audio files.
   # https://pub.dev/packages/wav
   wav: 1.3.0
+
+  # A Flutter plugin for multi-platform, simple audio stream playback with real-time generated audio data streams.
+  # https://pub.dev/packages/mp_audio_stream
+  mp_audio_stream: 0.1.5
+
+  # A wrapper class for Isolate that exposes a communication channel using a Stream.
+  # https://pub.dev/packages/stream_isolate
+  stream_isolate: 0.2.0
 
   # Audio recorder from microphone to a given file path.
   # Fork of: https://pub.dev/packages/record
