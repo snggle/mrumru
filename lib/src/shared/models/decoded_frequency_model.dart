@@ -11,16 +11,15 @@ class DecodedFrequencyModel extends Equatable {
   });
 
   String calcBinary(AudioSettingsModel audioSettingsModel) {
-    int correctedFrequency = _calculateCorrectedFrequency(audioSettingsModel);
-    return _convertFrequencyToBits(correctedFrequency, audioSettingsModel);
-  }
+    int frequency = audioSettingsModel.parseChunkFrequencyToFrequency(chunkFrequency, chunkIndex);
 
-  int _calculateCorrectedFrequency(AudioSettingsModel audioSettingsModel) {
-    return chunkFrequency - chunkIndex * audioSettingsModel.frequencyRange;
+    print('Calculating base frequency($frequency) from $chunkFrequency at chunk index $chunkIndex');
+
+    return _convertFrequencyToBits(frequency, audioSettingsModel);
   }
 
   String _convertFrequencyToBits(int correctedFrequency, AudioSettingsModel audioSettingsModel) {
-    int bitsCount = (correctedFrequency - audioSettingsModel.baseFrequency) ~/ audioSettingsModel.frequencyGap;
+    int bitsCount = (correctedFrequency - audioSettingsModel.baseFrequency) ~/ audioSettingsModel.baseFrequencyGap;
     return bitsCount.toRadixString(2).padLeft(audioSettingsModel.bitsPerFrequency, '0');
   }
 

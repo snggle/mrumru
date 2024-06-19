@@ -108,7 +108,7 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
   }
 
   set frequencyGap(int frequencyGap) {
-    audioSettingsModel = audioSettingsModel.copyWith(frequencyGap: frequencyGap);
+    audioSettingsModel = audioSettingsModel.copyWith(baseFrequencyGap: frequencyGap);
   }
 
   void _handleRecordingCompleted() {

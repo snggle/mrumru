@@ -80,9 +80,11 @@ class AudioGenerator {
         .buildSamples(
             frequencies: frequencies,
             onSampleCreated: (Float32List sample) {
+             // print('pushing sample');
               _audioSink.pushSample(sample);
               _audioGeneratorNotifier?.onSampleCreated?.call(sample);
             })
         .then((_) => _audioSink.notifyAllSamplesCreated());
+        print('created');
   }
 }

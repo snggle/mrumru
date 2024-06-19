@@ -38,7 +38,7 @@ class _ExamplePageState extends State<ExamplePage> {
                 NumericField(
                   fieldName: 'frequencyGap',
                   onFieldSubmitted: (num value) => audioEmissionCubit.frequencyGap = value.toInt(),
-                  textController: TextEditingController(text: audioEmissionCubit.audioSettingsModel.frequencyGap.toString()),
+                  textController: TextEditingController(text: audioEmissionCubit.audioSettingsModel.baseFrequencyGap.toString()),
                 ),
                 NumericField(
                   fieldName: 'channels',

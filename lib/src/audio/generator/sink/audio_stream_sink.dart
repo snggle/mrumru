@@ -1,12 +1,17 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:mp_audio_stream/mp_audio_stream.dart';
 import 'package:mrumru/src/audio/generator/sink/i_audio_sink.dart';
 
 /// The [AudioStreamSink] class provides functionalities to initialize the audio stream,
-/// push audio samples to it, and uninitialize the stream when done.
+/// push audio samples to it, and uninitialized the stream when done.
 class AudioStreamSink implements IAudioSink {
+  /// A booleans to check if the audio stream is initialized or killed.
+  bool _isInitializedBool = false;
+  bool _isKilledBool = true;
+
   /// A completer to notify when the stream is done.
   final Completer<void> _streamCompleter = Completer<void>();
 
@@ -19,18 +24,28 @@ class AudioStreamSink implements IAudioSink {
   /// Initializes the audio stream with the given [transferDuration] and [sampleRate].
   @override
   Future<void> init(Duration transferDuration, int sampleRate) async {
-    _audioStream.init(
-      channels: 1,
-      bufferMilliSec: transferDuration.inMilliseconds,
-      sampleRate: sampleRate,
-    );
-    unawaited(Future<void>.delayed(transferDuration).then((_) => kill()));
+    if (_isKilledBool) {
+      _audioStream.init(
+        channels: 1,
+        bufferMilliSec: transferDuration.inMilliseconds,
+        sampleRate: sampleRate,
+      );
+      _isKilledBool = false;
+      _isInitializedBool = true;
+    }
+    unawaited(Future<void>.delayed(transferDuration).then((_) {
+      if (_isInitializedBool && !_isKilledBool) {
+        kill();
+      }
+    }));
   }
 
   /// This method adds the given [sample] to the audio stream.
   @override
   Future<void> pushSample(Float32List sample) async {
-    _audioStream.push(sample);
+    if (_isInitializedBool && !_isKilledBool) {
+      _audioStream.push(sample);
+    }
   }
 
   /// Notifies that all samples have been created.
@@ -40,8 +55,12 @@ class AudioStreamSink implements IAudioSink {
   /// This method stops the audio stream and releases any resources it holds.
   @override
   Future<void> kill() async {
-    _audioStream.uninit();
-    _notifySinkCompleted();
+    if (_isInitializedBool && !_isKilledBool) {
+      _audioStream..uninit()..resetStat();
+      _isKilledBool = true;
+      _isInitializedBool = false;
+      _notifySinkCompleted();
+    }
   }
 
   /// Returns asynchronous method which is completed after audio stream has been completed

@@ -44,7 +44,7 @@ class FskEncoder {
     String frequencyBits =
         binaryData.substring(frequencyStartIndex, math.min(frequencyEndIndex, binaryData.length)).padRight(_audioSettingsModel.bitsPerFrequency, '0');
 
-    return _audioSettingsModel.baseFrequency + int.parse(frequencyBits, radix: 2) * _audioSettingsModel.frequencyGap;
+    return _audioSettingsModel.baseFrequency + int.parse(frequencyBits, radix: 2) * _audioSettingsModel.baseFrequencyGap;
   }
 
   /// This method splits the base frequencies into smaller chunks and adjusts
@@ -58,12 +58,13 @@ class FskEncoder {
     List<List<int>> chunkedFrequenciesList = <List<int>>[];
     for (List<int> chunkFrequencies in chunkFrequenciesList) {
       List<int> chunkedFrequencies = <int>[];
-      for (int i = 0; i < chunkFrequencies.length; i++) {
-        int frequency = chunkFrequencies[i];
-        int chunkShift = i * (_audioSettingsModel.maxFrequency + _audioSettingsModel.frequencyGap);
-        int chunkFrequency = frequency + chunkShift;
-        chunkedFrequencies.add(chunkFrequency);
+      for (int chunkIndex = 0; chunkIndex < chunkFrequencies.length; chunkIndex++) {
+        int frequency = chunkFrequencies[chunkIndex];
+        int chunkedFrequency = _audioSettingsModel.parseFrequencyToChunkFrequency(frequency, chunkIndex);
+
+        chunkedFrequencies.add(chunkedFrequency);
       }
+      chunkedFrequencies = _audioSettingsModel.dynamicGap(chunkedFrequencies);
       chunkedFrequenciesList.add(chunkedFrequencies);
     }
     return chunkedFrequenciesList;
