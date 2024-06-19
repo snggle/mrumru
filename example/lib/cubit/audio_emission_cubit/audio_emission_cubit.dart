@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-
-import 'package:audioplayers/audioplayers.dart';
 import 'package:example/cubit/audio_emission_cubit/a_audio_emission_state.dart';
 import 'package:example/cubit/audio_emission_cubit/states/audio_emission_empty_state.dart';
 import 'package:example/cubit/audio_emission_cubit/states/audio_emission_generating_state.dart';
@@ -14,7 +12,6 @@ import 'package:mrumru/mrumru.dart';
 import 'package:path_provider/path_provider.dart';
 
 class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
-  final AudioPlayer audioPlayer = AudioPlayer();
   final FrameSettingsModel frameSettingsModel = FrameSettingsModel.withDefaults();
   final TextEditingController messageTextController = TextEditingController();
 
@@ -87,12 +84,8 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
     audioRecorderController.stopRecording();
   }
 
-  set baseFrequency(int baseFrequency) {
-    audioSettingsModel = audioSettingsModel.copyWith(baseFrequency: baseFrequency);
-  }
-
-  set bitDepth(int bitDepth) {
-    audioSettingsModel = audioSettingsModel.copyWith(bitDepth: bitDepth);
+  set firstFrequency(int firstFrequency) {
+    audioSettingsModel = audioSettingsModel.copyWith(firstFrequency: firstFrequency);
   }
 
   set bitsPerFrequency(int bitsPerFrequency) {
@@ -107,8 +100,8 @@ class AudioEmissionCubit extends Cubit<AAudioEmissionState> {
     audioSettingsModel = audioSettingsModel.copyWith(chunksCount: chunksCount);
   }
 
-  set frequencyGap(int frequencyGap) {
-    audioSettingsModel = audioSettingsModel.copyWith(frequencyGap: frequencyGap);
+  set baseFrequencyGap(int baseFrequencyGap) {
+    audioSettingsModel = audioSettingsModel.copyWith(baseFrequencyGap: baseFrequencyGap);
   }
 
   void _handleRecordingCompleted() {

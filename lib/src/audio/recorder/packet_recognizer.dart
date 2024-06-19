@@ -2,14 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/audio/recorder/correlation/chunk_frequency_correlation_calculator.dart';
 import 'package:mrumru/src/audio/recorder/correlation/start_index_correlation_calculator.dart';
 import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dart';
 import 'package:mrumru/src/audio/recorder/queue/events/packet_remaining_event.dart';
 import 'package:mrumru/src/audio/recorder/queue/packet_event_queue.dart';
 import 'package:mrumru/src/frame/frame_model_decoder.dart';
-import 'package:mrumru/src/shared/models/decoded_frequency_model.dart';
 import 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
+import 'package:mrumru/src/shared/models/sample_model.dart';
 import 'package:mrumru/src/shared/utils/app_logger.dart';
 import 'package:mrumru/src/shared/utils/log_level.dart';
 
@@ -89,30 +88,16 @@ class PacketRecognizer {
 
   Future<void> _tryProcessWave() async {
     if (_packetsQueue.isLongerThan(audioSettingsModel.sampleSize)) {
-      await _processWave();
+      await _processSampleWave();
     } else {
       await Future<void>.delayed(const Duration(milliseconds: 100));
     }
   }
 
-  Future<void> _processWave() async {
-    List<double> waveToProcess = await _packetsQueue.readWave(audioSettingsModel.sampleSize);
-    List<DecodedFrequencyModel> frequencies = await _translateSampleToFrequency(waveToProcess);
-    _decodeFrequencies(frequencies);
-  }
-
-  Future<List<DecodedFrequencyModel>> _translateSampleToFrequency(List<double> sample) async {
-    ChunkFrequencyCorrelationCalculator chunkFrequencyCorrelationCalculator = ChunkFrequencyCorrelationCalculator(audioSettingsModel: audioSettingsModel);
-    List<DecodedFrequencyModel> decodedFrequencies = List<DecodedFrequencyModel>.generate(audioSettingsModel.chunksCount, (int chunkIndex) {
-      int chunkFrequency = chunkFrequencyCorrelationCalculator.findFrequencyWithHighestCorrelation(sample, chunkIndex);
-      return DecodedFrequencyModel(chunkFrequency: chunkFrequency, chunkIndex: chunkIndex);
-    });
-    return decodedFrequencies;
-  }
-
-  void _decodeFrequencies(List<DecodedFrequencyModel> frequencies) {
-    List<String> binaries = frequencies.map((DecodedFrequencyModel frequency) => frequency.calcBinary(audioSettingsModel)).toList();
-    _frameModelDecoder.addBinaries(binaries);
+  Future<void> _processSampleWave() async {
+    List<double> sampleWave = await _packetsQueue.readWave(audioSettingsModel.sampleSize);
+    SampleModel sampleModel = SampleModel.fromWave(sampleWave, audioSettingsModel);
+    _frameModelDecoder.addBinaries(<String>[sampleModel.calcBinary()]);
   }
 }
 

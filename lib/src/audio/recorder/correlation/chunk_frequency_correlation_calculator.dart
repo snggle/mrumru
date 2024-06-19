@@ -19,8 +19,7 @@ class ChunkFrequencyCorrelationCalculator {
   }
 
   List<ChunkFrequencyCorrelationModel> _calculateCorrelations(List<double> samples, int chunkIndex) {
-    return audioSettingsModel.possibleFrequencies.map((int frequency) {
-      int chunkFrequency = frequency + chunkIndex * audioSettingsModel.frequencyRange;
+    return audioSettingsModel.getPossibleFrequenciesForChunk(chunkIndex).map((int chunkFrequency) {
       double correlation = _calculateCorrelation(samples, chunkFrequency);
       return ChunkFrequencyCorrelationModel(chunkFrequency: chunkFrequency, correlation: correlation);
     }).toList();

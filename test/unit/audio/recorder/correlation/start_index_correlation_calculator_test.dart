@@ -11,7 +11,7 @@ void main() {
     test('Should [return first index] of sample with [highest correlation] with given frequencies', () async {
       // Arrange
       AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults().copyWith(
-        symbolDuration: const Duration(milliseconds: 50),
+        sampleDuration: const Duration(milliseconds: 50),
         sampleRate: 10000,
       );
       StartIndexCorrelationCalculator actualStartIndexCorrelationCalculator = StartIndexCorrelationCalculator(audioSettingsModel: actualAudioSettingsModel);

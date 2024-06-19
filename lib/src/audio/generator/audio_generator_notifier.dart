@@ -1,7 +1,9 @@
 import 'dart:typed_data';
 
+import 'package:mrumru/src/shared/models/sample_model.dart';
+
 typedef BinaryCreatedCallback = void Function(String binary);
-typedef FrequenciesCreatedCallback = void Function(List<List<int>> frequencies);
+typedef FrequenciesCreatedCallback = void Function(List<SampleModel> sampleModels);
 typedef SampleCreatedCallback = void Function(Float32List sample);
 
 /// A class to notify about various events during audio generation.

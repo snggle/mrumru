@@ -13,6 +13,8 @@ class AudioStreamSink implements IAudioSink {
   /// The audio stream used to push audio samples.
   final AudioStream _audioStream;
 
+  bool completedBool = false;
+
   /// Creates an instance of [AudioStreamSink] and initializes the [_audioStream].
   AudioStreamSink() : _audioStream = getAudioStream();
 
@@ -40,8 +42,11 @@ class AudioStreamSink implements IAudioSink {
   /// This method stops the audio stream and releases any resources it holds.
   @override
   Future<void> kill() async {
-    _audioStream.uninit();
-    _notifySinkCompleted();
+    if (completedBool == false) {
+      completedBool = true;
+      _audioStream.uninit();
+      _notifySinkCompleted();
+    }
   }
 
   /// Returns asynchronous method which is completed after audio stream has been completed

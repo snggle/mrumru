@@ -11,7 +11,7 @@ void main() {
     test('Should [return frequency index] with [highest correlation] for specified chunk', () async {
       // Arrange
       AudioSettingsModel actualAudioSettingsModel =
-          AudioSettingsModel.withDefaults().copyWith(sampleRate: 10000, symbolDuration: const Duration(milliseconds: 50));
+          AudioSettingsModel.withDefaults().copyWith(sampleRate: 10000, sampleDuration: const Duration(milliseconds: 50));
       ChunkFrequencyCorrelationCalculator actualChunkFrequencyCorrelationCalculator =
           ChunkFrequencyCorrelationCalculator(audioSettingsModel: actualAudioSettingsModel);
       File actualWaveSamplesFile = File('test/unit/audio/recorder/correlation/assets/mocked_chunk_frequency_correlation_calculator_wave.txt');
@@ -22,7 +22,7 @@ void main() {
       int actualChunkFrequency = actualChunkFrequencyCorrelationCalculator.findFrequencyWithHighestCorrelation(actualWave, actualChunkIndex);
 
       // Assert
-      int expectedChunkFrequency = 400;
+      int expectedChunkFrequency = 501;
 
       expect(actualChunkFrequency, expectedChunkFrequency);
     });
