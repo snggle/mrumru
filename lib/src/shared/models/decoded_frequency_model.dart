@@ -13,7 +13,6 @@ class DecodedFrequencyModel extends Equatable {
   String calcBinary(AudioSettingsModel audioSettingsModel) {
     int frequency = audioSettingsModel.parseChunkFrequencyToFrequency(chunkFrequency, chunkIndex);
 
-    print('Calculating base frequency($frequency) from $chunkFrequency at chunk index $chunkIndex');
 
     return _convertFrequencyToBits(frequency, audioSettingsModel);
   }

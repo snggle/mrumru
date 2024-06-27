@@ -85,6 +85,5 @@ class AudioGenerator {
               _audioGeneratorNotifier?.onSampleCreated?.call(sample);
             })
         .then((_) => _audioSink.notifyAllSamplesCreated());
-        print('created');
   }
 }

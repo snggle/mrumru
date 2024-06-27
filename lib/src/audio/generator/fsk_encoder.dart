@@ -64,7 +64,7 @@ class FskEncoder {
 
         chunkedFrequencies.add(chunkedFrequency);
       }
-      chunkedFrequencies = _audioSettingsModel.dynamicGap(chunkedFrequencies);
+      chunkedFrequencies = _audioSettingsModel.assignDynamicGap(chunkedFrequencies);
       chunkedFrequenciesList.add(chunkedFrequencies);
     }
     return chunkedFrequenciesList;

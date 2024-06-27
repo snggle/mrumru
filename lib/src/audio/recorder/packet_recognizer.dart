@@ -105,7 +105,7 @@ class PacketRecognizer {
     ChunkFrequencyCorrelationCalculator chunkFrequencyCorrelationCalculator = ChunkFrequencyCorrelationCalculator(audioSettingsModel: audioSettingsModel);
     List<DecodedFrequencyModel> decodedFrequencies = List<DecodedFrequencyModel>.generate(audioSettingsModel.chunksCount, (int chunkIndex) {
       int chunkFrequency = chunkFrequencyCorrelationCalculator.findFrequencyWithHighestCorrelation(sample, chunkIndex);
-      chunkFrequency = audioSettingsModel.unDynamicGap(chunkFrequency);
+      chunkFrequency = audioSettingsModel.removeDynamicGap(chunkFrequency);
 
       return DecodedFrequencyModel(chunkFrequency: chunkFrequency, chunkIndex: chunkIndex);
     });

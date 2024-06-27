@@ -26,12 +26,17 @@ class AudioSettingsModel with EquatableMixin {
   final Duration symbolDuration;
   final List<int> startFrequencies;
   final List<int> endFrequencies;
-  late final int frequenciesCountPerChunk;
+
   late final int maxStartOffset;
   late final int sampleRate;
   late final int sampleSize;
+  late final int maxBaseFrequency;
+  late final int frequenciesCountPerChunk;
   late final double amplitude;
-  late final double frequencyCoefficient;
+  final double frequencyCoefficient;
+  late final List<int> allPossibleFrequencies;
+  late final List<int> possibleBaseFrequencies;
+  late final List<List<int>> possibleFrequenciesForChunks;
 
   /// Creates an instance of [AudioSettingsModel].
   AudioSettingsModel({
@@ -44,13 +49,18 @@ class AudioSettingsModel with EquatableMixin {
     required this.symbolDuration,
     required this.startFrequencies,
     required this.endFrequencies,
+    required this.frequencyCoefficient,
     int? sampleRate,
   }) {
     frequenciesCountPerChunk = pow(2, bitsPerFrequency).toInt();
+    allPossibleFrequencies = _possibleFrequencies();
+    possibleBaseFrequencies = _calcPossibleBaseFrequencies();
+    maxBaseFrequency = _calcMaxBaseFrequency();
+    possibleFrequenciesForChunks = _calcPossibleFrequenciesForChunks();
     this.sampleRate = sampleRate ?? max(defaultSampleRate, sampleScaleFactor * chunksCount * maxBaseFrequency).toInt();
     amplitude = 1 / chunksCount;
     sampleSize = this.sampleRate * symbolDuration.inMilliseconds ~/ millisecondsInSeconds;
-    frequencyCoefficient = 1 / 340;
+
     maxStartOffset = (maxSkippedSamples * sampleSize).toInt();
   }
 
@@ -66,6 +76,7 @@ class AudioSettingsModel with EquatableMixin {
       symbolDuration: const Duration(milliseconds: 200),
       startFrequencies: <int>[500, 700],
       endFrequencies: <int>[900, 1100],
+      frequencyCoefficient : 1 / 340,
     );
   }
 
@@ -79,6 +90,7 @@ class AudioSettingsModel with EquatableMixin {
     int? chunksCount,
     int? baseFrequencyGap,
     int? sampleRate,
+    double? frequencyCoefficient,
     Duration? fadeDuration,
     Duration? symbolDuration,
     List<int>? startFrequencies,
@@ -91,6 +103,7 @@ class AudioSettingsModel with EquatableMixin {
       chunksCount: chunksCount ?? this.chunksCount,
       baseFrequencyGap: baseFrequencyGap ?? this.baseFrequencyGap,
       fadeDuration: fadeDuration ?? this.fadeDuration,
+      frequencyCoefficient: frequencyCoefficient ?? this.frequencyCoefficient,
       sampleRate: sampleRate ?? this.sampleRate,
       symbolDuration: symbolDuration ?? this.symbolDuration,
       startFrequencies: startFrequencies ?? this.startFrequencies,
@@ -98,30 +111,9 @@ class AudioSettingsModel with EquatableMixin {
     );
   }
 
-  /// Gets the maximum frequency based on the base frequency and frequency gap.
-  int get maxBaseFrequency {
-    return possibleBaseFrequencies.last;
-  }
-
-  /// Gets the list of possible frequencies based on the base frequency and frequency gap.
-  List<int> get possibleBaseFrequencies {
-    List<int> possibleFrequencies = List<int>.generate(frequenciesCountPerChunk, (int i) => baseFrequency + (i * baseFrequencyGap));
-
-    return possibleFrequencies;
-  }
-
-  /// Gets the list of possible frequencies based on the base frequency and frequency gap.
-  List<int> getPossibleFrequenciesForChunk(int chunkIndex) {
-    List<int> possibleFrequenciesWithAdjustedGap = getPossibleFrequenciesWithAdjustedGap();
-    int chunkStart = frequenciesCountPerChunk * chunkIndex;
-    int chunkEnd = chunkStart + frequenciesCountPerChunk;
-
-    return possibleFrequenciesWithAdjustedGap.sublist(chunkStart, chunkEnd);
-  }
-
   /// Gets the list of possible frequencies with adjusted gap based on the base frequency and frequency gap.
   List<int> getPossibleFrequenciesWithAdjustedGap() {
-    List<int> possibleFrequencies = _possibleFrequencies;
+    List<int> possibleFrequencies = _possibleFrequencies();
     List<int> adjustedFrequencies = <int>[baseFrequency];
 
     for (int i = 1; i < possibleFrequencies.length; i++) {
@@ -136,8 +128,8 @@ class AudioSettingsModel with EquatableMixin {
   }
 
   /// Gets dynamic gap for the given frequencies.
-  List<int> dynamicGap(List<int> frequencies) {
-    List<int> possibleFrequencies = _possibleFrequencies;
+  List<int> assignDynamicGap(List<int> frequencies) {
+    List<int> possibleFrequencies = _possibleFrequencies();
     List<int> possibleFrequenciesWithAdjustedGap = getPossibleFrequenciesWithAdjustedGap();
 
     List<int> frequenciesWithAdjustedGap = <int>[];
@@ -151,8 +143,8 @@ class AudioSettingsModel with EquatableMixin {
   }
 
   /// Gets un dynamic gap for the given frequency.
-  int unDynamicGap(int frequency) {
-    List<int> possibleFrequencies = _possibleFrequencies;
+  int removeDynamicGap(int frequency) {
+    List<int> possibleFrequencies = _possibleFrequencies();
     List<int> possibleFrequenciesWithAdjustedGap = getPossibleFrequenciesWithAdjustedGap();
 
     int index = possibleFrequenciesWithAdjustedGap.indexOf(frequency);
@@ -184,10 +176,45 @@ class AudioSettingsModel with EquatableMixin {
     return originalFrequency;
   }
 
+  List<int> getPossibleFrequenciesForChunk(int chunkIndex) {
+    return possibleFrequenciesForChunks[chunkIndex];
+  }
+
   /// Gets the list of possible frequencies based on the base frequency and frequency gap.
-  List<int> get _possibleFrequencies {
+  List<int> _possibleFrequencies() {
     int possibleFrequenciesCount = frequenciesCountPerChunk * chunksCount;
     List<int> possibleFrequencies = List<int>.generate(possibleFrequenciesCount, (int i) => baseFrequency + i * baseFrequencyGap);
+
+    return possibleFrequencies;
+  }
+
+  /// Gets the list of possible frequencies based on the base frequency and frequency gap.
+  List<List<int>> _calcPossibleFrequenciesForChunks() {
+    List<List<int>> possibleFrequenciesForChunks = <List<int>>[];
+    for (int i = 0; i < chunksCount; i++) {
+      List<int> possibleFrequenciesForChunk = _calcPossibleFrequenciesForChunk(i);
+      possibleFrequenciesForChunks.add(possibleFrequenciesForChunk);
+    }
+    return possibleFrequenciesForChunks;
+  }
+
+  /// Gets the list of possible frequencies based on the base frequency and frequency gap.
+  List<int> _calcPossibleFrequenciesForChunk(int chunkIndex) {
+    List<int> possibleFrequenciesWithAdjustedGap = getPossibleFrequenciesWithAdjustedGap();
+    int chunkStart = frequenciesCountPerChunk * chunkIndex;
+    int chunkEnd = chunkStart + frequenciesCountPerChunk;
+
+    return possibleFrequenciesWithAdjustedGap.sublist(chunkStart, chunkEnd);
+  }
+
+  /// Gets the maximum frequency based on the base frequency and frequency gap.
+  int _calcMaxBaseFrequency() {
+    return possibleBaseFrequencies.last;
+  }
+
+  /// Gets the list of possible frequencies based on the base frequency and frequency gap.
+  List<int> _calcPossibleBaseFrequencies() {
+    List<int> possibleFrequencies = List<int>.generate(frequenciesCountPerChunk, (int i) => baseFrequency + (i * baseFrequencyGap));
 
     return possibleFrequencies;
   }
