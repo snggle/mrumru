@@ -17,9 +17,16 @@ class SamplesGenerator {
 
   /// This method spawns an isolate and builds audio samples from the given list of [frequencies]
   /// and calls [onSampleCreated] for each generated sample.
-  Future<void> buildSamples({required List<List<int>> frequencies, required SampleCreatedCallback onSampleCreated}) async {
+  Future<void> buildSamples({
+    required List<List<int>> frequencies,
+    required SampleCreatedCallback onSampleCreated,
+    required Duration Function(int) symbolDurationCalculator,
+  }) async {
     _streamIsolate = await StreamIsolate.spawn(() {
-      return SamplesGeneratorThread(_audioSettingsModel).parseFrequenciesToSamples(frequencies);
+      return SamplesGeneratorThread(_audioSettingsModel).parseFrequenciesToSamples(
+        frequencies,
+        symbolDurationCalculator,
+      );
     });
     await for (Float32List sample in _streamIsolate!.stream) {
       onSampleCreated(sample);

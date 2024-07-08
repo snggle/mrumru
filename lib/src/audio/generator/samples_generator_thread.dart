@@ -25,23 +25,31 @@ class SamplesGeneratorThread {
         _fadeDuration = audioSettingsModel.fadeDuration;
 
   /// This method converts each chunk of frequencies into audio samples and yields them.
-  Stream<Float32List> parseFrequenciesToSamples(List<List<int>> frequencies) async* {
+  Stream<Float32List> parseFrequenciesToSamples(
+      List<List<int>> frequencies,
+      Duration Function(int) symbolDurationCalculator, // Accept calculator
+      ) async* {
     for (List<int> sampleFrequencies in frequencies) {
-      List<double> samples = _buildSamplesFromFrequencies(sampleFrequencies);
+      List<double> samples = _buildSamplesFromFrequencies(
+        sampleFrequencies,
+        symbolDurationCalculator,
+      );
       List<double> sampleSum = _splitAndSumSamples(samples, sampleFrequencies.length);
       yield Float32List.fromList(sampleSum);
     }
   }
 
   /// This method converts each frequency into a list of samples.
-  List<double> _buildSamplesFromFrequencies(List<int> frequencies) {
+  List<double> _buildSamplesFromFrequencies(
+      List<int> frequencies,
+      Duration Function(int) symbolDurationCalculator,
+      ) {
     List<double> samples = <double>[];
-
     for (int frequency in frequencies) {
-      List<double> sampleBytes = _buildFrequencySample(frequency);
+      Duration symbolDuration = symbolDurationCalculator(frequency);
+      List<double> sampleBytes = _buildFrequencySample(frequency, symbolDuration);
       samples.addAll(sampleBytes);
     }
-
     return samples;
   }
 
@@ -77,12 +85,13 @@ class SamplesGeneratorThread {
   }
 
   /// This method generates a list of samples for the specified frequency, applying a fade effect.
-  List<double> _buildFrequencySample(int frequency) {
+  List<double> _buildFrequencySample(int frequency, Duration symbolDuration) {
     List<double> sampleBytes = <double>[];
+    int sampleSize = _sampleRate * symbolDuration.inMilliseconds ~/ AudioSettingsModel.millisecondsInSeconds; // Adjust sample size based on symbol duration
 
-    for (int i = 0; i < _sampleSize; i++) {
+    for (int i = 0; i < sampleSize; i++) {
       double angle = (2 * pi * i * frequency) / _sampleRate;
-      double fadeMultiplier = _calcFadeMultiplier(i);
+      double fadeMultiplier = _calcFadeMultiplier(i, sampleSize); // Pass sampleSize to fade multiplier
 
       sampleBytes.add(_amplitude * fadeMultiplier * sin(angle));
     }
@@ -90,16 +99,16 @@ class SamplesGeneratorThread {
     return sampleBytes;
   }
 
-  /// This method applies a fade effect to the samples based on the fade duration and sample rate.
-  double _calcFadeMultiplier(int index) {
+  /// This method applies a fade effect to the samples based on the fade duration and sample size.
+  double _calcFadeMultiplier(int index, int sampleSize) {
     double fadeDurationInSeconds = _fadeDuration.inMilliseconds / AudioSettingsModel.millisecondsInSeconds;
     int fadeSize = (_sampleRate * fadeDurationInSeconds).toInt();
     double fadeMultiplier = 1.0;
 
     if (index < fadeSize) {
       fadeMultiplier = index / fadeSize;
-    } else if (index > _sampleSize - fadeSize) {
-      fadeMultiplier = (_sampleSize - index) / fadeSize;
+    } else if (index > sampleSize - fadeSize) {
+      fadeMultiplier = (sampleSize - index) / fadeSize;
     }
 
     return fadeMultiplier;

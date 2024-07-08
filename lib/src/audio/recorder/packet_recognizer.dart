@@ -36,6 +36,7 @@ class PacketRecognizer {
       onFirstFrameDecoded: _handleFirstFrameDecoded,
       onLastFrameDecoded: (_) => stopRecording(),
       onFrameDecoded: onFrameDecoded,
+
     );
   }
 

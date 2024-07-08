@@ -76,7 +76,7 @@ class AudioSettingsModel with EquatableMixin {
       symbolDuration: const Duration(milliseconds: 200),
       startFrequencies: <int>[500, 700],
       endFrequencies: <int>[900, 1100],
-      frequencyCoefficient : 1 / 340,
+      frequencyCoefficient: 1 / 340,
     );
   }
 
@@ -217,6 +217,12 @@ class AudioSettingsModel with EquatableMixin {
     List<int> possibleFrequencies = List<int>.generate(frequenciesCountPerChunk, (int i) => baseFrequency + (i * baseFrequencyGap));
 
     return possibleFrequencies;
+  }
+
+  /// Calculates symbol duration based on frequency
+  Duration calculateSymbolDuration(int frequency) {
+    double a = 100;
+    return Duration(milliseconds: (a / frequency).round());
   }
 
   @override
