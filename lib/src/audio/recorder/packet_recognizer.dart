@@ -110,6 +110,14 @@ class PacketRecognizer {
 
       return DecodedFrequencyModel(chunkFrequency: chunkFrequency, chunkIndex: chunkIndex);
     });
+
+    // Use the calculator to determine the duration for each frequency
+    for (var frequencyModel in decodedFrequencies) {
+      Duration symbolDuration = audioSettingsModel.symbolDurationCalculator(frequencyModel.chunkFrequency);
+      // Apply the duration to your decoding logic as needed
+      _applyDurationToDecodingLogic(symbolDuration); // Example function call to apply the duration
+    }
+
     return decodedFrequencies;
   }
 
