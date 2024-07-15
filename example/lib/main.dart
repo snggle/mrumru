@@ -1,4 +1,4 @@
-import 'package:example/page/example_page.dart';
+import 'package:example/page/main_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -10,12 +10,9 @@ class CoreApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Mru Mru Example App')),
-        body: const ExamplePage(),
-      ),
+      home: MainPage(),
     );
   }
 }
