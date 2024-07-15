@@ -34,6 +34,11 @@ dependencies:
   # https://pub.dev/packages/path_provider
   path_provider: 2.1.4
 
+  # Permission plugin for Flutter. This plugin provides a cross-platform (iOS, Android) API to request and check permissions.
+  # https://pub.dev/packages/permission_handler
+  permission_handler: 11.0.1
+  permission_handler_web: 0.0.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
