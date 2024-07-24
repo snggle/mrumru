@@ -1,10 +1,10 @@
 import 'dart:typed_data';
-
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/audio/generator/fsk_encoder.dart';
-import 'package:mrumru/src/audio/generator/samples_generator.dart';
+import 'package:mrumru/src/audio/generator/sample_generator.dart';
+import 'package:mrumru/src/audio/generator/samples_processor.dart';
 import 'package:mrumru/src/frame/frame_model_builder.dart';
 import 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
+import 'package:mrumru/src/shared/models/sample_model.dart';
 
 /// A class that generates audio signals from text messages using Frequency Shift Keying (FSK).
 class AudioGenerator {
@@ -20,8 +20,11 @@ class AudioGenerator {
   /// Optional notifier for audio generation events.
   final AudioGeneratorNotifier? _audioGeneratorNotifier;
 
-  /// The samples generator to build audio samples from frequencies.
-  final SamplesGenerator _samplesGenerator;
+  /// The sample processor to process the samples list into wave.
+  final SamplesProcessor _samplesProcessor;
+
+  /// The sample generator to build samples from binary data.
+  final SampleGenerator _sampleGenerator;
 
   /// Creates an instance of [AudioGenerator].
   AudioGenerator({
@@ -33,31 +36,30 @@ class AudioGenerator {
         _frameSettingsModel = frameSettingsModel,
         _audioSettingsModel = audioSettingsModel,
         _audioSink = audioSink,
-        _samplesGenerator = SamplesGenerator(audioSettingsModel);
+        _samplesProcessor = SamplesProcessor(),
+        _sampleGenerator = SampleGenerator(audioSettingsModel);
 
   /// This method encodes the text message into binary, converts the binary data
   /// into frequencies using FSK, and then builds and pushes audio samples to the sink.
   Future<void> generate(String message) async {
-    FskEncoder fskEncoder = FskEncoder(_audioSettingsModel);
-
     String binaryData = _parseTextToBinary(message);
     _audioGeneratorNotifier?.onBinaryCreated?.call(binaryData);
 
-    List<List<int>> frequencies = fskEncoder.buildFrequencies(binaryData);
-    _audioGeneratorNotifier?.onFrequenciesCreated?.call(frequencies);
+    List<SampleModel> samplesList = _sampleGenerator.buildSamplesFromBinary(binaryData);
+    _audioGeneratorNotifier?.onFrequenciesCreated?.call(samplesList);
 
-    Duration transferDuration = Duration(milliseconds: ((frequencies.length + 2) * _audioSettingsModel.symbolDuration.inMilliseconds).toInt());
+    Duration transferDuration = Duration(milliseconds: ((samplesList.length + 2) * _audioSettingsModel.sampleDuration.inMilliseconds).toInt());
     await _audioSink.init(transferDuration, _audioSettingsModel.sampleRate);
-    _startBuildingSamples(frequencies);
+    _startBuildingSamples(samplesList);
   }
 
   /// Stops the audio generation process and kills the audio sink.
   Future<void> stop() async {
     await _audioSink.kill();
-    _samplesGenerator.kill();
+    _samplesProcessor.kill();
   }
 
-  /// This method builds a frame collection from the text and converts it into a binary string.
+  /// This method parses the text message into binary data.
   String _parseTextToBinary(String text) {
     FrameModelBuilder frameModelBuilder = FrameModelBuilder(frameSettingsModel: _frameSettingsModel);
     FrameCollectionModel frameCollectionModel = frameModelBuilder.buildFrameCollection(text);
@@ -65,7 +67,7 @@ class AudioGenerator {
     return _fillBinaryWithZeros(binaryData);
   }
 
-  /// Fills the binary data with zeros to make its length a multiple of the required chunk size.
+  /// This method fills the binary data with zeros to make it divisible by the required number of bits.
   String _fillBinaryWithZeros(String binaryData) {
     int divider = _audioSettingsModel.bitsPerFrequency * _audioSettingsModel.chunksCount;
     int remainder = binaryData.length % divider;
@@ -73,12 +75,12 @@ class AudioGenerator {
     return binaryData + List<String>.filled(zerosToAdd, '0').join('');
   }
 
-  /// This method uses a [SamplesGenerator] to convert frequencies into audio samples
+  /// This method uses a [SamplesProcessor] to process the samples into wave
   /// and pushes each sample to the audio sink.
-  void _startBuildingSamples(List<List<int>> frequencies) {
-    _samplesGenerator
-        .buildSamples(
-            frequencies: frequencies,
+  void _startBuildingSamples(List<SampleModel> samplesList) {
+    _samplesProcessor
+        .processSamples(
+            samplesList: samplesList,
             onSampleCreated: (Float32List sample) {
               _audioSink.pushSample(sample);
               _audioGeneratorNotifier?.onSampleCreated?.call(sample);

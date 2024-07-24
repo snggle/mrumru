@@ -31,14 +31,14 @@ class _ExamplePageState extends State<ExamplePage> {
               children: <Widget>[
                 const SizedBox(height: 16),
                 NumericField(
-                  fieldName: 'baseFrequency',
-                  onFieldSubmitted: (num value) => audioEmissionCubit.baseFrequency = value.toInt(),
-                  textController: TextEditingController(text: audioEmissionCubit.audioSettingsModel.baseFrequency.toString()),
+                  fieldName: 'firstFrequency',
+                  onFieldSubmitted: (num value) => audioEmissionCubit.firstFrequency = value.toInt(),
+                  textController: TextEditingController(text: audioEmissionCubit.audioSettingsModel.firstFrequency.toString()),
                 ),
                 NumericField(
-                  fieldName: 'frequencyGap',
-                  onFieldSubmitted: (num value) => audioEmissionCubit.frequencyGap = value.toInt(),
-                  textController: TextEditingController(text: audioEmissionCubit.audioSettingsModel.frequencyGap.toString()),
+                  fieldName: 'baseFrequencyGap',
+                  onFieldSubmitted: (num value) => audioEmissionCubit.baseFrequencyGap = value.toInt(),
+                  textController: TextEditingController(text: audioEmissionCubit.audioSettingsModel.baseFrequencyGap.toString()),
                 ),
                 NumericField(
                   fieldName: 'channels',

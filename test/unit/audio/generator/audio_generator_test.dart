@@ -12,7 +12,7 @@ void main() async {
   File actualWavTestFile = File('${Directory.systemTemp.path}/test.wav');
 
   group('Test of AudioGenerator.generate()', () {
-    test('Should [generate wave] from given message (chunksCount == 1)', () async {
+    test('Should [generate wave] from given message [chunksCount == 1]', () async {
       // Arrange
       AudioFileSink audioFileSink = AudioFileSink(actualWavTestFile);
 
@@ -34,7 +34,7 @@ void main() async {
       expect(TestUtils.roundList(actualWave, 10), TestUtils.roundList(expectedWave, 10));
     });
 
-    test('Should [generate wave] from given message (chunksCount == 2)', () async {
+    test('Should [generate wave] from given message [chunksCount == 2]', () async {
       // Arrange
       AudioFileSink audioFileSink = AudioFileSink(actualWavTestFile);
 
@@ -56,7 +56,7 @@ void main() async {
       expect(TestUtils.roundList(actualWave, 10), TestUtils.roundList(expectedWave, 10));
     });
 
-    test('Should [generate wave] from given message (chunksCount == 4)', () async {
+    test('Should [generate wave] from given message [chunksCount == 4]', () async {
       // Arrange
       AudioFileSink audioFileSink = AudioFileSink(actualWavTestFile);
 
@@ -78,7 +78,7 @@ void main() async {
       expect(TestUtils.roundList(actualWave, 10), TestUtils.roundList(expectedWave, 10));
     });
 
-    test('Should [generate wave] from given message (chunksCount == 8)', () async {
+    test('Should [generate wave] from given message [chunksCount == 8]', () async {
       // Arrange
       AudioFileSink audioFileSink = AudioFileSink(actualWavTestFile);
 
@@ -95,6 +95,72 @@ void main() async {
 
       // Assert
       List<double> expectedWave = await TestUtils.readAsDoubleFromFile(File('test/unit/audio/assets/mocked_audio_wave_chunks_count_8.txt'));
+
+      // Values are rounded to 10 decimal places to avoid operating system differences in the generated calculated values
+      expect(TestUtils.roundList(actualWave, 10), TestUtils.roundList(expectedWave, 10));
+    });
+
+    test('Should [generate wave] from given message [chunksCount == 16]', () async {
+      // Arrange
+      AudioFileSink audioFileSink = AudioFileSink(actualWavTestFile);
+
+      // Act
+      await AudioGenerator(
+        audioSink: audioFileSink,
+        audioSettingsModel: AudioSettingsModel.withDefaults().copyWith(chunksCount: 16),
+        frameSettingsModel: FrameSettingsModel.withDefaults(),
+        audioGeneratorNotifier: AudioGeneratorNotifier(),
+      ).generate(actualMessage);
+      await audioFileSink.future;
+      Uint8List actualWavFileBytes = await actualWavTestFile.readAsBytes();
+      List<double> actualWave = Wav.read(actualWavFileBytes).channels.first;
+
+      // Assert
+      List<double> expectedWave = await TestUtils.readAsDoubleFromFile(File('test/unit/audio/assets/mocked_audio_wave_chunks_count_16.txt'));
+
+      // Values are rounded to 10 decimal places to avoid operating system differences in the generated calculated values
+      expect(TestUtils.roundList(actualWave, 10), TestUtils.roundList(expectedWave, 10));
+    });
+
+    test('Should [generate wave] from given message [chunksCount == 32]', () async {
+      // Arrange
+      AudioFileSink audioFileSink = AudioFileSink(actualWavTestFile);
+
+      // Act
+      await AudioGenerator(
+        audioSink: audioFileSink,
+        audioSettingsModel: AudioSettingsModel.withDefaults().copyWith(chunksCount: 32),
+        frameSettingsModel: FrameSettingsModel.withDefaults(),
+        audioGeneratorNotifier: AudioGeneratorNotifier(),
+      ).generate(actualMessage);
+      await audioFileSink.future;
+      Uint8List actualWavFileBytes = await actualWavTestFile.readAsBytes();
+      List<double> actualWave = Wav.read(actualWavFileBytes).channels.first;
+
+      // Assert
+      List<double> expectedWave = await TestUtils.readAsDoubleFromFile(File('test/unit/audio/assets/mocked_audio_wave_chunks_count_32.txt'));
+
+      // Values are rounded to 10 decimal places to avoid operating system differences in the generated calculated values
+      expect(TestUtils.roundList(actualWave, 10), TestUtils.roundList(expectedWave, 10));
+    });
+
+    test('Should [generate wave] from given message [chunksCount == 64]', () async {
+      // Arrange
+      AudioFileSink audioFileSink = AudioFileSink(actualWavTestFile);
+
+      // Act
+      await AudioGenerator(
+        audioSink: audioFileSink,
+        audioSettingsModel: AudioSettingsModel.withDefaults().copyWith(chunksCount: 64),
+        frameSettingsModel: FrameSettingsModel.withDefaults(),
+        audioGeneratorNotifier: AudioGeneratorNotifier(),
+      ).generate(actualMessage);
+      await audioFileSink.future;
+      Uint8List actualWavFileBytes = await actualWavTestFile.readAsBytes();
+      List<double> actualWave = Wav.read(actualWavFileBytes).channels.first;
+
+      // Assert
+      List<double> expectedWave = await TestUtils.readAsDoubleFromFile(File('test/unit/audio/assets/mocked_audio_wave_chunks_count_64.txt'));
 
       // Values are rounded to 10 decimal places to avoid operating system differences in the generated calculated values
       expect(TestUtils.roundList(actualWave, 10), TestUtils.roundList(expectedWave, 10));

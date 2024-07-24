@@ -30,10 +30,6 @@ dependencies:
   # https://pub.dev/packages/logger
   logger: 2.0.2+1
 
-  # A Flutter plugin to play multiple simultaneously audio files.
-  # https://pub.dev/packages/audioplayers
-  audioplayers: 5.2.0
-
   # A Flutter plugin for finding commonly used locations on the filesystem.
   # https://pub.dev/packages/path_provider
   path_provider: 2.1.3

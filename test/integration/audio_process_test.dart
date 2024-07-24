@@ -14,7 +14,7 @@ void main() async {
   group('Tests of AudioGenerator.generate() and PacketRecognizer.decodedContent()', () {
     test('Should generate and correctly decode .WAV file', () async {
       // Arrange
-      AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults();
+      AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults().copyWith(chunksCount: 128);
       FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
       File actualWavFile = File('./test/integration/assets/mocked_wave_file.wav');
       String actualInputString = '123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';

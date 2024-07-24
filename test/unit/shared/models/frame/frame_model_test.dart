@@ -58,7 +58,7 @@ void main() {
       int actualTransferWavLength = actualFrameModel.calculateTransferWavLength(audioSettingsModel);
 
       // Assert
-      int expectedTransferWavLength = 108416000000;
+      int expectedTransferWavLength = 433664000000;
 
       expect(actualTransferWavLength, expectedTransferWavLength);
     });
