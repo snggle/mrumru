@@ -1,6 +1,30 @@
 library mrumru;
 
 /// A library for transmitting data using sound waves.
+/// Provides a duplex controller that can be used to send and receive messages.
+///
+/// Usage:
+///   ```
+///   // Creates an instance of [DuplexController].
+///   DuplexController duplexController = DuplexController(
+///     audioSettingsModel: AudioSettingsModel(),
+///     frameSettingsModel: FrameSettingsModel(),
+///     duplexControllerNotifier: DuplexControllerNotifier(
+///     onEmitMessage: (String message) {},
+///     onMessageReceived: (String message) {},
+///    ),
+///    );
+///
+///   // Sends a message using the [DuplexController].
+///   duplexController.send('Hello World!');
+///
+///   // Receives a message using the [DuplexController].
+///   duplexController.receive();
+///   ```
+export 'package:mrumru/src/audio/duplex/duplex_controller.dart';
+export 'package:mrumru/src/audio/duplex/duplex_controller_notifier.dart';
+
+/// A library for transmitting data using sound waves.
 
 /// Generates audio samples from text messages.
 ///
