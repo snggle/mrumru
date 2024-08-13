@@ -1,3 +1,4 @@
+import 'package:example/cubit/duplex_tab_cubit/duplex_tab_cubit.dart';
 import 'package:example/cubit/receive_tab_cubit/receive_tab_cubit.dart';
 import 'package:example/cubit/send_tab_cubit/send_tab_cubit.dart';
 import 'package:example/cubit/settings_tab_cubit/settings_tab_cubit.dart';
@@ -9,9 +10,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class SettingsTab extends StatefulWidget {
   final SendTabCubit sendTabCubit;
   final ReceiveTabCubit receiveTabCubit;
+  final DuplexTabCubit duplexTabCubit;
   final SettingsTabCubit settingsTabCubit;
 
-  const SettingsTab({required this.sendTabCubit, required this.receiveTabCubit, required this.settingsTabCubit, super.key});
+  const SettingsTab({required this.sendTabCubit, required this.receiveTabCubit, required this.settingsTabCubit, required this.duplexTabCubit, super.key});
 
   @override
   State<StatefulWidget> createState() => _SettingsTabState();
@@ -75,5 +77,6 @@ class _SettingsTabState extends State<SettingsTab> {
   void _saveSettings() {
     widget.receiveTabCubit.audioSettingsModel = widget.settingsTabCubit.getCurrentAudioSettingsModel();
     widget.sendTabCubit.audioSettingsModel = widget.settingsTabCubit.getCurrentAudioSettingsModel();
+    widget.duplexTabCubit.audioSettingsModel = widget.settingsTabCubit.getCurrentAudioSettingsModel();
   }
 }
