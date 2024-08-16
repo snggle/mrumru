@@ -1,11 +1,11 @@
 name: mrumru
 description: Data Over Audio
-version: 0.0.6
+version: 0.0.7
 publish_to: 'none'
 
 environment:
-  sdk: ">=3.1.5"
-  flutter: ">=3.13.9"
+  sdk: ">=3.2.6"
+  flutter: ">=3.16.9"
 
 dependencies:
   flutter:
@@ -17,11 +17,11 @@ dependencies:
   
   # This is a simple Service Locator for Dart and Flutter projects.
   # https://pub.dev/packages/get_it
-  get_it: 7.6.4
+  get_it: 7.6.7
   
   # Small, easy to use and extensible logger which prints beautiful logs.
   # https://pub.dev/packages/logger
-  logger: 2.0.2+1
+  logger: 2.4.0
 
   # Implementations of SHA, MD5, and HMAC cryptographic functions.
   # https://pub.dev/packages/crypto
