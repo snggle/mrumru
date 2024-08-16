@@ -1,19 +1,25 @@
 # mrumru
+
 Dart package for the Data Over Audio protocol
 
 ## Installation
-Use git clone to download [mrumru](https://github.com/snggle/mrumru) project.
+
+Use git clone to download [mrumru](https://github.com/snggle/mrumru) project
+
 ```bash
 git clone git@github.com:snggle/mrumru.git
 ```
 
 ## Usage
-The project runs on flutter version **3.13.9**. You can use [fvm](https://fvm.app/docs/getting_started/installation)
-for easy switching between versions
+
+The project runs on flutter version **3.16.9**. You can
+use [fvm](https://fvm.app/documentation/getting-started/installation) for easy switching between versions otherwise
+see [flutter installation](https://docs.flutter.dev/get-started/install)
+
 ```bash
 # Install and use required flutter version
-fvm install 3.13.9
-fvm use 3.13.9
+fvm install 3.16.9
+fvm use 3.16.9
 
 # Install required packages in pubspec.yaml
 fvm flutter pub get
@@ -24,9 +30,11 @@ fvm flutter run lib/main.dart
 ```
 
 To generate config files use
+
 ```bash
 fvm flutter pub run build_runner
 ```
+
 ```bash
 # Built-in Commands 
 # - build: Runs a single build and exits.
@@ -42,7 +50,9 @@ fvm flutter pub run build_runner watch --delete-conflicting-outputs
 ```
 
 ## Tests
+
 To run tests
+
 ```bash
 # Run package unit tests
 fvm flutter test test/unit --null-assertions
@@ -55,6 +65,8 @@ fvm flutter test path/to/test.dart --null-assertions
 ```
 
 ## Contributing
-Pull requests are welcomed. For major changes, please open an issue first, to enable a discussion on what you would like to improve. Please make sure to provide and update tests as well.
+
+Pull requests are welcomed. For major changes, please open an issue first, to enable a discussion on what you would like
+to improve. Please make sure to provide and update tests as well.
 
 ## [Licence](./LICENSE.md)
