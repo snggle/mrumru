@@ -23,7 +23,7 @@ class SamplesProcessor {
 
   /// Kills the stream.
   void kill() {
-    _streamIsolate?.kill();
+    _streamIsolate?.close();
   }
 
   /// This method processes the samples list into wave.

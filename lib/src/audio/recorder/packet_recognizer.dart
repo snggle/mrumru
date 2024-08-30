@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/recorder/correlation/start_index_correlation_calculator.dart';
@@ -43,14 +42,19 @@ class PacketRecognizer {
   Future<void> startDecoding() async {
     _recordingBool = true;
     while (_packetsQueue.isLongerThan(audioSettingsModel.sampleSize) || _recordingBool) {
+      if (_recordingBool == false && _packetsQueue.isLongerThan(audioSettingsModel.sampleSize) == false) {
+        break;
+      }
+
       if (_startOffset == null) {
         await _tryFindStartOffset();
       } else {
         await _tryProcessWave();
       }
     }
-
-    _decodingCompleter.complete(true);
+    if (_decodingCompleter.isCompleted == false) {
+      _decodingCompleter.complete(true);
+    }
   }
 
   void addPacket(PacketReceivedEvent packetReceivedEvent) {
@@ -60,6 +64,9 @@ class PacketRecognizer {
 
   Future<void> stopRecording() async {
     _recordingBool = false;
+    if (_decodingCompleter.isCompleted == false) {
+      _decodingCompleter.complete(true);
+    }
     await _decodingCompleter.future;
     onDecodingCompleted();
   }
