@@ -13,7 +13,11 @@ class AudioStreamSink implements IAudioSink {
   /// The audio stream used to push audio samples.
   final AudioStream _audioStream;
 
-  bool completedBool = false;
+  /// A flag to check if the audio stream has been completed.
+  bool _completedBool = false;
+
+  /// The timer used to stop the audio stream.
+  Timer? _timer;
 
   /// Creates an instance of [AudioStreamSink] and initializes the [_audioStream].
   AudioStreamSink() : _audioStream = getAudioStream();
@@ -21,12 +25,15 @@ class AudioStreamSink implements IAudioSink {
   /// Initializes the audio stream with the given [transferDuration] and [sampleRate].
   @override
   Future<void> init(Duration transferDuration, int sampleRate) async {
+    if (_completedBool) {
+      throw Exception('AudioStreamSink has been completed and cannot be re-initialized');
+    }
     _audioStream.init(
       channels: 1,
       bufferMilliSec: transferDuration.inMilliseconds,
       sampleRate: sampleRate,
     );
-    unawaited(Future<void>.delayed(transferDuration).then((_) => kill()));
+    _timer = Timer(transferDuration, kill);
   }
 
   /// This method adds the given [sample] to the audio stream.
@@ -42,8 +49,9 @@ class AudioStreamSink implements IAudioSink {
   /// This method stops the audio stream and releases any resources it holds.
   @override
   Future<void> kill() async {
-    if (completedBool == false) {
-      completedBool = true;
+    if (_completedBool == false) {
+      _completedBool = true;
+      _timer?.cancel();
       _audioStream.uninit();
       _notifySinkCompleted();
     }

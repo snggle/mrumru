@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/frame/frame_model_builder.dart';
-import 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
 
 void main() {
   late FrameModelBuilder actualFrameBuilder;

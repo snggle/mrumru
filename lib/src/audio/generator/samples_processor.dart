@@ -13,7 +13,7 @@ class SamplesProcessor {
   /// This method processes the samples list into wave and returns the wave samples.
   Future<void> processSamples({required List<SampleModel> samplesList, required SampleCreatedCallback onSampleCreated}) async {
     _streamIsolate = await StreamIsolate.spawn(() {
-      return _processSamplesThread(samplesList);
+      return _processSamplesThread(List<SampleModel>.from(samplesList));
     });
     await for (Float32List sample in _streamIsolate!.stream) {
       onSampleCreated(sample);
@@ -21,9 +21,9 @@ class SamplesProcessor {
     _streamIsolate = null;
   }
 
-  /// Kills the stream.
-  void kill() {
-    _streamIsolate?.kill();
+  /// Close the stream isolate.
+  void close() {
+    _streamIsolate?.close();
   }
 
   /// This method processes the samples list into wave.

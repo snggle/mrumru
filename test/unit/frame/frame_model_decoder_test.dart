@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/frame/frame_model_decoder.dart';
-import 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
 
 void main() {
   FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
@@ -42,6 +41,15 @@ void main() {
       ]);
 
       expect(actualFrameCollectionModel, expectedFrameCollectionModel);
+    });
+
+    test('Should [clear FrameModelCollection] containing FrameModels', () {
+      // Act
+      actualFrameModelDecoder.clear();
+
+      // Assert
+      FrameCollectionModel expectedFrameCollectionModel = const FrameCollectionModel(<FrameModel>[]);
+      expect(actualFrameModelDecoder.decodedContent, expectedFrameCollectionModel);
     });
   });
 }

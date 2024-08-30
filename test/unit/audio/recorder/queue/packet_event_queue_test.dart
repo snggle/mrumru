@@ -1,3 +1,5 @@
+// ignore_for_file: cascade_invocations
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/src/audio/recorder/queue/events/a_packet_event.dart';
 import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dart';
@@ -138,6 +140,21 @@ void main() {
     test('Should [throw EXCEPTION] if [queue EMPTY]', () {
       // Assert
       expect(() => actualPacketEventQueue.pop(), throwsA(isA<Exception>()));
+    });
+  });
+
+  group('Test of PacketEventQueue.clear()', () {
+    test('Should [clear list] containing queue events', () {
+      // Arrange
+      PacketReceivedEvent actualFirstPacket = PacketReceivedEvent(List<double>.filled(8, 0));
+      PacketReceivedEvent actualSecondPacket = PacketReceivedEvent(List<double>.filled(8, 1));
+      PacketEventQueue actualPacketEventQueue = PacketEventQueue(queue: <APacketEvent>[actualFirstPacket, actualSecondPacket]);
+
+      // Act
+      actualPacketEventQueue.clear();
+
+      // Assert
+      expect(actualPacketEventQueue.eventQueue.isEmpty, true);
     });
   });
 }
