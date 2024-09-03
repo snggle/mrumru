@@ -38,14 +38,15 @@ class ReceiveTabCubit extends Cubit<AReceiveTabState> {
     _audioRecorderController.stopRecording();
   }
 
-  void _handleRecordingCompleted() {
-    emit(ReceiveTabResultState(decodedMessage: (state as ReceiveTabRecordingState).decodedMessage));
+  void _handleRecordingCompleted(FrameCollectionModel frameCollectionModel) {
+    String decodedMessage = frameCollectionModel.mergedRawData;
+    emit(ReceiveTabResultState(decodedMessage: decodedMessage));
   }
 
   void _handleFrameReceived(FrameModel frameModel) {
     String decodedMessage = frameModel.rawData;
-    if (state is ReceiveTabResultState) {
-      decodedMessage = '${(state as ReceiveTabResultState).decodedMessage}$decodedMessage';
+    if (state is ReceiveTabRecordingState) {
+      decodedMessage = '${(state as ReceiveTabRecordingState).decodedMessage}$decodedMessage';
     }
     emit(ReceiveTabRecordingState(decodedMessage: decodedMessage));
   }

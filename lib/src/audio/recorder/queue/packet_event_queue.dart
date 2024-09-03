@@ -47,4 +47,8 @@ class PacketEventQueue {
       eventQueue.insert(0, packetEvent);
     }
   }
+
+  void clear() {
+    eventQueue.clear();
+  }
 }

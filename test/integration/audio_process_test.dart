@@ -7,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/recorder/packet_recognizer.dart';
 import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dart';
-import 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
 import 'package:wav/wav.dart';
 
 void main() async {
@@ -19,11 +18,16 @@ void main() async {
       File actualWavFile = File('./test/integration/assets/mocked_wave_file.wav');
       String actualInputString = '123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
       AudioFileSink audioFileSink = AudioFileSink(actualWavFile);
+      late FrameCollectionModel actualFrameCollectionModel;
+      Completer<void> decodingCompleted = Completer<void>();
 
       PacketRecognizer actualPacketRecognizer = PacketRecognizer(
         audioSettingsModel: actualAudioSettingsModel,
         frameSettingsModel: actualFrameSettingsModel,
-        onDecodingCompleted: () {},
+        onDecodingCompleted: (FrameCollectionModel frameCollectionModel) {
+          actualFrameCollectionModel = frameCollectionModel;
+          decodingCompleted.complete();
+        },
         onFrameDecoded: (FrameModel frameModel) {},
       );
 
@@ -47,8 +51,7 @@ void main() async {
         actualPacketRecognizer.addPacket(packetReceivedEvent);
         await Future<void>.delayed(const Duration(milliseconds: 100));
       }
-
-      FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
+      unawaited(decodingCompleted.future);
 
       // Assert
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(

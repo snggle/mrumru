@@ -3,7 +3,6 @@ import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/generator/sample_generator.dart';
 import 'package:mrumru/src/audio/generator/samples_processor.dart';
 import 'package:mrumru/src/frame/frame_model_builder.dart';
-import 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
 import 'package:mrumru/src/shared/models/sample_model.dart';
 
 /// A class that generates audio signals from text messages using Frequency Shift Keying (FSK).

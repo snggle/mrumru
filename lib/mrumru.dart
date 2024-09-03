@@ -19,21 +19,6 @@ library mrumru;
 ///   ```
 export 'package:mrumru/src/audio/generator/audio_generator.dart';
 export 'package:mrumru/src/audio/generator/audio_generator_notifier.dart';
-
-/// Sinks provides more organized way of providing or saving samples. It can be used to pass audio samples as multiple data types, such as streams, files, etc
-///
-/// Usage:
-///   ```
-///   // Audio multi sink used to pass audio samples to multiple sinks.
-///   AudioMultiSink audioMultiSink = AudioMultiSink(<IAudioSink>[audioFileSink, audioStreamSink]);
-///
-///   // Audio file sink used to save audio samples to a file.
-///   AudioFileSink audioFileSink = AudioFileSink(file);
-///
-///   // Audio stream sink used to pass audio samples to a stream.
-///   AudioStreamSink audioStreamSink = AudioStreamSink();
-///
-///  ```
 export 'package:mrumru/src/audio/generator/sink/audio_file_sink.dart';
 export 'package:mrumru/src/audio/generator/sink/audio_multi_sink.dart';
 export 'package:mrumru/src/audio/generator/sink/audio_stream_sink.dart';
@@ -88,6 +73,7 @@ export 'package:mrumru/src/audio/recorder/audio_recorder_controller.dart';
 ///
 ///   ```
 export 'package:mrumru/src/shared/models/audio_settings_model.dart';
+export 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
 
 /// Provides model of frame used to encode and decode data.
 ///

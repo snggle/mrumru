@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
 
 void main() {
   final FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();

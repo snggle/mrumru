@@ -6,18 +6,21 @@ import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dar
 import 'package:mrumru/src/audio/recorder/queue/events/packet_remaining_event.dart';
 import 'package:mrumru/src/audio/recorder/queue/packet_event_queue.dart';
 import 'package:mrumru/src/frame/frame_model_decoder.dart';
-import 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
 import 'package:mrumru/src/shared/models/sample_model.dart';
 import 'package:mrumru/src/shared/utils/app_logger.dart';
 import 'package:mrumru/src/shared/utils/log_level.dart';
 
 class PacketRecognizer {
-  final Completer<bool> _decodingCompleter = Completer<bool>();
-  final PacketEventQueue _packetsQueue = PacketEventQueue();
+  late Completer<bool> _processLoopCompleter;
+  late FrameCollectionModel frameCollectionModel;
 
+  final PacketEventQueue _packetsQueue = PacketEventQueue();
   final AudioSettingsModel audioSettingsModel;
-  final VoidCallback onDecodingCompleted;
+  final ValueChanged<FrameCollectionModel> onDecodingCompleted;
+
   late final FrameModelDecoder _frameModelDecoder;
+
+  static const Duration _nextActionWaitingDuration = Duration(milliseconds: 100);
 
   bool _recordingBool = false;
   int? _startOffset;
@@ -37,13 +40,14 @@ class PacketRecognizer {
     );
   }
 
-  FrameCollectionModel get decodedContent => _frameModelDecoder.decodedContent;
-
   Future<void> startDecoding() async {
+    _processLoopCompleter = Completer<bool>();
     _recordingBool = true;
-    while (_packetsQueue.isLongerThan(audioSettingsModel.sampleSize) || _recordingBool) {
-      if (_recordingBool == false && _packetsQueue.isLongerThan(audioSettingsModel.sampleSize) == false) {
-        break;
+
+    while (_recordingBool) {
+      if (_packetsQueue.isLongerThan(audioSettingsModel.sampleSize) == false) {
+        await Future<void>.delayed(_nextActionWaitingDuration);
+        continue;
       }
 
       if (_startOffset == null) {
@@ -52,9 +56,8 @@ class PacketRecognizer {
         await _tryProcessWave();
       }
     }
-    if (_decodingCompleter.isCompleted == false) {
-      _decodingCompleter.complete(true);
-    }
+
+    _processLoopCompleter.complete(true);
   }
 
   void addPacket(PacketReceivedEvent packetReceivedEvent) {
@@ -64,11 +67,19 @@ class PacketRecognizer {
 
   Future<void> stopRecording() async {
     _recordingBool = false;
-    if (_decodingCompleter.isCompleted == false) {
-      _decodingCompleter.complete(true);
-    }
-    await _decodingCompleter.future;
-    onDecodingCompleted();
+    await _processLoopCompleter.future;
+    frameCollectionModel = _frameModelDecoder.decodedContent;
+    AppLogger().log(message: 'Decoded frames count: ${frameCollectionModel.frames.length}', logLevel: LogLevel.debug);
+    FrameCollectionModel copiedFrameCollectionModel = FrameCollectionModel(List<FrameModel>.from(frameCollectionModel.frames.map((FrameModel frame) => frame)));
+    onDecodingCompleted(copiedFrameCollectionModel);
+    _clear();
+  }
+
+  void _clear() {
+    _packetsQueue.clear();
+    _frameModelDecoder.clear();
+    _startOffset = null;
+    _endOffset = null;
   }
 
   void _handleFirstFrameDecoded(FrameModel frameModel) {
@@ -80,7 +91,7 @@ class PacketRecognizer {
     if (_packetsQueue.isLongerThan(audioSettingsModel.maxStartOffset)) {
       await _findStartOffset();
     } else {
-      await Future<void>.delayed(const Duration(milliseconds: 100));
+      await Future<void>.delayed(_nextActionWaitingDuration);
     }
   }
 
@@ -97,7 +108,7 @@ class PacketRecognizer {
     if (_packetsQueue.isLongerThan(audioSettingsModel.sampleSize)) {
       await _processSampleWave();
     } else {
-      await Future<void>.delayed(const Duration(milliseconds: 100));
+      await Future<void>.delayed(_nextActionWaitingDuration);
     }
   }
 

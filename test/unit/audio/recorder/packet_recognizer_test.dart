@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/recorder/packet_recognizer.dart';
 import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dart';
-import 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
 
 import '../../../utils/test_utils.dart';
 
@@ -17,13 +16,18 @@ void main() async {
       AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults().copyWith(chunksCount: 1);
       FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
 
+      late FrameCollectionModel actualFrameCollectionModel;
+
       PacketRecognizer actualPacketRecognizer = PacketRecognizer(
         audioSettingsModel: actualAudioSettingsModel,
         frameSettingsModel: actualFrameSettingsModel,
-        onDecodingCompleted: () {},
+        onDecodingCompleted:(FrameCollectionModel frameCollectionModel) => actualFrameCollectionModel = frameCollectionModel,
         onFrameDecoded: (FrameModel frameModel) {},
       );
-      List<double> actualWave = await TestUtils.readAsDoubleFromFile(File('test/unit/audio/assets/mocked_audio_wave_chunks_count_1.txt'));
+
+      List<double> actualWave = await TestUtils.readAsDoubleFromFile(
+        File('test/unit/audio/assets/mocked_audio_wave_chunks_count_1.txt'),
+      );
 
       // Act
       List<PacketReceivedEvent> testEvents = _prepareTestEvents(actualAudioSettingsModel.sampleSize, actualWave);
@@ -35,13 +39,11 @@ void main() async {
         await Future<void>.delayed(const Duration(milliseconds: 100));
       }
 
-      FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
-
       // Assert
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(
         <FrameModel>[
           FrameModel(frameIndex: 0, framesCount: 2, rawData: '1234', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 1, framesCount: 2, rawData: '5678', frameSettings: actualFrameSettingsModel)
+          FrameModel(frameIndex: 1, framesCount: 2, rawData: '5678', frameSettings: actualFrameSettingsModel),
         ],
       );
 
@@ -52,11 +54,12 @@ void main() async {
       // Arrange
       AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults().copyWith(chunksCount: 2);
       FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
+      late FrameCollectionModel actualFrameCollectionModel;
 
       PacketRecognizer actualPacketRecognizer = PacketRecognizer(
         audioSettingsModel: actualAudioSettingsModel,
         frameSettingsModel: actualFrameSettingsModel,
-        onDecodingCompleted: () {},
+        onDecodingCompleted: (FrameCollectionModel frameCollectionModel) => actualFrameCollectionModel = frameCollectionModel,
         onFrameDecoded: (FrameModel frameModel) {},
       );
       List<double> actualWave = await TestUtils.readAsDoubleFromFile(File('test/unit/audio/assets/mocked_audio_wave_chunks_count_2.txt'));
@@ -70,8 +73,6 @@ void main() async {
         actualPacketRecognizer.addPacket(packetReceivedEvent);
         await Future<void>.delayed(const Duration(milliseconds: 100));
       }
-
-      FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
 
       // Assert
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(
@@ -88,11 +89,12 @@ void main() async {
       // Arrange
       AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults().copyWith(chunksCount: 4);
       FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
+      late FrameCollectionModel actualFrameCollectionModel;
 
       PacketRecognizer actualPacketRecognizer = PacketRecognizer(
         audioSettingsModel: actualAudioSettingsModel,
         frameSettingsModel: actualFrameSettingsModel,
-        onDecodingCompleted: () {},
+        onDecodingCompleted: (FrameCollectionModel frameCollectionModel) => actualFrameCollectionModel = frameCollectionModel,
         onFrameDecoded: (FrameModel frameModel) {},
       );
       List<double> actualWave = await TestUtils.readAsDoubleFromFile(File('test/unit/audio/assets/mocked_audio_wave_chunks_count_4.txt'));
@@ -106,9 +108,6 @@ void main() async {
         actualPacketRecognizer.addPacket(packetReceivedEvent);
         await Future<void>.delayed(const Duration(milliseconds: 100));
       }
-
-      FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
-
       // Assert
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(
         <FrameModel>[
@@ -124,11 +123,12 @@ void main() async {
       // Arrange
       AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults().copyWith(chunksCount: 8);
       FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
+      late FrameCollectionModel actualFrameCollectionModel;
 
       PacketRecognizer actualPacketRecognizer = PacketRecognizer(
         audioSettingsModel: actualAudioSettingsModel,
         frameSettingsModel: actualFrameSettingsModel,
-        onDecodingCompleted: () {},
+        onDecodingCompleted:(FrameCollectionModel frameCollectionModel) => actualFrameCollectionModel = frameCollectionModel,
         onFrameDecoded: (FrameModel frameModel) {},
       );
       List<double> actualWave = await TestUtils.readAsDoubleFromFile(File('test/unit/audio/assets/mocked_audio_wave_chunks_count_8.txt'));
@@ -142,8 +142,6 @@ void main() async {
         actualPacketRecognizer.addPacket(packetReceivedEvent);
         await Future<void>.delayed(const Duration(milliseconds: 100));
       }
-
-      FrameCollectionModel actualFrameCollectionModel = actualPacketRecognizer.decodedContent;
 
       // Assert
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(

@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
 import 'package:mrumru/src/shared/utils/app_logger.dart';
 import 'package:mrumru/src/shared/utils/binary_utils.dart';
 import 'package:mrumru/src/shared/utils/log_level.dart';
@@ -37,8 +36,8 @@ class FrameModelDecoder {
   }
 
   void _decodeFrames() {
-    String encodedFrames = _completeBinary.toString().substring(_cursor);
-    List<String> frameBinaries = BinaryUtils.splitBinary(encodedFrames, framesSettingsModel.frameSize);
+    final String encodedFrames = _completeBinary.toString().substring(_cursor);
+    final List<String> frameBinaries = BinaryUtils.splitBinary(encodedFrames, framesSettingsModel.frameSize);
     for (String frameBinary in frameBinaries) {
       _decodeFrame(frameBinary);
     }
@@ -50,8 +49,7 @@ class FrameModelDecoder {
     }
 
     try {
-      FrameModel frameModel = FrameModel.fromBinaryString(frameBinary);
-
+      final FrameModel frameModel = FrameModel.fromBinaryString(frameBinary);
       _decodedFrames.add(frameModel);
       if (frameModel.frameIndex == 0) {
         onFirstFrameDecoded?.call(frameModel);
@@ -66,5 +64,11 @@ class FrameModelDecoder {
     } finally {
       _cursor += frameBinary.length;
     }
+  }
+
+  void clear() {
+    _decodedFrames.clear();
+    _completeBinary.clear();
+    _cursor = 0;
   }
 }
