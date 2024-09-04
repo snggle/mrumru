@@ -51,14 +51,14 @@ class _MainPageState extends State<MainPage> {
           child: TabBarView(
             children: <Widget>[
               SettingsTab(
-                sendTabCubit: _sendTabCubit,
-                receiveTabCubit: _receiveTabCubit,
-                settingsTabCubit: _settingsTabCubit,
-                duplexTabCubit: _duplexTabCubit,
+                sendTabCubit: sendTabCubit,
+                receiveTabCubit: receiveTabCubit,
+                settingsTabCubit: settingsTabCubit,
+                duplexTabCubit: duplexTabCubit,
               ),
-              SendTab(sendTabCubit: _sendTabCubit),
-              ReceiveTab(receiveTabCubit: _receiveTabCubit),
-              DuplexTab(duplexTabCubit: _duplexTabCubit),
+              SendTab(sendTabCubit: sendTabCubit),
+              ReceiveTab(receiveTabCubit: receiveTabCubit),
+              DuplexTab(duplexTabCubit: duplexTabCubit),
             ],
           ),
         ),

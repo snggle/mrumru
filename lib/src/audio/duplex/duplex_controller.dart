@@ -37,7 +37,8 @@ class DuplexController {
     }
     await duplexEmitterController.emit(data);
     duplexControllerNotifier.onEmitMessage?.call(data);
-    if (_isStoppedBool == false) {
+
+    if (!_isStoppedBool) {
       await receive();
     }
   }
@@ -47,9 +48,11 @@ class DuplexController {
     if (_isStoppedBool) {
       return;
     }
-    String data = await duplexRecorderController.listen();
+
+    FrameCollectionModel frameCollectionModel = await duplexRecorderController.listen();
+    String data = frameCollectionModel.mergedRawData;
     duplexControllerNotifier.onMessageReceived?.call(data);
-    if (_isStoppedBool == false) {
+    if (!_isStoppedBool) {
       await _handleDataReceived(data);
     }
   }

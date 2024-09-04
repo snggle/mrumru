@@ -1,10 +1,9 @@
 import 'dart:async';
-
 import 'package:mrumru/mrumru.dart';
 
-/// A class to control the duplex audio recording.
+/// Controls the duplex audio recording process.
 class DuplexRecorderController {
-  /// The audio settings model for audio configuration and frame configuration for frame structure.
+  /// Settings for audio and frame models used in the recording process.
   final AudioSettingsModel audioSettingsModel;
   final FrameSettingsModel frameSettingsModel;
 
@@ -12,21 +11,21 @@ class DuplexRecorderController {
   AudioRecorderController? _audioRecorderController;
 
   /// The completer for the recorder controller.
-  Completer<String> _recorderCompleter = Completer<String>();
+  Completer<FrameCollectionModel> _recorderCompleter = Completer<FrameCollectionModel>();
 
-  /// Creates an instance of [DuplexRecorderController].
+  /// Creates a new instance of [DuplexRecorderController].
   DuplexRecorderController({
     required this.audioSettingsModel,
     required this.frameSettingsModel,
   });
 
   /// Listens for audio samples and returns the received data.
-  Future<String> listen() async {
+  Future<FrameCollectionModel> listen() async {
     _initializeAudioRecorder();
     await _audioRecorderController!.startRecording();
-    String data = await _recorderCompleter.future;
+    FrameCollectionModel frameCollectionModel = await _recorderCompleter.future;
     await kill();
-    return data;
+    return frameCollectionModel;
   }
 
   /// Kills the audio recorder controller.
@@ -34,23 +33,22 @@ class DuplexRecorderController {
     _audioRecorderController?.stopRecording();
     await _recorderCompleter.future;
     _audioRecorderController = null;
-    _recorderCompleter = Completer<String>();
+    _recorderCompleter = Completer<FrameCollectionModel>();
   }
 
   /// Initializes the audio recorder controller for recording audio samples.
   void _initializeAudioRecorder() {
-    _recorderCompleter = Completer<String>();
+    _recorderCompleter = Completer<FrameCollectionModel>();
     _audioRecorderController = AudioRecorderController(
       audioSettingsModel: audioSettingsModel,
       frameSettingsModel: frameSettingsModel,
       onRecordingCompleted: _handleRecordingCompleted,
-      onFrameReceived: (_) {},
+      onFrameReceived: (FrameModel frameModel) {},
     );
   }
 
   /// Handles the recording completion and completes the completer with the received data.
-  void _handleRecordingCompleted() {
-    String receivedData = _audioRecorderController!.packetRecognizer.decodedContent.mergedRawData;
-    _recorderCompleter.complete(receivedData);
+  void _handleRecordingCompleted(FrameCollectionModel frameCollectionModel) {
+    _recorderCompleter.complete(frameCollectionModel);
   }
 }

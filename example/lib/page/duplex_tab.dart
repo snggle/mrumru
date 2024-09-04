@@ -1,7 +1,5 @@
-import 'package:example/cubit/duplex_tab_cubit/a_duplex_tab_state.dart';
 import 'package:example/cubit/duplex_tab_cubit/duplex_tab_cubit.dart';
-import 'package:example/cubit/duplex_tab_cubit/states/duplex_tab_emission_state.dart';
-import 'package:example/cubit/duplex_tab_cubit/states/duplex_tab_recording_state.dart';
+import 'package:example/cubit/duplex_tab_cubit/duplex_tab_state.dart';
 import 'package:example/widgets/settings_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,10 +17,9 @@ class _DuplexTabState extends State<DuplexTab> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: BlocBuilder<DuplexTabCubit, ADuplexTabState>(
+      child: BlocBuilder<DuplexTabCubit, DuplexTabState>(
         bloc: widget.duplexTabCubit,
-        builder: (BuildContext context, ADuplexTabState state) {
-          bool isProcessingBool = state is DuplexTabEmissionState || state is DuplexTabRecordingState;
+        builder: (BuildContext context, DuplexTabState state) {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
@@ -31,7 +28,7 @@ class _DuplexTabState extends State<DuplexTab> {
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: widget.duplexTabCubit.sendingTextController,
-                  enabled: isProcessingBool == false,
+                  enabled: state.processingBool == false,
                   maxLines: 6,
                   decoration: const InputDecoration(
                     labelText: 'Enter a message',
@@ -45,7 +42,7 @@ class _DuplexTabState extends State<DuplexTab> {
                     return Row(
                       children: <Widget>[
                         InkWell(
-                          onTap: isProcessingBool ? null : widget.duplexTabCubit.sendingTextController.clear,
+                          onTap: state.processingBool ? null : widget.duplexTabCubit.sendingTextController.clear,
                           child: const Text('Clear', style: TextStyle(color: Colors.blue)),
                         ),
                         const Spacer(),
@@ -59,9 +56,9 @@ class _DuplexTabState extends State<DuplexTab> {
                   children: <Widget>[
                     Expanded(
                       child: Opacity(
-                        opacity: isProcessingBool == false ? 1.0 : 0.5,
+                        opacity: state.processingBool == false ? 1.0 : 0.5,
                         child: OutlinedButton(
-                          onPressed: isProcessingBool == false ? () => widget.duplexTabCubit.send() : null,
+                          onPressed: state.processingBool == false ? () => widget.duplexTabCubit.send() : null,
                           child: const Text('Start Emitting', style: TextStyle(color: Colors.blue)),
                         ),
                       ),
@@ -69,9 +66,9 @@ class _DuplexTabState extends State<DuplexTab> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Opacity(
-                        opacity: !isProcessingBool ? 1.0 : 0.5,
+                        opacity: state.processingBool ? 0.5 : 1.0,
                         child: OutlinedButton(
-                          onPressed: isProcessingBool == false ? () => widget.duplexTabCubit.receive() : null,
+                          onPressed: state.processingBool == false ? () => widget.duplexTabCubit.receive() : null,
                           child: const Text('Start Listening', style: TextStyle(color: Colors.green)),
                         ),
                       ),
@@ -79,9 +76,9 @@ class _DuplexTabState extends State<DuplexTab> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Opacity(
-                        opacity: isProcessingBool ? 1.0 : 0.5,
+                        opacity: state.processingBool ? 1.0 : 0.5,
                         child: OutlinedButton(
-                          onPressed: isProcessingBool ? widget.duplexTabCubit.stopProcess : null,
+                          onPressed: state.processingBool ? widget.duplexTabCubit.stopProcess : null,
                           child: const Text('Stop', style: TextStyle(color: Colors.red)),
                         ),
                       ),

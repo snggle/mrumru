@@ -23,6 +23,7 @@ library mrumru;
 ///   ```
 export 'package:mrumru/src/audio/duplex/duplex_controller.dart';
 export 'package:mrumru/src/audio/duplex/duplex_controller_notifier.dart';
+
 /// A library for transmitting data using sound waves.
 
 /// Generates audio samples from text messages.
@@ -42,6 +43,7 @@ export 'package:mrumru/src/audio/duplex/duplex_controller_notifier.dart';
 ///   ```
 export 'package:mrumru/src/audio/generator/audio_generator.dart';
 export 'package:mrumru/src/audio/generator/audio_generator_notifier.dart';
+
 /// Sinks provides more organized way of providing or saving samples. It can be used to pass audio samples as multiple data types, such as streams, files, etc
 ///
 /// Usage:
@@ -60,6 +62,7 @@ export 'package:mrumru/src/audio/generator/sink/audio_file_sink.dart';
 export 'package:mrumru/src/audio/generator/sink/audio_multi_sink.dart';
 export 'package:mrumru/src/audio/generator/sink/audio_stream_sink.dart';
 export 'package:mrumru/src/audio/generator/sink/i_audio_sink.dart';
+
 /// Records audio samples from the microphone.
 ///
 /// Usage:
@@ -79,6 +82,7 @@ export 'package:mrumru/src/audio/generator/sink/i_audio_sink.dart';
 ///   audioRecorderController.stopRecording();
 ///  ```
 export 'package:mrumru/src/audio/recorder/audio_recorder_controller.dart';
+
 /// Adds audio settings that can be modified to customize the audio structure.
 ///
 /// Usage:
@@ -152,4 +156,3 @@ export 'package:mrumru/src/shared/models/frame/frame_model.dart';
 ///   FrameSettingsModel frameSettingsModel = FrameSettingsModel.withDefaults();
 ///  ```
 export 'package:mrumru/src/shared/models/frame/frame_settings_model.dart';
-export 'package:mrumru/src/shared/utils/duplex_utils.dart';
