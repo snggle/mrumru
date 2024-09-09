@@ -3,6 +3,7 @@ import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/shared/exceptions/invalid_checksum_exception.dart';
 import 'package:mrumru/src/shared/utils/binary_utils.dart';
 import 'package:mrumru/src/shared/utils/crypto_utils.dart';
+import 'package:mrumru/src/shared/utils/duplex_utils.dart';
 
 class FrameModel extends Equatable {
   final int frameIndex;
@@ -11,12 +12,14 @@ class FrameModel extends Equatable {
   final FrameSettingsModel frameSettings;
   final String binaryData;
   final String checksum;
+  final DuplexFlag duplexFlag;
 
   FrameModel({
     required this.frameIndex,
     required this.framesCount,
     required this.rawData,
     required this.frameSettings,
+    required this.duplexFlag,
   })  : binaryData = BinaryUtils.convertAsciiToBinary(rawData),
         checksum = CryptoUtils.calcChecksum(text: rawData, length: frameSettings.checksumBitsLength);
 
@@ -27,6 +30,7 @@ class FrameModel extends Equatable {
     String framesCountBinary = binaryString.substring(bitsCount, bitsCount += frameSettings.framesCountBitsLength);
     String dataBinary = binaryString.substring(bitsCount, bitsCount += frameSettings.dataBitsLength);
     String expectedChecksum = binaryString.substring(bitsCount, bitsCount += frameSettings.checksumBitsLength);
+    String duplexFlagBinary = binaryString.substring(bitsCount, bitsCount += 4);
 
     while (dataBinary.startsWith('0' * 8)) {
       dataBinary = dataBinary.substring(8);
@@ -37,11 +41,14 @@ class FrameModel extends Equatable {
       throw InvalidChecksumException('Checksum Mismatch: Expected $expectedChecksum but got $actualChecksum in frame $frameIndexBinary from data $dataBinary');
     }
 
+    DuplexFlag duplexFlag = DuplexUtils.parseDuplexFlagBinary(duplexFlagBinary);
+
     return FrameModel(
       frameIndex: int.parse(frameIndexBinary, radix: 2),
       framesCount: int.parse(framesCountBinary, radix: 2),
       rawData: BinaryUtils.convertBinaryToAscii(dataBinary),
       frameSettings: frameSettings,
+      duplexFlag: duplexFlag,
     );
   }
 
@@ -49,18 +56,20 @@ class FrameModel extends Equatable {
     return binaryList.join();
   }
 
-  int calculateTransferWavLength(AudioSettingsModel audioSettingsModel) {
-    return (framesCount * 56 / 2 * audioSettingsModel.sampleSize * audioSettingsModel.sampleRate).toInt();
-  }
-
   List<String> get binaryList {
     String frameNumberBinary = BinaryUtils.parseIntToPaddedBinary(frameIndex, frameSettings.frameIndexBitsLength);
     String framesCountBinary = BinaryUtils.parseIntToPaddedBinary(framesCount, frameSettings.framesCountBitsLength);
     String frameDataBinary = BinaryUtils.convertAsciiToBinary(rawData).padLeft(frameSettings.dataBitsLength, '0');
     String frameChecksumBinary = checksum;
-    return <String>[frameNumberBinary, framesCountBinary, frameDataBinary, frameChecksumBinary];
+    String duplexFlagBinary = DuplexUtils.duplexFlagToBinaryString(duplexFlag);
+
+    return <String>[frameNumberBinary, framesCountBinary, frameDataBinary, frameChecksumBinary, duplexFlagBinary];
+  }
+
+  int calculateTransferWavLength(AudioSettingsModel audioSettingsModel) {
+    return (framesCount * 56 / 2 * audioSettingsModel.sampleSize * audioSettingsModel.sampleRate).toInt();
   }
 
   @override
-  List<Object?> get props => <Object>[frameIndex, framesCount, binaryData, rawData];
+  List<Object?> get props => <Object>[frameIndex, framesCount, binaryData, rawData, duplexFlag];
 }

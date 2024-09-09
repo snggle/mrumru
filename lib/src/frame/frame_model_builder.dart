@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:mrumru/mrumru.dart';
+import 'package:mrumru/src/shared/utils/duplex_utils.dart';
 
 class FrameModelBuilder {
   final FrameSettingsModel frameSettingsModel;
@@ -30,7 +31,7 @@ class FrameModelBuilder {
       frameIndex: index,
       framesCount: _framesCount,
       rawData: frameBinaryData,
-      frameSettings: frameSettingsModel,
+      frameSettings: frameSettingsModel, duplexFlag: DuplexFlag.none,
     );
   }
 

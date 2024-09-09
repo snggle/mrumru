@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/duplex/duplex_emitter_controller.dart';
 import 'package:mrumru/src/audio/duplex/duplex_recorder_controller.dart';
+import 'package:mrumru/src/shared/utils/duplex_utils.dart';
 
 /// A class to control the duplex audio communication.
 class DuplexController {
@@ -22,25 +23,27 @@ class DuplexController {
     required FrameSettingsModel frameSettingsModel,
     required this.duplexControllerNotifier,
   })  : duplexEmitterController = DuplexEmitterController(
-          audioSettingsModel: audioSettingsModel,
-          frameSettingsModel: frameSettingsModel,
-        ),
+    audioSettingsModel: audioSettingsModel,
+    frameSettingsModel: frameSettingsModel,
+  ),
         duplexRecorderController = DuplexRecorderController(
           audioSettingsModel: audioSettingsModel,
           frameSettingsModel: frameSettingsModel,
         );
 
-  /// Starts communication by sending a message.
-  Future<void> send(String data) async {
+  /// Starts communication by sending a message with a flag.
+  Future<void> send(String data, DuplexFlag flag) async {
     if (_isStoppedBool) {
       return;
     }
-    await duplexEmitterController.emit(data);
+    await duplexEmitterController.emit(data, flag);
     duplexControllerNotifier.onEmitMessage?.call(data);
 
-    if (!_isStoppedBool) {
-      await receive();
+    if (flag == DuplexFlag.single || _isStoppedBool) {
+      return;
     }
+
+    await receive();
   }
 
   /// Starts communication by receiving a message.
@@ -51,10 +54,23 @@ class DuplexController {
 
     FrameCollectionModel frameCollectionModel = await duplexRecorderController.listen();
     String data = frameCollectionModel.mergedRawData;
+
+    DuplexFlag flag = _getDuplexFlagFromFrames(frameCollectionModel);
+
     duplexControllerNotifier.onMessageReceived?.call(data);
-    if (!_isStoppedBool) {
+    if (flag == DuplexFlag.single) {
+      return;
+    } else if (!_isStoppedBool) {
       await _handleDataReceived(data);
     }
+  }
+
+  /// Odczytuje flagę DuplexFlag na podstawie danych w FrameCollectionModel.
+  DuplexFlag _getDuplexFlagFromFrames(FrameCollectionModel frameCollectionModel) {
+    if (frameCollectionModel.frames.isNotEmpty) {
+      return frameCollectionModel.frames.first.duplexFlag;
+    }
+    return DuplexFlag.unknown;
   }
 
   /// Kills the duplex controllers.
@@ -68,9 +84,9 @@ class DuplexController {
   /// Handles the received data and sends a response if needed or kills the communication if the data is empty.
   Future<void> _handleDataReceived(String receivedData) async {
     if (receivedData == 'ping') {
-      await send('pong');
+      await send('pong', DuplexFlag.requestResponse);
     } else if (receivedData.isNotEmpty) {
-      await send(receivedData);
+      await send(receivedData, DuplexFlag.requestResponse);
     } else {
       await kill();
     }
