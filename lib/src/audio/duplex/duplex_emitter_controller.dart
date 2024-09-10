@@ -19,7 +19,7 @@ class DuplexEmitterController {
   });
 
   /// Emits audio samples from provided data.
-  Future<void> emit(String data) async {
+  Future<void> emit(String data, DuplexFlag flag) async {
     _initializeAudioGenerator();
     await _audioGenerator!.generate(data);
     await _audioStreamSink!.future;

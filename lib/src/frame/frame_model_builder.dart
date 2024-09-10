@@ -31,7 +31,7 @@ class FrameModelBuilder {
       frameIndex: index,
       framesCount: _framesCount,
       rawData: frameBinaryData,
-      frameSettings: frameSettingsModel, duplexFlag: DuplexFlag.none,
+      frameSettings: frameSettingsModel, duplexFlag: DuplexFlag.single,
     );
   }
 

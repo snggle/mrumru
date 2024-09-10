@@ -17,7 +17,7 @@ class DuplexTabCubit extends Cubit<DuplexTabState> {
   Future<void> send() async {
     emit(DuplexTabState(processingBool: true));
     initDuplexController();
-    await _duplexController!.send(sendingTextController.text);
+    await _duplexController!.send(sendingTextController.text, DuplexFlag.single);
   }
 
   Future<void> receive() async {
