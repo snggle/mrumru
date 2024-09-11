@@ -1,66 +1,57 @@
+import 'dart:typed_data';
 import 'package:equatable/equatable.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/shared/exceptions/invalid_checksum_exception.dart';
-import 'package:mrumru/src/shared/utils/binary_utils.dart';
+import 'package:mrumru/src/frame/frame_protocol_manager.dart';
+import 'package:mrumru/src/shared/models/frame/frame_dto.dart';
 import 'package:mrumru/src/shared/utils/crypto_utils.dart';
 
 class FrameModel extends Equatable {
   final int frameIndex;
+  final int frameLength;
   final int framesCount;
+  final Uint8List compositeChecksum;
+  final int sessionId;
   final String rawData;
-  final FrameSettingsModel frameSettings;
-  final String binaryData;
-  final String checksum;
+  final Uint8List frameChecksum;
+  final FrameProtocolManager protocolManager;
 
   FrameModel({
     required this.frameIndex,
+    required this.frameLength,
     required this.framesCount,
+    required this.compositeChecksum,
+    required this.sessionId,
     required this.rawData,
-    required this.frameSettings,
-  })  : binaryData = BinaryUtils.convertAsciiToBinary(rawData),
-        checksum = CryptoUtils.calcChecksum(text: rawData, length: frameSettings.checksumBitsLength);
+    required this.protocolManager,
+  }) : frameChecksum = CryptoUtils.calcChecksum(text: rawData);
 
-  factory FrameModel.fromBinaryString(String binaryString) {
-    FrameSettingsModel frameSettings = FrameSettingsModel.withDefaults();
-    int bitsCount = 0;
-    String frameIndexBinary = binaryString.substring(0, bitsCount += frameSettings.frameIndexBitsLength);
-    String framesCountBinary = binaryString.substring(bitsCount, bitsCount += frameSettings.framesCountBitsLength);
-    String dataBinary = binaryString.substring(bitsCount, bitsCount += frameSettings.dataBitsLength);
-    String expectedChecksum = binaryString.substring(bitsCount, bitsCount += frameSettings.checksumBitsLength);
-
-    while (dataBinary.startsWith('0' * 8)) {
-      dataBinary = dataBinary.substring(8);
-    }
-
-    String actualChecksum = CryptoUtils.calcChecksum(text: BinaryUtils.convertBinaryToAscii(dataBinary), length: frameSettings.checksumBitsLength);
-    if (expectedChecksum != actualChecksum) {
-      throw InvalidChecksumException('Checksum Mismatch: Expected $expectedChecksum but got $actualChecksum in frame $frameIndexBinary from data $dataBinary');
-    }
-
-    return FrameModel(
-      frameIndex: int.parse(frameIndexBinary, radix: 2),
-      framesCount: int.parse(framesCountBinary, radix: 2),
-      rawData: BinaryUtils.convertBinaryToAscii(dataBinary),
-      frameSettings: frameSettings,
-    );
-  }
-
+  /// Converts the frame into its binary string representation.
   String get binaryString {
-    return binaryList.join();
+    List<int> frameBytes = FrameDto.toBytes(this, isFirstFrameBool: frameIndex == 0);
+    return frameBytes
+        .map((int byte) => byte.toRadixString(2).padLeft(8, '0'))
+        .join();
   }
 
+  /// Calculates the total length of the audio transfer based on frames.
   int calculateTransferWavLength(AudioSettingsModel audioSettingsModel) {
-    return (framesCount * 56 / 2 * audioSettingsModel.sampleSize * audioSettingsModel.sampleRate).toInt();
-  }
-
-  List<String> get binaryList {
-    String frameNumberBinary = BinaryUtils.parseIntToPaddedBinary(frameIndex, frameSettings.frameIndexBitsLength);
-    String framesCountBinary = BinaryUtils.parseIntToPaddedBinary(framesCount, frameSettings.framesCountBitsLength);
-    String frameDataBinary = BinaryUtils.convertAsciiToBinary(rawData).padLeft(frameSettings.dataBitsLength, '0');
-    String frameChecksumBinary = checksum;
-    return <String>[frameNumberBinary, framesCountBinary, frameDataBinary, frameChecksumBinary];
+    return (framesCount *
+        frameLength /
+        2 *
+        audioSettingsModel.sampleSize *
+        audioSettingsModel.sampleRate)
+        .toInt();
   }
 
   @override
-  List<Object?> get props => <Object>[frameIndex, framesCount, binaryData, rawData];
+  List<Object?> get props => <Object?>[
+    frameIndex,
+    frameLength,
+    framesCount,
+    compositeChecksum,
+    sessionId,
+    rawData,
+    frameChecksum,
+    protocolManager,
+  ];
 }

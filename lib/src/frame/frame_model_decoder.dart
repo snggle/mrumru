@@ -1,5 +1,7 @@
+import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:mrumru/mrumru.dart';
+import 'package:mrumru/src/shared/models/frame/frame_dto.dart';
 import 'package:mrumru/src/shared/utils/app_logger.dart';
 import 'package:mrumru/src/shared/utils/binary_utils.dart';
 import 'package:mrumru/src/shared/utils/log_level.dart';
@@ -22,13 +24,10 @@ class FrameModelDecoder {
   });
 
   void addBinaries(List<String> binaries) {
-    AppLogger().log(message: 'Adding binaries to decoder: $binaries', logLevel: LogLevel.debug);
     for (String binary in binaries) {
       _completeBinary.write(binary);
     }
-    if (_completeBinary.length >= framesSettingsModel.frameSize) {
-      _decodeFrames();
-    }
+    _decodeFrames();
   }
 
   FrameCollectionModel get decodedContent {
@@ -41,34 +40,72 @@ class FrameModelDecoder {
     _cursor = 0;
   }
 
-  void _decodeFrames() {
-    String encodedFrames = _completeBinary.toString().substring(_cursor);
-    List<String> frameBinaries = BinaryUtils.splitBinary(encodedFrames, framesSettingsModel.frameSize);
-    for (String frameBinary in frameBinaries) {
-      _decodeFrame(frameBinary);
-    }
+  String _checksumToHex(Uint8List checksum) {
+    return checksum.map((int byte) => byte.toRadixString(16).padLeft(2, '0')).join();
   }
 
-  void _decodeFrame(String frameBinary) {
-    if (frameBinary.length < framesSettingsModel.frameSize) {
-      return;
+  // TODO(arek): Remove this before next full CR
+  void _printFrameModel(FrameModel frameModel, bool isFirstFrameBool) {
+    print('Decoded FrameModel:');
+    print('Frame Index: ${frameModel.frameIndex}');
+    print('Frame Length: ${frameModel.frameLength}');
+    if (isFirstFrameBool) {
+      print('Frames Count: ${frameModel.framesCount}');
+      print('Protocol Manager: ${frameModel.protocolManager}');
+      print('Session ID: ${frameModel.sessionId}');
+      print('Composite Checksum: ${_checksumToHex(frameModel.compositeChecksum)}');
     }
+    print('Raw Data: ${frameModel.rawData}');
+    print('Frame Checksum: ${_checksumToHex(frameModel.frameChecksum)}');
+    print('-----------------------------');
+  }
 
-    try {
-      FrameModel frameModel = FrameModel.fromBinaryString(frameBinary);
-      _decodedFrames.add(frameModel);
-      if (frameModel.frameIndex == 0) {
-        onFirstFrameDecoded?.call(frameModel);
+  void _decodeFrames() {
+    while (_cursor < _completeBinary.length) {
+      if (_completeBinary.length - _cursor < 32) {
+        break;
       }
-      if (frameModel.frameIndex == frameModel.framesCount - 1) {
-        onLastFrameDecoded?.call(frameModel);
+      String headerBinary = _completeBinary.toString().substring(_cursor, _cursor + 32);
+      List<int> headerBytes = BinaryUtils.binaryStringToByteList(headerBinary);
+      ByteData headerData = ByteData.sublistView(Uint8List.fromList(headerBytes));
+
+      int frameLength = headerData.getUint16(2);
+
+      int frameSizeInBytes = frameLength;
+      int frameSizeInBits = frameSizeInBytes * 8;
+
+      if (_completeBinary.length - _cursor < frameSizeInBits) {
+        break;
       }
-      onFrameDecoded?.call(frameModel);
-      AppLogger().log(message: 'FrameModelDecoder: Frame decoded: $frameModel. Total: ${frameModel.framesCount}', logLevel: LogLevel.debug);
-    } catch (_) {
-      AppLogger().log(message: 'FrameModelDecoder: Frame decoding failed for $frameBinary', logLevel: LogLevel.error);
-    } finally {
-      _cursor += frameBinary.length;
+
+      String frameBinary = _completeBinary.toString().substring(_cursor, _cursor + frameSizeInBits);
+      try {
+        List<int> frameBytes = BinaryUtils.binaryStringToByteList(frameBinary);
+        bool isFirstFrameBool = _decodedFrames.isEmpty;
+
+        FrameModel frameModel = FrameDto.fromBytes(frameBytes, isFirstFrameBool: isFirstFrameBool);
+        _decodedFrames.add(frameModel);
+
+        _printFrameModel(frameModel, isFirstFrameBool);
+
+        if (isFirstFrameBool) {
+          onFirstFrameDecoded?.call(frameModel);
+        }
+
+        if (frameModel.frameIndex == frameModel.framesCount - 1) {
+          onLastFrameDecoded?.call(frameModel);
+        }
+
+        onFrameDecoded?.call(frameModel);
+
+        _cursor += frameSizeInBits;
+      } catch (e) {
+        AppLogger().log(
+          message: 'FrameModelDecoder: Frame decoding failed. Error: $e',
+          logLevel: LogLevel.error,
+        );
+        break;
+      }
     }
   }
 }

@@ -1,12 +1,11 @@
 import 'dart:convert';
-
+import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 
 class CryptoUtils {
-  static String calcChecksum({required String text, required int length}) {
+  static Uint8List calcChecksum({required String text}) {
     List<int> bytes = utf8.encode(text);
     Digest md5Digest = md5.convert(bytes);
-
-    return md5Digest.bytes.map((int byte) => byte.toRadixString(2)).join().padRight(length, '0').substring(0, length);
+    return Uint8List.fromList(md5Digest.bytes);
   }
 }

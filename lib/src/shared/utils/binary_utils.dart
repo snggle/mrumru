@@ -30,4 +30,14 @@ class BinaryUtils {
 
     return chunks;
   }
+
+  static List<int> binaryStringToByteList(String binaryText) {
+    List<int> byteList = <int>[];
+    for (int i = 0; i < binaryText.length; i += 8) {
+      String byteString = binaryText.substring(i, i + 8);
+      int byte = int.parse(byteString, radix: 2);
+      byteList.add(byte);
+    }
+    return byteList;
+  }
 }
