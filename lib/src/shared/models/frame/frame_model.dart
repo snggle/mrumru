@@ -1,23 +1,22 @@
+import 'dart:typed_data';
 import 'package:equatable/equatable.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/shared/exceptions/invalid_checksum_exception.dart';
 import 'package:mrumru/src/shared/utils/binary_utils.dart';
 import 'package:mrumru/src/shared/utils/crypto_utils.dart';
 
 class FrameModel extends Equatable {
-  final int frameIndex;  // uint16
-  final int frameLength; // uint16
-  final int framesCount; // uint16
-  final int protocolId;  // uint32
-  final int sessionId;   // uint32
-  final int compressionMethod; // uint8
-  final int encodingMethod;    // uint8
-  final int protocolType;      // uint8
-  final int versionNumber;     // uint8
-  final int compositeChecksum; // uint32
-  final String rawData;        // dynamic, narazie uint32
-  final String binaryData;
-  final String frameChecksum;  // uint16
+  final int frameIndex;
+  final int frameLength;
+  final int framesCount;
+  final int protocolId;
+  final int sessionId;
+  final int compressionMethod;
+  final int encodingMethod;
+  final int protocolType;
+  final int versionNumber;
+  final int compositeChecksum;
+  final String rawData;
+  final String frameChecksum;
 
   FrameModel({
     required this.frameIndex,
@@ -31,60 +30,37 @@ class FrameModel extends Equatable {
     required this.versionNumber,
     required this.compositeChecksum,
     required this.rawData,
-  }) : binaryData = BinaryUtils.convertAsciiToBinary(rawData),
-        frameChecksum = CryptoUtils.calcChecksum(text: rawData, length: 16);
+  }) : frameChecksum = CryptoUtils.calcChecksum(text: rawData, length: 16);
 
   factory FrameModel.fromBinaryString(String binaryString) {
+    FrameSettingsModel frameSettings = FrameSettingsModel.withDefaults();
     int bitsCount = 0;
-
-
-    String frameIndexBinary = binaryString.substring(0, bitsCount += 16);
-    String frameLengthBinary = binaryString.substring(bitsCount, bitsCount += 16);
-    String framesCountBinary = binaryString.substring(bitsCount, bitsCount += 16);
-
+    String frameIndexBinary = binaryString.substring(0, bitsCount += frameSettings.frameIndexBitsLength);
+    String frameLengthBinary = binaryString.substring(bitsCount, bitsCount += frameSettings.frameIndexBitsLength);
+    String framesCountBinary = binaryString.substring(bitsCount, bitsCount += frameSettings.framesCountBitsLength);
     String protocolIdBinary = binaryString.substring(bitsCount, bitsCount += 32);
     String sessionIdBinary = binaryString.substring(bitsCount, bitsCount += 32);
-
     String compressionMethodBinary = binaryString.substring(bitsCount, bitsCount += 8);
     String encodingMethodBinary = binaryString.substring(bitsCount, bitsCount += 8);
     String protocolTypeBinary = binaryString.substring(bitsCount, bitsCount += 8);
     String versionNumberBinary = binaryString.substring(bitsCount, bitsCount += 8);
-
-
     String compositeChecksumBinary = binaryString.substring(bitsCount, bitsCount += 32);
     String frameChecksumBinary = binaryString.substring(bitsCount, bitsCount += 16);
 
-    String dataBinary = binaryString.substring(bitsCount);
-
-    int frameIndex = int.parse(frameIndexBinary, radix: 2);
-    int frameLength = int.parse(frameLengthBinary, radix: 2);
-    int framesCount = int.parse(framesCountBinary, radix: 2);
-    int protocolId = int.parse(protocolIdBinary, radix: 2);
-    int sessionId = int.parse(sessionIdBinary, radix: 2);
-    int compressionMethod = int.parse(compressionMethodBinary, radix: 2);
-    int encodingMethod = int.parse(encodingMethodBinary, radix: 2);
-    int protocolType = int.parse(protocolTypeBinary, radix: 2);
-    int versionNumber = int.parse(versionNumberBinary, radix: 2);
-    int compositeChecksum = int.parse(compositeChecksumBinary, radix: 2);
-    String rawData = BinaryUtils.convertBinaryToAscii(dataBinary);
-
-    String actualChecksum = CryptoUtils.calcChecksum(text: rawData, length: 16);
-    if (frameChecksumBinary != actualChecksum) {
-      throw InvalidChecksumException(
-          'Checksum Mismatch: Expected $frameChecksumBinary but got $actualChecksum in frame $frameIndexBinary from data $dataBinary');
-    }
+    Uint8List rawDataBytes = Uint8List.sublistView(Uint8List.fromList(binaryString.codeUnits), bitsCount);
+    String rawData = BinaryUtils.convertBinaryToAscii(rawDataBytes.map((int byte) => byte.toRadixString(2).padLeft(8, '0')).join());
 
     return FrameModel(
-      frameIndex: frameIndex,
-      frameLength: frameLength,
-      framesCount: framesCount,
-      protocolId: protocolId,
-      sessionId: sessionId,
-      compressionMethod: compressionMethod,
-      encodingMethod: encodingMethod,
-      protocolType: protocolType,
-      versionNumber: versionNumber,
-      compositeChecksum: compositeChecksum,
+      frameIndex: int.parse(frameIndexBinary, radix: 2),
+      frameLength: int.parse(frameLengthBinary, radix: 2),
+      framesCount: int.parse(framesCountBinary, radix: 2),
+      protocolId: int.parse(protocolIdBinary, radix: 2),
+      sessionId: int.parse(sessionIdBinary, radix: 2),
+      compressionMethod: int.parse(compressionMethodBinary, radix: 2),
+      encodingMethod: int.parse(encodingMethodBinary, radix: 2),
+      protocolType: int.parse(protocolTypeBinary, radix: 2),
+      versionNumber: int.parse(versionNumberBinary, radix: 2),
+      compositeChecksum: int.parse(compositeChecksumBinary, radix: 2),
       rawData: rawData,
     );
   }
@@ -122,17 +98,18 @@ class FrameModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => <Object>[
-    frameIndex,
-    frameLength,
-    framesCount,
-    protocolId,
-    sessionId,
-    compressionMethod,
-    encodingMethod,
-    protocolType,
-    versionNumber,
-    compositeChecksum,
-    rawData
-  ];
+  List<Object?> get props => <Object?>[
+        frameIndex,
+        frameLength,
+        framesCount,
+        protocolId,
+        sessionId,
+        compressionMethod,
+        encodingMethod,
+        protocolType,
+        versionNumber,
+        compositeChecksum,
+        rawData,
+        frameChecksum,
+      ];
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:mrumru/mrumru.dart';
+import 'package:mrumru/src/shared/models/frame/frame_dto.dart';
 import 'package:mrumru/src/shared/utils/app_logger.dart';
 import 'package:mrumru/src/shared/utils/binary_utils.dart';
 import 'package:mrumru/src/shared/utils/log_level.dart';
@@ -55,20 +56,30 @@ class FrameModelDecoder {
     }
 
     try {
-      FrameModel frameModel = FrameModel.fromBinaryString(frameBinary);
+      List<int> frameBytes = BinaryUtils.binaryStringToByteList(frameBinary);
+      FrameModel frameModel = FrameDto.fromBytes(frameBytes, isFirstFrame: frameModelIsFirst(frameBytes));
       _decodedFrames.add(frameModel);
+
       if (frameModel.frameIndex == 0) {
         onFirstFrameDecoded?.call(frameModel);
       }
       if (frameModel.frameIndex == frameModel.framesCount - 1) {
         onLastFrameDecoded?.call(frameModel);
       }
+
       onFrameDecoded?.call(frameModel);
-      AppLogger().log(message: 'FrameModelDecoder: Frame decoded: $frameModel. Total: ${frameModel.framesCount}', logLevel: LogLevel.debug);
-    } catch (_) {
-      AppLogger().log(message: 'FrameModelDecoder: Frame decoding failed for $frameBinary', logLevel: LogLevel.error);
+      AppLogger().log(
+        message: 'FrameModelDecoder: Frame decoded: $frameModel. Total: ${frameModel.framesCount}',
+        logLevel: LogLevel.debug,
+      );
+    } catch (e) {
+      AppLogger().log(message: 'FrameModelDecoder: Frame decoding failed for $frameBinary. Error: $e', logLevel: LogLevel.error);
     } finally {
       _cursor += frameBinary.length;
     }
+  }
+
+  bool frameModelIsFirst(List<int> frameBytes) {
+    return frameBytes.isNotEmpty && frameBytes[0] == 0;
   }
 }

@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:mrumru/mrumru.dart';
 
 class FrameModelBuilder {
@@ -19,8 +18,7 @@ class FrameModelBuilder {
       FrameModel frame = _generateFrameForIndex(i);
       frames.add(frame);
     }
-    FrameCollectionModel frameCollectionModel = FrameCollectionModel(frames);
-    return frameCollectionModel;
+    return FrameCollectionModel(frames);
   }
 
   FrameModel _generateFrameForIndex(int index) {
@@ -28,9 +26,16 @@ class FrameModelBuilder {
 
     return FrameModel(
       frameIndex: index,
+      frameLength: frameSettingsModel.frameSize,
       framesCount: _framesCount,
+      protocolId: 0,
+      sessionId: 12345,
+      compressionMethod: 0,
+      encodingMethod: 1,
+      protocolType: 0,
+      versionNumber: 1,
+      compositeChecksum: 987654,
       rawData: frameBinaryData,
-      frameSettings: frameSettingsModel,
     );
   }
 
