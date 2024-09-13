@@ -1,68 +1,49 @@
-import 'dart:typed_data';
 import 'package:equatable/equatable.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/shared/utils/binary_utils.dart';
+import 'package:mrumru/src/frame/frame_protocol_manager.dart';
 import 'package:mrumru/src/shared/utils/crypto_utils.dart';
 
 class FrameModel extends Equatable {
   final int frameIndex;
   final int frameLength;
   final int framesCount;
-  final int protocolId;
-  final int sessionId;
-  final int compressionMethod;
-  final int encodingMethod;
-  final int protocolType;
-  final int versionNumber;
   final int compositeChecksum;
   final String rawData;
   final String frameChecksum;
+
+  final FrameProtocolManager protocolManager;
 
   FrameModel({
     required this.frameIndex,
     required this.frameLength,
     required this.framesCount,
-    required this.protocolId,
-    required this.sessionId,
-    required this.compressionMethod,
-    required this.encodingMethod,
-    required this.protocolType,
-    required this.versionNumber,
     required this.compositeChecksum,
     required this.rawData,
+    required this.protocolManager,
   }) : frameChecksum = CryptoUtils.calcChecksum(text: rawData, length: 16);
 
   factory FrameModel.fromBinaryString(String binaryString) {
-    FrameSettingsModel frameSettings = FrameSettingsModel.withDefaults();
     int bitsCount = 0;
-    String frameIndexBinary = binaryString.substring(0, bitsCount += frameSettings.frameIndexBitsLength);
-    String frameLengthBinary = binaryString.substring(bitsCount, bitsCount += frameSettings.frameIndexBitsLength);
-    String framesCountBinary = binaryString.substring(bitsCount, bitsCount += frameSettings.framesCountBitsLength);
-    String protocolIdBinary = binaryString.substring(bitsCount, bitsCount += 32);
-    String sessionIdBinary = binaryString.substring(bitsCount, bitsCount += 32);
-    String compressionMethodBinary = binaryString.substring(bitsCount, bitsCount += 8);
-    String encodingMethodBinary = binaryString.substring(bitsCount, bitsCount += 8);
-    String protocolTypeBinary = binaryString.substring(bitsCount, bitsCount += 8);
-    String versionNumberBinary = binaryString.substring(bitsCount, bitsCount += 8);
+    String frameIndexBinary = binaryString.substring(0, bitsCount += 8);
+    String frameLengthBinary = binaryString.substring(bitsCount, bitsCount += 8);
+    String framesCountBinary = binaryString.substring(bitsCount, bitsCount += 8);
     String compositeChecksumBinary = binaryString.substring(bitsCount, bitsCount += 32);
     String frameChecksumBinary = binaryString.substring(bitsCount, bitsCount += 16);
 
+    String protocolIdBinary = binaryString.substring(bitsCount, bitsCount += 32);
+    int protocolId = int.parse(protocolIdBinary, radix: 2);
+    FrameProtocolManager protocolManager = FrameProtocolManager().fromProtocolId(protocolId);
+
     Uint8List rawDataBytes = Uint8List.sublistView(Uint8List.fromList(binaryString.codeUnits), bitsCount);
     String rawData = BinaryUtils.convertBinaryToAscii(rawDataBytes.map((int byte) => byte.toRadixString(2).padLeft(8, '0')).join());
-
 
     return FrameModel(
       frameIndex: int.parse(frameIndexBinary, radix: 2),
       frameLength: int.parse(frameLengthBinary, radix: 2),
       framesCount: int.parse(framesCountBinary, radix: 2),
-      protocolId: int.parse(protocolIdBinary, radix: 2),
-      sessionId: int.parse(sessionIdBinary, radix: 2),
-      compressionMethod: int.parse(compressionMethodBinary, radix: 2),
-      encodingMethod: int.parse(encodingMethodBinary, radix: 2),
-      protocolType: int.parse(protocolTypeBinary, radix: 2),
-      versionNumber: int.parse(versionNumberBinary, radix: 2),
       compositeChecksum: int.parse(compositeChecksumBinary, radix: 2),
       rawData: rawData,
+      protocolManager: protocolManager,
     );
   }
 
@@ -71,48 +52,34 @@ class FrameModel extends Equatable {
   }
 
   List<String> get binaryList {
-    String frameNumberBinary = BinaryUtils.parseIntToPaddedBinary(frameIndex, 16);
-    String frameLengthBinary = BinaryUtils.parseIntToPaddedBinary(frameLength, 16);
-    String framesCountBinary = BinaryUtils.parseIntToPaddedBinary(framesCount, 16);
-    String protocolIdBinary = BinaryUtils.parseIntToPaddedBinary(protocolId, 32);
-    String sessionIdBinary = BinaryUtils.parseIntToPaddedBinary(sessionId, 32);
-    String compressionMethodBinary = BinaryUtils.parseIntToPaddedBinary(compressionMethod, 8);
-    String encodingMethodBinary = BinaryUtils.parseIntToPaddedBinary(encodingMethod, 8);
-    String protocolTypeBinary = BinaryUtils.parseIntToPaddedBinary(protocolType, 8);
-    String versionNumberBinary = BinaryUtils.parseIntToPaddedBinary(versionNumber, 8);
+    String frameIndexBinary = BinaryUtils.parseIntToPaddedBinary(frameIndex, 8);
+    String frameLengthBinary = Binar yUtils.parseIntToPaddedBinary(frameLength, 8);
+    String framesCountBinary = BinaryUtils.parseIntToPaddedBinary(framesCount, 8);
     String compositeChecksumBinary = BinaryUtils.parseIntToPaddedBinary(compositeChecksum, 32);
     String frameChecksumBinary = frameChecksum;
 
+    String protocolBinary = BinaryUtils.parseIntToPaddedBinary(protocolManager.protocolId, 32);
+
     return <String>[
-      frameNumberBinary,
+      frameIndexBinary,
       frameLengthBinary,
       framesCountBinary,
-      protocolIdBinary,
-      sessionIdBinary,
-      compressionMethodBinary,
-      encodingMethodBinary,
-      protocolTypeBinary,
-      versionNumberBinary,
       compositeChecksumBinary,
       frameChecksumBinary,
+      protocolBinary,
     ];
   }
 
   @override
   List<Object?> get props => <Object?>[
-        frameIndex,
-        frameLength,
-        framesCount,
-        protocolId,
-        sessionId,
-        compressionMethod,
-        encodingMethod,
-        protocolType,
-        versionNumber,
-        compositeChecksum,
-        rawData,
-        frameChecksum,
-      ];
+    frameIndex,
+    frameLength,
+    framesCount,
+    compositeChecksum,
+    rawData,
+    frameChecksum,
+    protocolManager,  // Dodajemy FrameProtocolManager do props
+  ];
 
   int calculateTransferWavLength(AudioSettingsModel audioSettingsModel) {
     return (framesCount * frameLength / 2 * audioSettingsModel.sampleSize * audioSettingsModel.sampleRate).toInt();
