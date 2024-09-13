@@ -34,7 +34,7 @@ class FrameModelBuilder {
       encodingMethod: 1,
       protocolType: 0,
       versionNumber: 1,
-      compositeChecksum: 987654,
+      compositeChecksum: _calculateCompositeChecksum(frameBinaryData),
       rawData: frameBinaryData,
     );
   }
@@ -43,5 +43,9 @@ class FrameModelBuilder {
     int startIndex = index * frameSettingsModel.asciiCharacterCountInFrame;
     int endIndex = min(startIndex + frameSettingsModel.asciiCharacterCountInFrame, _rawData.length);
     return _rawData.substring(startIndex, endIndex);
+  }
+
+  int _calculateCompositeChecksum(String data) {
+    return data.codeUnits.fold(0, (int sum, int byte) => sum + byte) % 65536;
   }
 }

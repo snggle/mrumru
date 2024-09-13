@@ -50,6 +50,7 @@ class FrameModel extends Equatable {
     Uint8List rawDataBytes = Uint8List.sublistView(Uint8List.fromList(binaryString.codeUnits), bitsCount);
     String rawData = BinaryUtils.convertBinaryToAscii(rawDataBytes.map((int byte) => byte.toRadixString(2).padLeft(8, '0')).join());
 
+
     return FrameModel(
       frameIndex: int.parse(frameIndexBinary, radix: 2),
       frameLength: int.parse(frameLengthBinary, radix: 2),
@@ -112,4 +113,8 @@ class FrameModel extends Equatable {
         rawData,
         frameChecksum,
       ];
+
+  int calculateTransferWavLength(AudioSettingsModel audioSettingsModel) {
+    return (framesCount * frameLength / 2 * audioSettingsModel.sampleSize * audioSettingsModel.sampleRate).toInt();
+  }
 }

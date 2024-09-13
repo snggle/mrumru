@@ -23,7 +23,10 @@ class FrameModelDecoder {
   });
 
   void addBinaries(List<String> binaries) {
-    AppLogger().log(message: 'Adding binaries to decoder: $binaries', logLevel: LogLevel.debug);
+    AppLogger().log(
+      message: 'Adding binaries to decoder: $binaries',
+      logLevel: LogLevel.debug,
+    );
     for (String binary in binaries) {
       _completeBinary.write(binary);
     }
@@ -44,7 +47,8 @@ class FrameModelDecoder {
 
   void _decodeFrames() {
     String encodedFrames = _completeBinary.toString().substring(_cursor);
-    List<String> frameBinaries = BinaryUtils.splitBinary(encodedFrames, framesSettingsModel.frameSize);
+    List<String> frameBinaries =
+    BinaryUtils.splitBinary(encodedFrames, framesSettingsModel.frameSize);
     for (String frameBinary in frameBinaries) {
       _decodeFrame(frameBinary);
     }
@@ -57,7 +61,8 @@ class FrameModelDecoder {
 
     try {
       List<int> frameBytes = BinaryUtils.binaryStringToByteList(frameBinary);
-      FrameModel frameModel = FrameDto.fromBytes(frameBytes, isFirstFrame: frameModelIsFirst(frameBytes));
+      FrameModel frameModel =
+      FrameDto.fromBytes(frameBytes, isFirstFrame: frameModelIsFirst(frameBytes));
       _decodedFrames.add(frameModel);
 
       if (frameModel.frameIndex == 0) {
@@ -68,12 +73,16 @@ class FrameModelDecoder {
       }
 
       onFrameDecoded?.call(frameModel);
+
       AppLogger().log(
         message: 'FrameModelDecoder: Frame decoded: $frameModel. Total: ${frameModel.framesCount}',
         logLevel: LogLevel.debug,
       );
     } catch (e) {
-      AppLogger().log(message: 'FrameModelDecoder: Frame decoding failed for $frameBinary. Error: $e', logLevel: LogLevel.error);
+      AppLogger().log(
+        message: 'FrameModelDecoder: Frame decoding failed for $frameBinary. Error: $e',
+        logLevel: LogLevel.error,
+      );
     } finally {
       _cursor += frameBinary.length;
     }
