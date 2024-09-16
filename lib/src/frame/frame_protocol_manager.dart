@@ -6,7 +6,6 @@ import 'package:mrumru/src/shared/enums/version_number_enum.dart';
 class FrameProtocolManager {
   final CompressionEnum compressionEnum;
   final EncodingEnum encodingEnum;
-
   final ProtocolTypeEnum protocolTypeEnum;
   final VersionNumberEnum versionNumberEnum;
 
@@ -18,20 +17,29 @@ class FrameProtocolManager {
   });
 
   int get protocolId {
-    return (compressionEnum.index << 24) | (encodingEnum.index << 16) | (protocolTypeEnum.index << 8) | versionNumberEnum.index;
+    return (compressionEnum.value << 24) | (encodingEnum.value << 16) | (protocolTypeEnum.value << 8) | versionNumberEnum.value;
   }
 
-  FrameProtocolManager fromProtocolId(int protocolId) {
-    final CompressionEnum compression = CompressionEnum.values[(protocolId >> 24) & 0xFF];
-    final EncodingEnum encoding = EncodingEnum.values[(protocolId >> 16) & 0xFF];
-    final ProtocolTypeEnum protocol = ProtocolTypeEnum.values[(protocolId >> 8) & 0xFF];
-    final VersionNumberEnum version = VersionNumberEnum.values[protocolId & 0xFF];
+  factory FrameProtocolManager.defaultProtocol() {
+    return const FrameProtocolManager(
+      compressionEnum: CompressionEnum.noCompression,
+      encodingEnum: EncodingEnum.defaultMethod,
+      protocolTypeEnum: ProtocolTypeEnum.rawDataTransfer,
+      versionNumberEnum: VersionNumberEnum.firstDefault,
+    );
+  }
+
+  factory FrameProtocolManager.fromProtocolId(int protocolId) {
+    final CompressionEnum compression = CompressionEnum.fromValue((protocolId >> 24) & 0xFF);
+    final EncodingEnum encoding = EncodingEnum.fromValue((protocolId >> 16) & 0xFF);
+    final ProtocolTypeEnum protocol = ProtocolTypeEnum.fromValue((protocolId >> 8) & 0xFF);
+    final VersionNumberEnum version = VersionNumberEnum.fromValue(protocolId & 0xFF);
 
     return FrameProtocolManager(
-      compressionMethod: compression,
-      encodingMethod: encoding,
-      protocolType: protocol,
-      versionNumber: version,
+      compressionEnum: compression,
+      encodingEnum: encoding,
+      protocolTypeEnum: protocol,
+      versionNumberEnum: version,
     );
   }
 

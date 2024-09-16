@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:mrumru/mrumru.dart';
+import 'package:mrumru/src/shared/models/frame/frame_dto.dart';
+import 'package:mrumru/src/shared/utils/app_logger.dart';
 import 'package:mrumru/src/shared/utils/binary_utils.dart';
 import 'package:mrumru/src/shared/utils/log_level.dart';
 
@@ -45,37 +47,32 @@ class FrameModelDecoder {
 
   void _decodeFrames() {
     String encodedFrames = _completeBinary.toString().substring(_cursor);
-    List<String> frameBinaries =
-    BinaryUtils.splitBinary(encodedFrames, framesSettingsModel.frameSize);
+    List<String> frameBinaries = BinaryUtils.splitBinary(encodedFrames, framesSettingsModel.frameSize);
+
     for (String frameBinary in frameBinaries) {
-      _decodeFrame(frameBinary);
-    }
-  }
+      try {
+        List<int> frameBytes = frameBinary.codeUnits;
 
-  void _decodeFrame(String frameBinary) {
-    if (frameBinary.length < framesSettingsModel.frameSize) {
-      return;
-    }
+        FrameModel frameModel = FrameDto.fromBytes(frameBytes, isFirstFrame: _decodedFrames.isEmpty);
 
-    try {
-      FrameModel frameModel = FrameModel.fromBinaryString(frameBinary);
-      _decodedFrames.add(frameModel);
+        _decodedFrames.add(frameModel);
+        if (frameModel.frameIndex == 0) {
+          onFirstFrameDecoded?.call(frameModel);
+        }
+        if (frameModel.frameIndex == frameModel.framesCount - 1) {
+          onLastFrameDecoded?.call(frameModel);
+        }
+        onFrameDecoded?.call(frameModel);
 
-      if (frameModel.frameIndex == 0) {
-        onFirstFrameDecoded?.call(frameModel);
+        AppLogger().log(message: 'FrameModelDecoder: Frame decoded: $frameModel. Total: ${frameModel.framesCount}', logLevel: LogLevel.debug);
+      } catch (e) {
+        AppLogger().log(
+          message: 'FrameModelDecoder: Frame decoding failed for $frameBinary. Error: $e',
+          logLevel: LogLevel.error,
+        );
+      } finally {
+        _cursor += frameBinary.length;
       }
-      if (frameModel.frameIndex == frameModel.framesCount - 1) {
-        onLastFrameDecoded?.call(frameModel);
-      }
-
-      onFrameDecoded?.call(frameModel);
-    } catch (e) {
-      AppLogger().log(
-        message: 'FrameModelDecoder: Frame decoding failed for $frameBinary. Error: $e',
-        logLevel: LogLevel.error,
-      );
-    } finally {
-      _cursor += frameBinary.length;
     }
   }
 }

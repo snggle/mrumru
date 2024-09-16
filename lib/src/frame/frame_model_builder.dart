@@ -1,5 +1,7 @@
 import 'dart:math';
 import 'package:mrumru/mrumru.dart';
+import 'package:mrumru/src/frame/frame_protocol_manager.dart';
+import 'package:mrumru/src/shared/models/frame/frame_dto.dart';
 
 class FrameModelBuilder {
   final FrameSettingsModel frameSettingsModel;
@@ -18,25 +20,26 @@ class FrameModelBuilder {
       FrameModel frame = _generateFrameForIndex(i);
       frames.add(frame);
     }
+
     return FrameCollectionModel(frames);
   }
 
   FrameModel _generateFrameForIndex(int index) {
     String frameBinaryData = _splitBinaryDataForIndex(index);
 
-    return FrameModel(
+    FrameModel frameModel = FrameModel(
       frameIndex: index,
       frameLength: frameSettingsModel.frameSize,
       framesCount: _framesCount,
-      protocolId: 0,
-      sessionId: 12345,
-      compressionMethod: 0,
-      encodingMethod: 1,
-      protocolType: 0,
-      versionNumber: 1,
+      protocolManager: FrameProtocolManager.defaultProtocol(),
       compositeChecksum: _calculateCompositeChecksum(frameBinaryData),
       rawData: frameBinaryData,
     );
+
+    List<int> frameBytes = FrameDto.toBytes(frameModel, isFirstFrame: index == 0);
+
+
+    return frameModel;
   }
 
   String _splitBinaryDataForIndex(int index) {
