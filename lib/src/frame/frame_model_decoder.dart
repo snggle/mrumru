@@ -23,16 +23,10 @@ class FrameModelDecoder {
   });
 
   void addBinaries(List<String> binaries) {
-    AppLogger().log(
-      message: 'Adding binaries to decoder: $binaries',
-      logLevel: LogLevel.debug,
-    );
     for (String binary in binaries) {
       _completeBinary.write(binary);
     }
-    if (_completeBinary.length >= framesSettingsModel.frameSize) {
-      _decodeFrames();
-    }
+    _decodeFrames();
   }
 
   FrameCollectionModel get decodedContent {
@@ -46,32 +40,33 @@ class FrameModelDecoder {
   }
 
   void _decodeFrames() {
-    String encodedFrames = _completeBinary.toString().substring(_cursor);
-    List<String> frameBinaries = BinaryUtils.splitBinary(encodedFrames, framesSettingsModel.frameSize);
-
-    for (String frameBinary in frameBinaries) {
+    while (_completeBinary.length - _cursor >= framesSettingsModel.frameSize) {
+      String frameBinary = _completeBinary.toString().substring(
+          _cursor, _cursor + framesSettingsModel.frameSize);
       try {
-        List<int> frameBytes = frameBinary.codeUnits;
-
-        FrameModel frameModel = FrameDto.fromBytes(frameBytes, isFirstFrame: _decodedFrames.isEmpty);
+        List<int> frameBytes = BinaryUtils.binaryStringToByteList(frameBinary);
+        bool isFirstFrame = _decodedFrames.isEmpty;
+        FrameModel frameModel =
+        FrameDto.fromBytes(frameBytes, isFirstFrame: isFirstFrame);
 
         _decodedFrames.add(frameModel);
-        if (frameModel.frameIndex == 0) {
+
+        if (isFirstFrame) {
           onFirstFrameDecoded?.call(frameModel);
         }
+
         if (frameModel.frameIndex == frameModel.framesCount - 1) {
           onLastFrameDecoded?.call(frameModel);
         }
-        onFrameDecoded?.call(frameModel);
 
-        AppLogger().log(message: 'FrameModelDecoder: Frame decoded: $frameModel. Total: ${frameModel.framesCount}', logLevel: LogLevel.debug);
+        onFrameDecoded?.call(frameModel);
       } catch (e) {
         AppLogger().log(
-          message: 'FrameModelDecoder: Frame decoding failed for $frameBinary. Error: $e',
+          message: 'FrameModelDecoder: Frame decoding failed. Error: $e',
           logLevel: LogLevel.error,
         );
       } finally {
-        _cursor += frameBinary.length;
+        _cursor += framesSettingsModel.frameSize;
       }
     }
   }

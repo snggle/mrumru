@@ -2,92 +2,71 @@ import 'package:equatable/equatable.dart';
 
 class FrameSettingsModel with EquatableMixin {
   final int frameIndexBitsLength;
+  final int frameLengthBitsLength;
   final int framesCountBitsLength;
-  final int dataBitsLength;
-  final int checksumBitsLength;
-
   final int protocolIdBitsLength;
   final int sessionIdBitsLength;
-  final int compressionMethodBitsLength;
-  final int encodingMethodBitsLength;
-  final int protocolTypeBitsLength;
-  final int versionNumberBitsLength;
   final int compositeChecksumBitsLength;
+  final int checksumBitsLength;
+  final int dataBitsLength;
 
   final int frameSize;
   final int asciiCharacterCountInFrame;
 
   FrameSettingsModel({
     required this.frameIndexBitsLength,
+    required this.frameLengthBitsLength,
     required this.framesCountBitsLength,
-    required this.dataBitsLength,
-    required this.checksumBitsLength,
     required this.protocolIdBitsLength,
     required this.sessionIdBitsLength,
-    required this.compressionMethodBitsLength,
-    required this.encodingMethodBitsLength,
-    required this.protocolTypeBitsLength,
-    required this.versionNumberBitsLength,
     required this.compositeChecksumBitsLength,
+    required this.checksumBitsLength,
+    required this.dataBitsLength,
     required this.frameSize,
     required this.asciiCharacterCountInFrame,
   });
 
   factory FrameSettingsModel.withDefaults() {
-    int frameIndexBitsLength = 8;
-    int framesCountBitsLength = 8;
-    int dataBitsLength = 32;
-    int checksumBitsLength = 16;
+    int frameIndexBitsLength = 16;
+    int frameLengthBitsLength = 16;
+    int framesCountBitsLength = 16;
     int protocolIdBitsLength = 32;
     int sessionIdBitsLength = 32;
-    int compressionMethodBitsLength = 8;
-    int encodingMethodBitsLength = 8;
-    int protocolTypeBitsLength = 8;
-    int versionNumberBitsLength = 8;
     int compositeChecksumBitsLength = 32;
+    int checksumBitsLength = 16;
+    int dataBitsLength = 256 * 8; // Adjust as needed
 
     int totalFrameSize = frameIndexBitsLength +
-        framesCountBitsLength +
+        frameLengthBitsLength +
         dataBitsLength +
-        checksumBitsLength +
-        protocolIdBitsLength +
-        sessionIdBitsLength +
-        compressionMethodBitsLength +
-        encodingMethodBitsLength +
-        protocolTypeBitsLength +
-        versionNumberBitsLength +
-        compositeChecksumBitsLength;
+        checksumBitsLength;
+
+    int asciiCharacterCountInFrame = dataBitsLength ~/ 8;
 
     return FrameSettingsModel(
       frameIndexBitsLength: frameIndexBitsLength,
+      frameLengthBitsLength: frameLengthBitsLength,
       framesCountBitsLength: framesCountBitsLength,
-      dataBitsLength: dataBitsLength,
-      checksumBitsLength: checksumBitsLength,
       protocolIdBitsLength: protocolIdBitsLength,
       sessionIdBitsLength: sessionIdBitsLength,
-      compressionMethodBitsLength: compressionMethodBitsLength,
-      encodingMethodBitsLength: encodingMethodBitsLength,
-      protocolTypeBitsLength: protocolTypeBitsLength,
-      versionNumberBitsLength: versionNumberBitsLength,
       compositeChecksumBitsLength: compositeChecksumBitsLength,
+      checksumBitsLength: checksumBitsLength,
+      dataBitsLength: dataBitsLength,
       frameSize: totalFrameSize,
-      asciiCharacterCountInFrame: dataBitsLength ~/ 8,
+      asciiCharacterCountInFrame: asciiCharacterCountInFrame,
     );
   }
 
   @override
   List<Object?> get props => <Object?>[
     frameIndexBitsLength,
+    frameLengthBitsLength,
     framesCountBitsLength,
-    dataBitsLength,
-    checksumBitsLength,
     protocolIdBitsLength,
     sessionIdBitsLength,
-    compressionMethodBitsLength,
-    encodingMethodBitsLength,
-    protocolTypeBitsLength,
-    versionNumberBitsLength,
     compositeChecksumBitsLength,
+    checksumBitsLength,
+    dataBitsLength,
     frameSize,
     asciiCharacterCountInFrame,
   ];
