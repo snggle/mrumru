@@ -15,7 +15,7 @@ class FrameDto {
     int framesCount = 0;
     int sessionId = 0;
     FrameProtocolManager protocolManager = FrameProtocolManager.defaultProtocol();
-    int compositeChecksum = 0;
+    Uint8List compositeChecksum = Uint8List(16);
 
     if (isFirstFrame) {
       framesCount = byteData.getUint16(offset);
@@ -25,18 +25,17 @@ class FrameDto {
       protocolManager = FrameProtocolManager.fromProtocolId(protocolId);
       sessionId = byteData.getUint32(offset);
       offset += 4;
-      compositeChecksum = byteData.getUint32(offset);
-      offset += 4;
+      compositeChecksum = Uint8List.fromList(bytes.sublist(offset, offset + 16));
+
+      offset += 16;
     }
 
-    int dataLength = frameLength - (isFirstFrame ? 20 : 6);
-
-    Uint8List rawDataBytes =
-    Uint8List.sublistView(byteData, offset, offset + dataLength);
+    int dataLength = frameLength - (isFirstFrame ? 2 + 2 + 2 + 4 + 4 + 16 + 16 : 2 + 2 + 16);
+    Uint8List rawDataBytes = Uint8List.fromList(bytes.sublist(offset, offset + dataLength));
     String rawData = String.fromCharCodes(rawDataBytes);
     offset += dataLength;
 
-    int frameChecksum = byteData.getUint16(offset);
+    Uint8List frameChecksum = Uint8List.fromList(bytes.sublist(offset, offset + 16));
 
     return FrameModel(
       frameIndex: frameIndex,
@@ -52,9 +51,9 @@ class FrameDto {
   static List<int> toBytes(FrameModel frameModel, {bool isFirstFrame = true}) {
     Uint8List rawDataBytes = Uint8List.fromList(frameModel.rawData.codeUnits);
 
-    int totalLength = 4 + rawDataBytes.length + 2; 
+    int totalLength = 4 + rawDataBytes.length + 16; // frameIndex, frameLength, rawData, frameChecksum
     if (isFirstFrame) {
-      totalLength += 2 + 4 + 4 + 4;
+      totalLength += 2 + 4 + 4 + 16; // framesCount, protocolId, sessionId, compositeChecksum
     }
 
     ByteData byteData = ByteData(totalLength);
@@ -72,16 +71,14 @@ class FrameDto {
       offset += 4;
       byteData.setUint32(offset, frameModel.sessionId);
       offset += 4;
-      byteData.setUint32(offset, frameModel.compositeChecksum);
-      offset += 4;
+      byteData.buffer.asUint8List().setRange(offset, offset + 16, frameModel.compositeChecksum);
+      offset += 16;
     }
 
-    byteData.buffer
-        .asUint8List()
-        .setRange(offset, offset + rawDataBytes.length, rawDataBytes);
+    byteData.buffer.asUint8List().setRange(offset, offset + rawDataBytes.length, rawDataBytes);
     offset += rawDataBytes.length;
 
-    byteData.setUint16(offset, frameModel.frameChecksum);
+    byteData.buffer.asUint8List().setRange(offset, offset + 16, frameModel.frameChecksum);
 
     return byteData.buffer.asUint8List();
   }

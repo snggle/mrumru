@@ -32,9 +32,9 @@ class FrameSettingsModel with EquatableMixin {
     int framesCountBitsLength = 16;
     int protocolIdBitsLength = 32;
     int sessionIdBitsLength = 32;
-    int compositeChecksumBitsLength = 32;
-    int checksumBitsLength = 16;
-    int dataBitsLength = 256 * 8; // Adjust as needed
+    int compositeChecksumBitsLength = 128;
+    int checksumBitsLength = 128;
+    int dataBitsLength = 256 * 8;
 
     int totalFrameSize = frameIndexBitsLength +
         frameLengthBitsLength +

@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/shared/utils/binary_utils.dart';
 
 class FrameCollectionModel extends Equatable {
   final List<FrameModel> frames;

@@ -40,9 +40,12 @@ class FrameModelDecoder {
   }
 
   void _decodeFrames() {
-    while (_completeBinary.length - _cursor >= framesSettingsModel.frameSize) {
+    int frameSizeInBits = framesSettingsModel.frameSize;
+    int frameSizeInBytes = (frameSizeInBits / 8).ceil();
+
+    while (_completeBinary.length - _cursor >= frameSizeInBits) {
       String frameBinary = _completeBinary.toString().substring(
-          _cursor, _cursor + framesSettingsModel.frameSize);
+          _cursor, _cursor + frameSizeInBits);
       try {
         List<int> frameBytes = BinaryUtils.binaryStringToByteList(frameBinary);
         bool isFirstFrame = _decodedFrames.isEmpty;
@@ -66,7 +69,7 @@ class FrameModelDecoder {
           logLevel: LogLevel.error,
         );
       } finally {
-        _cursor += framesSettingsModel.frameSize;
+        _cursor += frameSizeInBits;
       }
     }
   }

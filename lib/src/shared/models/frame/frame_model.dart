@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:equatable/equatable.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/frame/frame_protocol_manager.dart';
@@ -8,10 +9,10 @@ class FrameModel extends Equatable {
   final int frameIndex;
   final int frameLength;
   final int framesCount;
-  final int compositeChecksum;
+  final Uint8List compositeChecksum;
   final int sessionId;
   final String rawData;
-  final int frameChecksum;
+  final Uint8List frameChecksum;
   final FrameProtocolManager protocolManager;
 
   FrameModel({
@@ -22,7 +23,7 @@ class FrameModel extends Equatable {
     required this.sessionId,
     required this.rawData,
     required this.protocolManager,
-  }) : frameChecksum = CryptoUtils.calcChecksum(text: rawData, length: rawData.length) as int;
+  }) : frameChecksum = CryptoUtils.calcChecksum(text: rawData);
 
   /// Converts the frame into its binary string representation.
   String get binaryString {

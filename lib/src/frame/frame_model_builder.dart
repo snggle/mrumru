@@ -1,6 +1,8 @@
 import 'dart:math';
+import 'dart:typed_data';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/frame/frame_protocol_manager.dart';
+import 'package:mrumru/src/shared/utils/crypto_utils.dart';
 
 class FrameModelBuilder {
   final FrameSettingsModel frameSettingsModel;
@@ -17,29 +19,29 @@ class FrameModelBuilder {
     _framesCount = (_rawData.length / asciiPerFrame).ceil();
     _sessionId = _generateSessionId();
 
+    Uint8List compositeChecksum = CryptoUtils.calcChecksum(text: _rawData);
+
     for (int i = 0; i < _framesCount; i++) {
-      FrameModel frame = _generateFrameForIndex(i);
+      FrameModel frame = _generateFrameForIndex(i, compositeChecksum);
       frames.add(frame);
     }
 
     return FrameCollectionModel(frames);
   }
 
-  FrameModel _generateFrameForIndex(int index) {
+  FrameModel _generateFrameForIndex(int index, Uint8List compositeChecksum) {
     String frameData = _splitDataForIndex(index);
     int dataLength = frameData.length;
-    int frameLength = dataLength + (index == 0 ? 20 : 6);
-    int compositeChecksum = 0;
-
-    if (index == 0) {
-      compositeChecksum = _calculateCompositeChecksum(_rawData);
-    }
+    int controlBytesLength = index == 0
+        ? 2 + 2 + 2 + 4 + 4 + 16 + 16
+        : 2 + 2 + 16;
+    int frameLength = dataLength + controlBytesLength;
 
     FrameModel frameModel = FrameModel(
       frameIndex: index,
       frameLength: frameLength,
       framesCount: index == 0 ? _framesCount : 0,
-      compositeChecksum: compositeChecksum,
+      compositeChecksum: index == 0 ? compositeChecksum : Uint8List(16),
       sessionId: index == 0 ? _sessionId : 0,
       rawData: frameData,
       protocolManager: FrameProtocolManager.defaultProtocol(),
@@ -57,10 +59,5 @@ class FrameModelBuilder {
   int _generateSessionId() {
     // Generate a unique session ID (e.g., timestamp or random number)
     return DateTime.now().millisecondsSinceEpoch & 0xFFFFFFFF;
-  }
-
-  int _calculateCompositeChecksum(String data) {
-    // Example checksum calculation: sum of all bytes modulo 65536
-    return data.codeUnits.fold(0, (int sum, int byte) => sum + byte) % 65536;
   }
 }
