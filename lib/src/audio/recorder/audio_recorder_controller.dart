@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/recorder/packet_recognizer.dart';
@@ -11,7 +10,7 @@ import 'package:wav/wav.dart';
 class AudioRecorderController {
   final AudioRecorder audioRecorder = AudioRecorder();
   final ValueChanged<FrameModel>? onFrameReceived;
-  final VoidCallback onRecordingCompleted;
+  final ValueChanged<FrameCollectionModel> onRecordingCompleted;
   final AudioSettingsModel audioSettingsModel;
   final FrameSettingsModel frameSettingsModel;
   late final PacketRecognizer packetRecognizer;
@@ -48,11 +47,11 @@ class AudioRecorderController {
     packetRecognizer.stopRecording();
   }
 
-  Future<void> _completeDecoding() async {
+  Future<void> _completeDecoding(FrameCollectionModel frameCollectionModel) async {
     if (await audioRecorder.isRecording()) {
       await audioRecorder.stop();
       await recordingStreamSubscription?.cancel();
-      onRecordingCompleted();
+      onRecordingCompleted(frameCollectionModel);
     }
   }
 

@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
 
 class FrameModelBuilder {
   final FrameSettingsModel frameSettingsModel;

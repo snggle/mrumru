@@ -88,6 +88,7 @@ export 'package:mrumru/src/audio/recorder/audio_recorder_controller.dart';
 ///
 ///   ```
 export 'package:mrumru/src/shared/models/audio_settings_model.dart';
+export 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
 
 /// Provides model of frame used to encode and decode data.
 ///
