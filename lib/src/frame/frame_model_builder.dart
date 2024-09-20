@@ -57,7 +57,6 @@ class FrameModelBuilder {
   }
 
   int _generateSessionId() {
-    // Generate a unique session ID (e.g., timestamp or random number)
     return DateTime.now().millisecondsSinceEpoch & 0xFFFFFFFF;
   }
 }

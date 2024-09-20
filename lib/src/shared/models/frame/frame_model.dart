@@ -27,7 +27,7 @@ class FrameModel extends Equatable {
 
   /// Converts the frame into its binary string representation.
   String get binaryString {
-    List<int> frameBytes = FrameDto.toBytes(this, isFirstFrame: frameIndex == 0);
+    List<int> frameBytes = FrameDto.toBytes(this, isFirstFrameBool: frameIndex == 0);
     return frameBytes
         .map((int byte) => byte.toRadixString(2).padLeft(8, '0'))
         .join();

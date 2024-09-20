@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/shared/models/frame/frame_dto.dart';
@@ -39,22 +40,55 @@ class FrameModelDecoder {
     _cursor = 0;
   }
 
-  void _decodeFrames() {
-    int frameSizeInBits = framesSettingsModel.frameSize;
-    int frameSizeInBytes = (frameSizeInBits / 8).ceil();
+  String _checksumToHex(Uint8List checksum) {
+    return checksum.map((int byte) => byte.toRadixString(16).padLeft(2, '0')).join();
+  }
 
-    while (_completeBinary.length - _cursor >= frameSizeInBits) {
-      String frameBinary = _completeBinary.toString().substring(
-          _cursor, _cursor + frameSizeInBits);
+  // TODO(arek): Remove this before next full CR
+  void _printFrameModel(FrameModel frameModel, bool isFirstFrameBool) {
+    print('Decoded FrameModel:');
+    print('Frame Index: ${frameModel.frameIndex}');
+    print('Frame Length: ${frameModel.frameLength}');
+    if (isFirstFrameBool) {
+      print('Frames Count: ${frameModel.framesCount}');
+      print('Protocol Manager: ${frameModel.protocolManager}');
+      print('Session ID: ${frameModel.sessionId}');
+      print('Composite Checksum: ${_checksumToHex(frameModel.compositeChecksum)}');
+    }
+    print('Raw Data: ${frameModel.rawData}');
+    print('Frame Checksum: ${_checksumToHex(frameModel.frameChecksum)}');
+    print('-----------------------------');
+  }
+
+  void _decodeFrames() {
+    while (_cursor < _completeBinary.length) {
+      if (_completeBinary.length - _cursor < 32) {
+        break;
+      }
+      String headerBinary = _completeBinary.toString().substring(_cursor, _cursor + 32);
+      List<int> headerBytes = BinaryUtils.binaryStringToByteList(headerBinary);
+      ByteData headerData = ByteData.sublistView(Uint8List.fromList(headerBytes));
+
+      int frameLength = headerData.getUint16(2);
+
+      int frameSizeInBytes = frameLength;
+      int frameSizeInBits = frameSizeInBytes * 8;
+
+      if (_completeBinary.length - _cursor < frameSizeInBits) {
+        break;
+      }
+
+      String frameBinary = _completeBinary.toString().substring(_cursor, _cursor + frameSizeInBits);
       try {
         List<int> frameBytes = BinaryUtils.binaryStringToByteList(frameBinary);
-        bool isFirstFrame = _decodedFrames.isEmpty;
-        FrameModel frameModel =
-        FrameDto.fromBytes(frameBytes, isFirstFrame: isFirstFrame);
+        bool isFirstFrameBool = _decodedFrames.isEmpty;
 
+        FrameModel frameModel = FrameDto.fromBytes(frameBytes, isFirstFrameBool: isFirstFrameBool);
         _decodedFrames.add(frameModel);
 
-        if (isFirstFrame) {
+        _printFrameModel(frameModel, isFirstFrameBool);
+
+        if (isFirstFrameBool) {
           onFirstFrameDecoded?.call(frameModel);
         }
 
@@ -63,13 +97,14 @@ class FrameModelDecoder {
         }
 
         onFrameDecoded?.call(frameModel);
+
+        _cursor += frameSizeInBits;
       } catch (e) {
         AppLogger().log(
           message: 'FrameModelDecoder: Frame decoding failed. Error: $e',
           logLevel: LogLevel.error,
         );
-      } finally {
-        _cursor += frameSizeInBits;
+        break;
       }
     }
   }

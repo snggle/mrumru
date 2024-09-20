@@ -16,13 +16,6 @@ class FrameProtocolManager {
     required this.versionNumberEnum,
   });
 
-  int get protocolId {
-    return (compressionEnum.value << 24) |
-    (encodingEnum.value << 16) |
-    (protocolTypeEnum.value << 8) |
-    versionNumberEnum.value;
-  }
-
   factory FrameProtocolManager.defaultProtocol() {
     return const FrameProtocolManager(
       compressionEnum: CompressionEnum.noCompression,
@@ -33,14 +26,10 @@ class FrameProtocolManager {
   }
 
   factory FrameProtocolManager.fromProtocolId(int protocolId) {
-    final CompressionEnum compression =
-    CompressionEnum.fromValue((protocolId >> 24) & 0xFF);
-    final EncodingEnum encoding =
-    EncodingEnum.fromValue((protocolId >> 16) & 0xFF);
-    final ProtocolTypeEnum protocol =
-    ProtocolTypeEnum.fromValue((protocolId >> 8) & 0xFF);
-    final VersionNumberEnum version =
-    VersionNumberEnum.fromValue(protocolId & 0xFF);
+    CompressionEnum compression = CompressionEnum.fromValue((protocolId >> 24) & 0xFF);
+    EncodingEnum encoding = EncodingEnum.fromValue((protocolId >> 16) & 0xFF);
+    ProtocolTypeEnum protocol = ProtocolTypeEnum.fromValue((protocolId >> 8) & 0xFF);
+    VersionNumberEnum version = VersionNumberEnum.fromValue(protocolId & 0xFF);
 
     return FrameProtocolManager(
       compressionEnum: compression,
@@ -48,6 +37,13 @@ class FrameProtocolManager {
       protocolTypeEnum: protocol,
       versionNumberEnum: version,
     );
+  }
+
+  int get protocolId {
+    return (compressionEnum.value << 24) |
+    (encodingEnum.value << 16) |
+    (protocolTypeEnum.value << 8) |
+    versionNumberEnum.value;
   }
 
   @override

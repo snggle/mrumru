@@ -3,7 +3,7 @@ import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/frame/frame_protocol_manager.dart';
 
 class FrameDto {
-  static FrameModel fromBytes(List<int> bytes, {bool isFirstFrame = true}) {
+  static FrameModel fromBytes(List<int> bytes, {bool isFirstFrameBool = true}) {
     ByteData byteData = ByteData.sublistView(Uint8List.fromList(bytes));
     int offset = 0;
 
@@ -17,7 +17,7 @@ class FrameDto {
     FrameProtocolManager protocolManager = FrameProtocolManager.defaultProtocol();
     Uint8List compositeChecksum = Uint8List(16);
 
-    if (isFirstFrame) {
+    if (isFirstFrameBool) {
       framesCount = byteData.getUint16(offset);
       offset += 2;
       int protocolId = byteData.getUint32(offset);
@@ -26,16 +26,13 @@ class FrameDto {
       sessionId = byteData.getUint32(offset);
       offset += 4;
       compositeChecksum = Uint8List.fromList(bytes.sublist(offset, offset + 16));
-
       offset += 16;
     }
 
-    int dataLength = frameLength - (isFirstFrame ? 2 + 2 + 2 + 4 + 4 + 16 + 16 : 2 + 2 + 16);
+    int dataLength = frameLength - (isFirstFrameBool ? 2 + 2 + 2 + 4 + 4 + 16 + 16 : 2 + 2 + 16);
     Uint8List rawDataBytes = Uint8List.fromList(bytes.sublist(offset, offset + dataLength));
     String rawData = String.fromCharCodes(rawDataBytes);
     offset += dataLength;
-
-    Uint8List frameChecksum = Uint8List.fromList(bytes.sublist(offset, offset + 16));
 
     return FrameModel(
       frameIndex: frameIndex,
@@ -48,12 +45,12 @@ class FrameDto {
     );
   }
 
-  static List<int> toBytes(FrameModel frameModel, {bool isFirstFrame = true}) {
+  static List<int> toBytes(FrameModel frameModel, {bool isFirstFrameBool = true}) {
     Uint8List rawDataBytes = Uint8List.fromList(frameModel.rawData.codeUnits);
 
-    int totalLength = 4 + rawDataBytes.length + 16; // frameIndex, frameLength, rawData, frameChecksum
-    if (isFirstFrame) {
-      totalLength += 2 + 4 + 4 + 16; // framesCount, protocolId, sessionId, compositeChecksum
+    int totalLength = 4 + rawDataBytes.length + 16;
+    if (isFirstFrameBool) {
+      totalLength += 2 + 4 + 4 + 16;
     }
 
     ByteData byteData = ByteData(totalLength);
@@ -64,7 +61,7 @@ class FrameDto {
     byteData.setUint16(offset, frameModel.frameLength);
     offset += 2;
 
-    if (isFirstFrame) {
+    if (isFirstFrameBool) {
       byteData.setUint16(offset, frameModel.framesCount);
       offset += 2;
       byteData.setUint32(offset, frameModel.protocolManager.protocolId);
