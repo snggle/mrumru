@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'package:equatable/equatable.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/frame/frame_protocol_manager.dart';
+import 'package:mrumru/src/frame/protocol/frame_protocol_id.dart';
 import 'package:mrumru/src/shared/models/frame/frame_dto.dart';
 import 'package:mrumru/src/shared/utils/crypto_utils.dart';
 

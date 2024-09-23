@@ -1,7 +1,7 @@
-import 'package:mrumru/src/shared/enums/compression_enum.dart';
-import 'package:mrumru/src/shared/enums/encoding_enum.dart';
-import 'package:mrumru/src/shared/enums/protocol_type_enum.dart';
-import 'package:mrumru/src/shared/enums/version_number_enum.dart';
+import 'package:mrumru/src/frame/protocol/frame_compression_type.dart';
+import 'package:mrumru/src/frame/protocol/frame_encoding_type.dart';
+import 'package:mrumru/src/frame/protocol/frame_protocol_type.dart';
+import 'package:mrumru/src/frame/protocol/frame_version_number.dart';
 
 class FrameProtocolManager {
   final CompressionEnum compressionEnum;

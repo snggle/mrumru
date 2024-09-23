@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/frame/frame_protocol_manager.dart';
+import 'package:mrumru/src/frame/protocol/frame_protocol_id.dart';
 
 class FrameDto {
   static FrameModel fromBytes(List<int> bytes, {bool isFirstFrameBool = true}) {
