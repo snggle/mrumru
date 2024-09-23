@@ -6,6 +6,8 @@ import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dar
 import 'package:mrumru/src/audio/recorder/queue/events/packet_remaining_event.dart';
 import 'package:mrumru/src/audio/recorder/queue/packet_event_queue.dart';
 import 'package:mrumru/src/frame/frame_model_decoder.dart';
+import 'package:mrumru/src/frame/protocol/metadata_frame.dart';
+import 'package:mrumru/src/frame/protocol/a_base_frame.dart';
 import 'package:mrumru/src/shared/models/sample_model.dart';
 import 'package:mrumru/src/shared/utils/app_logger.dart';
 import 'package:mrumru/src/shared/utils/log_level.dart';
@@ -28,7 +30,7 @@ class PacketRecognizer {
     required AudioSettingsModel audioSettingsModel,
     required void Function(FrameCollectionModel) onDecodingCompleted,
     required FrameSettingsModel frameSettingsModel,
-    ValueChanged<FrameModel>? onFrameDecoded,
+    ValueChanged<ABaseFrame>? onFrameDecoded,
   })  : _audioSettingsModel = audioSettingsModel,
         _onDecodingCompleted = onDecodingCompleted {
     _frameModelDecoder = FrameModelDecoder(
@@ -46,7 +48,7 @@ class PacketRecognizer {
     _recordingBool = true;
 
     while (_recordingBool) {
-      if (_packetsQueue.isLongerThan(_audioSettingsModel.sampleSize) == false) {
+      if (!_packetsQueue.isLongerThan(_audioSettingsModel.sampleSize)) {
         await Future<void>.delayed(_nextActionWaitingDuration);
         continue;
       }
@@ -80,15 +82,15 @@ class PacketRecognizer {
     _endOffset = null;
   }
 
-  void _handleFirstFrameDecoded(FrameModel frameModel) {
-    _endOffset = frameModel.calculateTransferWavLength(_audioSettingsModel);
+  void _handleFirstFrameDecoded(ABaseFrame frame) {
+    _endOffset = _calculateTransferWavLength(frame);
     AppLogger().log(
         message: 'End offset found: $_endOffset', logLevel: LogLevel.debug);
   }
 
-  void _handleLastFrameDecoded(FrameModel frameModel) {
+  void _handleLastFrameDecoded(ABaseFrame frame) {
     AppLogger().log(
-        message: 'Last frame decoded: ${frameModel.frameIndex}', logLevel: LogLevel.debug);
+        message: 'Last frame decoded: ${frame.frameIndexInt}', logLevel: LogLevel.debug);
     stopRecording();
   }
 
@@ -126,6 +128,11 @@ class PacketRecognizer {
     SampleModel sampleModel =
     SampleModel.fromWave(sampleWave, _audioSettingsModel);
     _frameModelDecoder.addBinaries(<String>[sampleModel.calcBinary()]);
+  }
+
+  int _calculateTransferWavLength(ABaseFrame frame) {
+    int framesCount = (frame is MetadataFrame) ? frame.framesCountInt : 1;
+    return framesCount * _audioSettingsModel.sampleSize;
   }
 }
 

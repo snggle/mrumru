@@ -7,11 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/recorder/packet_recognizer.dart';
 import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dart';
-import 'package:mrumru/src/frame/frame_protocol_manager.dart';
-import 'package:mrumru/src/shared/enums/compression_enum.dart';
-import 'package:mrumru/src/shared/enums/encoding_enum.dart';
-import 'package:mrumru/src/shared/enums/protocol_type_enum.dart';
-import 'package:mrumru/src/shared/enums/version_number_enum.dart';
+import 'package:mrumru/src/frame/protocol/frame_protocol_id.dart';
+import 'package:mrumru/src/frame/protocol/frame_compression_type.dart';
+import 'package:mrumru/src/frame/protocol/frame_encoding_type.dart';
+import 'package:mrumru/src/frame/protocol/frame_protocol_type.dart';
+import 'package:mrumru/src/shared/enums/frame_version_number.dart';
 import 'package:wav/wav.dart';
 
 void main() async {
@@ -54,11 +54,11 @@ void main() async {
       }
 
       // Assert
-      FrameProtocolManager protocolManager = const FrameProtocolManager(
-        compressionEnum: CompressionEnum.noCompression,
-        encodingEnum: EncodingEnum.defaultMethod,
-        protocolTypeEnum: ProtocolTypeEnum.rawDataTransfer,
-        versionNumberEnum: VersionNumberEnum.firstDefault,
+      FrameProtocolID protocolManager = const FrameProtocolID(
+        frameCompressionType: FrameCompressionType.noCompression,
+        frameEncodingType: FrameEncodingType.defaultMethod,
+        frameProtocolType: FrameProtocolType.rawDataTransfer,
+        frameVersionNumber: VersionNumberEnum.firstDefault,
       );
 
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(

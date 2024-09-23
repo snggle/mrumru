@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 class BinaryUtils {
 
   static String convertAsciiToBinary(String asciiText) {
@@ -29,6 +31,17 @@ class BinaryUtils {
     List<String> chunks = regex.allMatches(binary).map((RegExpMatch match) => match.group(0)!).toList(growable: false);
 
     return chunks;
+  }
+
+  static Uint8List binaryStringToBytes(String binaryString) {
+    final int length = binaryString.length;
+    final int byteCount = length ~/ 8;
+    final Uint8List bytes = Uint8List(byteCount);
+    for (int i = 0; i < byteCount; i++) {
+      final String byteString = binaryString.substring(i * 8, (i + 1) * 8);
+      bytes[i] = int.parse(byteString, radix: 2);
+    }
+    return bytes;
   }
 
   static List<int> binaryStringToByteList(String binaryText) {

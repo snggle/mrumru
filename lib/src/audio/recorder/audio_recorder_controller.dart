@@ -3,13 +3,14 @@ import 'package:flutter/foundation.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/recorder/packet_recognizer.dart';
 import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dart';
+import 'package:mrumru/src/frame/protocol/a_base_frame.dart';
 import 'package:mrumru/src/shared/utils/wav_utils.dart';
 import 'package:record/record.dart';
 import 'package:wav/wav.dart';
 
 class AudioRecorderController {
   final AudioRecorder audioRecorder = AudioRecorder();
-  final ValueChanged<FrameModel>? onFrameReceived;
+  final ValueChanged<ABaseFrame>? onFrameReceived;
   final ValueChanged<FrameCollectionModel> onRecordingCompleted;
   final AudioSettingsModel audioSettingsModel;
   final FrameSettingsModel frameSettingsModel;
