@@ -1,11 +1,15 @@
 import 'dart:typed_data';
 
-class DataFrame {
+import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
+
+class DataFrame extends ABaseFrame {
   static const int frameIndexSize = 2;
   static const int frameLengthSize = 2;
   static const int frameChecksumSize = 16;
 
+  @override
   final int frameIndex;
+  @override
   final int frameLength;
   final String data;
   final Uint8List frameChecksum;
@@ -19,13 +23,18 @@ class DataFrame {
 
   factory DataFrame.fromBytes(Uint8List bytes) {
     int offset = 0;
+
     int frameIndex = _getUint16(bytes, offset);
     offset += frameIndexSize;
+
     int frameLength = _getUint16(bytes, offset);
     offset += frameLengthSize;
+
     int dataLength = frameLength - (frameIndexSize + frameLengthSize + frameChecksumSize);
+
     String data = String.fromCharCodes(bytes.sublist(offset, offset + dataLength));
     offset += dataLength;
+
     Uint8List frameChecksum = bytes.sublist(offset, offset + frameChecksumSize);
 
     return DataFrame(
@@ -36,12 +45,17 @@ class DataFrame {
     );
   }
 
+  @override
   Uint8List toBytes() {
     List<int> bytes = <int>[];
+
     _addUint16(bytes, frameIndex);
     _addUint16(bytes, frameLength);
-    bytes..addAll(data.codeUnits)
-    ..addAll(frameChecksum);
+
+    bytes
+      ..addAll(data.codeUnits)
+      ..addAll(frameChecksum);
+
     return Uint8List.fromList(bytes);
   }
 
@@ -50,7 +64,8 @@ class DataFrame {
   }
 
   static void _addUint16(List<int> bytes, int value) {
-    bytes..add((value >> 8) & 0xFF)
-    ..add(value & 0xFF);
+    bytes
+      ..add((value >> 8) & 0xFF)
+      ..add(value & 0xFF);
   }
 }

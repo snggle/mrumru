@@ -28,30 +28,23 @@ class FrameModel extends Equatable {
   /// Converts the frame into its binary string representation.
   String get binaryString {
     List<int> frameBytes = FrameDto.toBytes(this, isFirstFrameBool: frameIndex == 0);
-    return frameBytes
-        .map((int byte) => byte.toRadixString(2).padLeft(8, '0'))
-        .join();
+    return frameBytes.map((int byte) => byte.toRadixString(2).padLeft(8, '0')).join();
   }
 
   /// Calculates the total length of the audio transfer based on frames.
   int calculateTransferWavLength(AudioSettingsModel audioSettingsModel) {
-    return (framesCount *
-        frameLength /
-        2 *
-        audioSettingsModel.sampleSize *
-        audioSettingsModel.sampleRate)
-        .toInt();
+    return (framesCount * frameLength / 2 * audioSettingsModel.sampleSize * audioSettingsModel.sampleRate).toInt();
   }
 
   @override
   List<Object?> get props => <Object?>[
-    frameIndex,
-    frameLength,
-    framesCount,
-    compositeChecksum,
-    sessionId,
-    rawData,
-    frameChecksum,
-    protocolManager,
-  ];
+        frameIndex,
+        frameLength,
+        framesCount,
+        compositeChecksum,
+        sessionId,
+        rawData,
+        frameChecksum,
+        protocolManager,
+      ];
 }

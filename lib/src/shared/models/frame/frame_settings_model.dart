@@ -36,10 +36,7 @@ class FrameSettingsModel with EquatableMixin {
     int checksumBitsLength = 128;
     int dataBitsLength = 256 * 8;
 
-    int totalFrameSize = frameIndexBitsLength +
-        frameLengthBitsLength +
-        dataBitsLength +
-        checksumBitsLength;
+    int totalFrameSize = frameIndexBitsLength + frameLengthBitsLength + dataBitsLength + checksumBitsLength;
 
     int asciiCharacterCountInFrame = dataBitsLength ~/ 8;
 
@@ -59,15 +56,15 @@ class FrameSettingsModel with EquatableMixin {
 
   @override
   List<Object?> get props => <Object?>[
-    frameIndexBitsLength,
-    frameLengthBitsLength,
-    framesCountBitsLength,
-    protocolIdBitsLength,
-    sessionIdBitsLength,
-    compositeChecksumBitsLength,
-    checksumBitsLength,
-    dataBitsLength,
-    frameSize,
-    asciiCharacterCountInFrame,
-  ];
+        frameIndexBitsLength,
+        frameLengthBitsLength,
+        framesCountBitsLength,
+        protocolIdBitsLength,
+        sessionIdBitsLength,
+        compositeChecksumBitsLength,
+        checksumBitsLength,
+        dataBitsLength,
+        frameSize,
+        asciiCharacterCountInFrame,
+      ];
 }

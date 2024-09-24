@@ -1,17 +1,19 @@
 import 'dart:typed_data';
-
 import 'package:mrumru/src/frame/frame_processor.dart';
+import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
 import 'package:mrumru/src/shared/models/frame/data_frame.dart';
 import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
 
 class FrameModelBuilder {
-  List<dynamic> buildFrames(String rawData) {
-    List<dynamic> frames = <dynamic>[];
+  List<ABaseFrame> buildFrames(String rawData) {
+    List<ABaseFrame> frames = <ABaseFrame>[];
     List<Uint8List> frameChecksums = <Uint8List>[];
     int maxDataSize = 256;
+
     List<String> dataChunks = _splitDataIntoChunks(rawData, maxDataSize);
     int framesCount = dataChunks.length;
-    String sessionId =
+
+    String sessionId = Uuid().v4();
 
     for (int i = 0; i < framesCount; i++) {
       if (i == 0) {
@@ -35,6 +37,7 @@ class FrameModelBuilder {
     }
 
     Uint8List compositeChecksum = FrameProcessor.computeCompositeChecksum(frameChecksums);
+
     MetadataFrame firstFrame = frames[0] as MetadataFrame;
     firstFrame = MetadataFrame(
       frameIndex: firstFrame.frameIndex,
@@ -46,7 +49,9 @@ class FrameModelBuilder {
       data: firstFrame.data,
       frameChecksum: firstFrame.frameChecksum,
     );
+
     frames[0] = firstFrame;
+
     return frames;
   }
 
@@ -65,7 +70,9 @@ class FrameModelBuilder {
         MetadataFrame.compositeChecksumSize +
         data.codeUnits.length +
         MetadataFrame.frameChecksumSize;
+
     Uint8List compositeChecksum = Uint8List(MetadataFrame.compositeChecksumSize);
+
     MetadataFrame frame = MetadataFrame(
       frameIndex: frameIndex,
       frameLength: frameLength,
@@ -76,10 +83,13 @@ class FrameModelBuilder {
       data: data,
       frameChecksum: Uint8List(0),
     );
+
     Uint8List frameBytesWithoutChecksum = frame.toBytes();
     frameBytesWithoutChecksum = frameBytesWithoutChecksum.sublist(
         0, frameBytesWithoutChecksum.length - MetadataFrame.frameChecksumSize);
+
     Uint8List frameChecksum = FrameProcessor.computeFrameChecksum(frameBytesWithoutChecksum);
+
     frame = MetadataFrame(
       frameIndex: frame.frameIndex,
       frameLength: frame.frameLength,
@@ -90,6 +100,7 @@ class FrameModelBuilder {
       data: frame.data,
       frameChecksum: frameChecksum,
     );
+
     return frame;
   }
 
@@ -101,22 +112,27 @@ class FrameModelBuilder {
         DataFrame.frameLengthSize +
         data.codeUnits.length +
         DataFrame.frameChecksumSize;
+
     DataFrame frame = DataFrame(
       frameIndex: frameIndex,
       frameLength: frameLength,
       data: data,
       frameChecksum: Uint8List(0),
     );
+
     Uint8List frameBytesWithoutChecksum = frame.toBytes();
     frameBytesWithoutChecksum = frameBytesWithoutChecksum.sublist(
         0, frameBytesWithoutChecksum.length - DataFrame.frameChecksumSize);
+
     Uint8List frameChecksum = FrameProcessor.computeFrameChecksum(frameBytesWithoutChecksum);
+
     frame = DataFrame(
       frameIndex: frame.frameIndex,
       frameLength: frame.frameLength,
       data: frame.data,
       frameChecksum: frameChecksum,
     );
+
     return frame;
   }
 
