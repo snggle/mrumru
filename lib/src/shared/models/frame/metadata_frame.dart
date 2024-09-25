@@ -41,25 +41,28 @@ class MetadataFrame extends ABaseFrame {
     int protocolIdInt = _readUintN(bytesUint8List, offset, frameSettingsModel.protocolIdBitsLengthInt);
     offset += frameSettingsModel.protocolIdBitsLengthInt ~/ 8;
 
-    String sessionIdString = utf8.decode(bytesUint8List.sublist(offset, offset + (frameSettingsModel.sessionIdBitsLengthInt ~/ 8)));
-    offset += frameSettingsModel.sessionIdBitsLengthInt ~/ 8;
+    int sessionIdLength = frameSettingsModel.sessionIdBitsLengthInt ~/ 8;
+    String sessionIdString = utf8.decode(bytesUint8List.sublist(offset, offset + sessionIdLength));
+    offset += sessionIdLength;
 
-    Uint8List compositeChecksumUint8List = bytesUint8List.sublist(offset, offset + (frameSettingsModel.compositeChecksumBitsLengthInt ~/ 8));
-    offset += frameSettingsModel.compositeChecksumBitsLengthInt ~/ 8;
+    int compositeChecksumLength = frameSettingsModel.compositeChecksumBitsLengthInt ~/ 8;
+    Uint8List compositeChecksumUint8List = bytesUint8List.sublist(offset, offset + compositeChecksumLength);
+    offset += compositeChecksumLength;
 
     int dataLength = frameLengthInt -
         ((frameSettingsModel.frameIndexBitsLengthInt +
-                frameSettingsModel.frameLengthBitsLengthInt +
-                frameSettingsModel.framesCountBitsLengthInt +
-                frameSettingsModel.protocolIdBitsLengthInt +
-                frameSettingsModel.sessionIdBitsLengthInt +
-                frameSettingsModel.compositeChecksumBitsLengthInt +
-                frameSettingsModel.checksumBitsLengthInt) ~/
+            frameSettingsModel.frameLengthBitsLengthInt +
+            frameSettingsModel.framesCountBitsLengthInt +
+            frameSettingsModel.protocolIdBitsLengthInt +
+            frameSettingsModel.sessionIdBitsLengthInt +
+            frameSettingsModel.compositeChecksumBitsLengthInt +
+            frameSettingsModel.checksumBitsLengthInt) ~/
             8);
     String dataString = utf8.decode(bytesUint8List.sublist(offset, offset + dataLength));
     offset += dataLength;
 
-    Uint8List frameChecksumUint8List = bytesUint8List.sublist(offset, offset + (frameSettingsModel.checksumBitsLengthInt ~/ 8));
+    int frameChecksumLength = frameSettingsModel.checksumBitsLengthInt ~/ 8;
+    Uint8List frameChecksumUint8List = bytesUint8List.sublist(offset, offset + frameChecksumLength);
 
     return MetadataFrame(
       frameIndexInt: frameIndexInt,

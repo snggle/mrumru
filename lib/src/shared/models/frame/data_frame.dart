@@ -35,8 +35,8 @@ class DataFrame extends ABaseFrame {
     String dataString = utf8.decode(bytesUint8List.sublist(offset, offset + dataLength));
     offset += dataLength;
 
-    Uint8List frameChecksumUint8List =
-    bytesUint8List.sublist(offset, offset + (frameSettingsModel.checksumBitsLengthInt ~/ 8));
+    int frameChecksumLength = frameSettingsModel.checksumBitsLengthInt ~/ 8;
+    Uint8List frameChecksumUint8List = bytesUint8List.sublist(offset, offset + frameChecksumLength);
 
     return DataFrame(
       frameIndexInt: frameIndexInt,

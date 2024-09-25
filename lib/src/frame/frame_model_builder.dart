@@ -176,6 +176,7 @@ class FrameModelBuilder {
     return chunksList;
   }
 
+
   int _getProtocolIdInt() {
     return 1;
   }
