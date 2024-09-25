@@ -51,7 +51,7 @@ class FrameModelDecoder {
       print('Frames Count: ${frame.framesCountInt}');
       print('Protocol ID: ${frame.protocolIdInt}');
       print('Session ID: ${frame.sessionIdString}');
-      print('Composite Checksum: ${frame.compositeChecksumString}');
+      print('Composite Checksum: ${frame.compositeChecksumUint8List}');
     }
     if (frame is DataFrame || frame is MetadataFrame) {
       print('Data: ${frame.frameIndexInt}');

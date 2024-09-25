@@ -1,17 +1,16 @@
+import 'dart:convert';
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 
 class FrameProcessor {
-  Uint8List computeCompositeChecksumUint8List(List<Uint8List> frameChecksumsUint8List) {
-    final List<int> concatenatedChecksumsIntList = frameChecksumsUint8List.expand((Uint8List e) => e).toList();
-    return Uint8List.fromList(md5.convert(concatenatedChecksumsIntList).bytes);
+  Uint8List computeFrameChecksum(String text) {
+    List<int> bytes = utf8.encode(text);
+    Digest md5Digest = md5.convert(bytes);
+    return Uint8List.fromList(md5Digest.bytes);
   }
-
-  String computeFrameChecksumString(Uint8List frameBytesWithoutChecksumUint8List) {
-    return md5.convert(frameBytesWithoutChecksumUint8List).toString();
-  }
-
-  String getBinaryString(Uint8List frameBytesUint8List) {
-    return frameBytesUint8List.map((int byte) => byte.toRadixString(2).padLeft(8, '0')).join();
+  Uint8List computeCompositeChecksum(List<Uint8List> frameChecksums) {
+    List<int> concatenatedBytes = frameChecksums.expand((Uint8List bytes) => bytes).toList();
+    Digest md5Digest = md5.convert(concatenatedBytes);
+    return Uint8List.fromList(md5Digest.bytes);
   }
 }
