@@ -1,9 +1,13 @@
 import 'dart:typed_data';
 
+import 'package:mrumru/src/shared/models/frame/frame_settings_model.dart';
+
 abstract class ABaseFrame {
-  int get frameIndex;
+  int get frameIndexInt;
 
-  int get frameLength;
+  int get frameLengthInt;
 
-  Uint8List toBytes();
+  String get binaryString;
+
+  Uint8List toBytes(FrameSettingsModel frameSettingsModel);
 }

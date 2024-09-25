@@ -3,6 +3,7 @@ import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/generator/sample_generator.dart';
 import 'package:mrumru/src/audio/generator/samples_processor.dart';
 import 'package:mrumru/src/frame/frame_model_builder.dart';
+import 'package:mrumru/src/frame/frame_processor.dart';
 import 'package:mrumru/src/shared/models/sample_model.dart';
 
 /// A class that generates audio signals from text messages using Frequency Shift Keying (FSK).
@@ -60,8 +61,8 @@ class AudioGenerator {
 
   /// This method parses the text message into binary data.
   String _parseTextToBinary(String text) {
-    FrameModelBuilder frameModelBuilder = FrameModelBuilder(frameSettingsModel: _frameSettingsModel);
-    FrameCollectionModel frameCollectionModel = frameModelBuilder.buildFrameCollection(text);
+    FrameModelBuilder frameModelBuilder = FrameModelBuilder(frameSettingsModel: _frameSettingsModel, frameProcessor: FrameProcessor());
+    FrameCollectionModel frameCollectionModel = frameModelBuilder.buildFramesList(text);
     String binaryData = frameCollectionModel.mergedBinaryFrames;
     return _fillBinaryWithZeros(binaryData);
   }

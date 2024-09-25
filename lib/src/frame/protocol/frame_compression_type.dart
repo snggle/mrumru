@@ -6,6 +6,7 @@ enum CompressionEnum {
   undefined(4);
 
   final int value;
+
   const CompressionEnum(this.value);
 
   static CompressionEnum fromValue(int value) {

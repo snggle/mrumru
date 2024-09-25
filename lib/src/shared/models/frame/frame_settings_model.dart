@@ -1,70 +1,76 @@
 import 'package:equatable/equatable.dart';
 
 class FrameSettingsModel with EquatableMixin {
-  final int frameIndexBitsLength;
-  final int frameLengthBitsLength;
-  final int framesCountBitsLength;
-  final int protocolIdBitsLength;
-  final int sessionIdBitsLength;
-  final int compositeChecksumBitsLength;
-  final int checksumBitsLength;
-  final int dataBitsLength;
-
-  final int frameSize;
-  final int asciiCharacterCountInFrame;
+  final int asciiCharacterCountInFrameInt;
+  final int checksumBitsLengthInt;
+  final int compositeChecksumBitsLengthInt;
+  final int dataBitsLengthInt;
+  final int frameIndexBitsLengthInt;
+  final int frameLengthBitsLengthInt;
+  final int frameSizeInt;
+  final int framesCountBitsLengthInt;
+  final int protocolIdBitsLengthInt;
+  final int sessionIdBitsLengthInt;
 
   FrameSettingsModel({
-    required this.frameIndexBitsLength,
-    required this.frameLengthBitsLength,
-    required this.framesCountBitsLength,
-    required this.protocolIdBitsLength,
-    required this.sessionIdBitsLength,
-    required this.compositeChecksumBitsLength,
-    required this.checksumBitsLength,
-    required this.dataBitsLength,
-    required this.frameSize,
-    required this.asciiCharacterCountInFrame,
+    required this.asciiCharacterCountInFrameInt,
+    required this.checksumBitsLengthInt,
+    required this.compositeChecksumBitsLengthInt,
+    required this.dataBitsLengthInt,
+    required this.frameIndexBitsLengthInt,
+    required this.frameLengthBitsLengthInt,
+    required this.frameSizeInt,
+    required this.framesCountBitsLengthInt,
+    required this.protocolIdBitsLengthInt,
+    required this.sessionIdBitsLengthInt,
   });
 
   factory FrameSettingsModel.withDefaults() {
-    int frameIndexBitsLength = 16;
-    int frameLengthBitsLength = 16;
-    int framesCountBitsLength = 16;
-    int protocolIdBitsLength = 32;
-    int sessionIdBitsLength = 32;
-    int compositeChecksumBitsLength = 128;
-    int checksumBitsLength = 128;
-    int dataBitsLength = 256 * 8;
+    const int frameIndexBitsLengthInt = 16;
+    const int frameLengthBitsLengthInt = 16;
+    const int framesCountBitsLengthInt = 16;
+    const int protocolIdBitsLengthInt = 32;
+    const int sessionIdBitsLengthInt = 128;
+    const int compositeChecksumBitsLengthInt = 128;
+    const int checksumBitsLengthInt = 128;
+    const int dataBitsLengthInt = 256 * 8;
 
-    int totalFrameSize = frameIndexBitsLength + frameLengthBitsLength + dataBitsLength + checksumBitsLength;
+    const int frameSizeInt = frameIndexBitsLengthInt +
+        frameLengthBitsLengthInt +
+        framesCountBitsLengthInt +
+        protocolIdBitsLengthInt +
+        sessionIdBitsLengthInt +
+        compositeChecksumBitsLengthInt +
+        dataBitsLengthInt +
+        checksumBitsLengthInt;
 
-    int asciiCharacterCountInFrame = dataBitsLength ~/ 8;
+    const int asciiCharacterCountInFrameInt = dataBitsLengthInt ~/ 8;
 
     return FrameSettingsModel(
-      frameIndexBitsLength: frameIndexBitsLength,
-      frameLengthBitsLength: frameLengthBitsLength,
-      framesCountBitsLength: framesCountBitsLength,
-      protocolIdBitsLength: protocolIdBitsLength,
-      sessionIdBitsLength: sessionIdBitsLength,
-      compositeChecksumBitsLength: compositeChecksumBitsLength,
-      checksumBitsLength: checksumBitsLength,
-      dataBitsLength: dataBitsLength,
-      frameSize: totalFrameSize,
-      asciiCharacterCountInFrame: asciiCharacterCountInFrame,
+      asciiCharacterCountInFrameInt: asciiCharacterCountInFrameInt,
+      checksumBitsLengthInt: checksumBitsLengthInt,
+      compositeChecksumBitsLengthInt: compositeChecksumBitsLengthInt,
+      dataBitsLengthInt: dataBitsLengthInt,
+      frameIndexBitsLengthInt: frameIndexBitsLengthInt,
+      frameLengthBitsLengthInt: frameLengthBitsLengthInt,
+      frameSizeInt: frameSizeInt,
+      framesCountBitsLengthInt: framesCountBitsLengthInt,
+      protocolIdBitsLengthInt: protocolIdBitsLengthInt,
+      sessionIdBitsLengthInt: sessionIdBitsLengthInt,
     );
   }
 
   @override
   List<Object?> get props => <Object?>[
-        frameIndexBitsLength,
-        frameLengthBitsLength,
-        framesCountBitsLength,
-        protocolIdBitsLength,
-        sessionIdBitsLength,
-        compositeChecksumBitsLength,
-        checksumBitsLength,
-        dataBitsLength,
-        frameSize,
-        asciiCharacterCountInFrame,
-      ];
+    asciiCharacterCountInFrameInt,
+    checksumBitsLengthInt,
+    compositeChecksumBitsLengthInt,
+    dataBitsLengthInt,
+    frameIndexBitsLengthInt,
+    frameLengthBitsLengthInt,
+    frameSizeInt,
+    framesCountBitsLengthInt,
+    protocolIdBitsLengthInt,
+    sessionIdBitsLengthInt,
+  ];
 }

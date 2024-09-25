@@ -1,18 +1,20 @@
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/shared/models/frame/frame_dto.dart';
+import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
+import 'package:mrumru/src/shared/models/frame/data_frame.dart';
+import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
 import 'package:mrumru/src/shared/utils/app_logger.dart';
 import 'package:mrumru/src/shared/utils/binary_utils.dart';
 import 'package:mrumru/src/shared/utils/log_level.dart';
 
 class FrameModelDecoder {
   final FrameSettingsModel framesSettingsModel;
-  final ValueChanged<FrameModel>? onFrameDecoded;
-  final ValueChanged<FrameModel>? onFirstFrameDecoded;
-  final ValueChanged<FrameModel>? onLastFrameDecoded;
+  final ValueChanged<ABaseFrame>? onFrameDecoded;
+  final ValueChanged<ABaseFrame>? onFirstFrameDecoded;
+  final ValueChanged<ABaseFrame>? onLastFrameDecoded;
 
-  final List<FrameModel> _decodedFrames = <FrameModel>[];
+  final List<ABaseFrame> _decodedFrames = <ABaseFrame>[];
   final StringBuffer _completeBinary = StringBuffer();
   int _cursor = 0;
 
@@ -31,7 +33,7 @@ class FrameModelDecoder {
   }
 
   FrameCollectionModel get decodedContent {
-    return FrameCollectionModel(List<FrameModel>.from(_decodedFrames));
+    return FrameCollectionModel(_decodedFrames);
   }
 
   void clear() {
@@ -40,63 +42,69 @@ class FrameModelDecoder {
     _cursor = 0;
   }
 
-  String _checksumToHex(Uint8List checksum) {
-    return checksum.map((int byte) => byte.toRadixString(16).padLeft(2, '0')).join();
-  }
 
-  // TODO(arek): Remove this before next full CR
-  void _printFrameModel(FrameModel frameModel, bool isFirstFrameBool) {
-    print('Decoded FrameModel:');
-    print('Frame Index: ${frameModel.frameIndex}');
-    print('Frame Length: ${frameModel.frameLength}');
-    if (isFirstFrameBool) {
-      print('Frames Count: ${frameModel.framesCount}');
-      print('Protocol Manager: ${frameModel.protocolManager}');
-      print('Session ID: ${frameModel.sessionId}');
-      print('Composite Checksum: ${_checksumToHex(frameModel.compositeChecksum)}');
+  void _printFrame(ABaseFrame frame) {
+    print('Decoded Frame:');
+    print('Frame Index: ${frame.frameIndexInt}');
+    print('Frame Length: ${frame.frameLengthInt}');
+    if (frame is MetadataFrame) {
+      print('Frames Count: ${frame.framesCountInt}');
+      print('Protocol ID: ${frame.protocolIdInt}');
+      print('Session ID: ${frame.sessionIdString}');
+      print('Composite Checksum: ${frame.compositeChecksumString}');
     }
-    print('Raw Data: ${frameModel.rawData}');
-    print('Frame Checksum: ${_checksumToHex(frameModel.frameChecksum)}');
+    if (frame is DataFrame || frame is MetadataFrame) {
+      print('Data: ${frame.frameIndexInt}');
+    }
+    print('Frame Checksum: ${frame.binaryString}');
     print('-----------------------------');
   }
 
   void _decodeFrames() {
     while (_cursor < _completeBinary.length) {
-      if (_completeBinary.length - _cursor < 32) {
+      int frameHeaderSize = (framesSettingsModel.frameIndexBitsLengthInt +
+          framesSettingsModel.frameLengthBitsLengthInt) ~/
+          8;
+      if (_completeBinary.length - _cursor < frameHeaderSize * 8) {
         break;
       }
-      String headerBinary = _completeBinary.toString().substring(_cursor, _cursor + 32);
+
+      String headerBinary = _completeBinary.toString().substring(_cursor, _cursor + frameHeaderSize * 8);
       List<int> headerBytes = BinaryUtils.binaryStringToByteList(headerBinary);
       ByteData headerData = ByteData.sublistView(Uint8List.fromList(headerBytes));
 
+      int frameIndex = headerData.getUint16(0);
       int frameLength = headerData.getUint16(2);
 
-      int frameSizeInBytes = frameLength;
-      int frameSizeInBits = frameSizeInBytes * 8;
+      int frameSizeInBits = frameLength * 8;
 
       if (_completeBinary.length - _cursor < frameSizeInBits) {
         break;
       }
 
       String frameBinary = _completeBinary.toString().substring(_cursor, _cursor + frameSizeInBits);
+      List<int> frameBytes = BinaryUtils.binaryStringToByteList(frameBinary);
+
       try {
-        List<int> frameBytes = BinaryUtils.binaryStringToByteList(frameBinary);
-        bool isFirstFrameBool = _decodedFrames.isEmpty;
+        bool isFirstFrame = _decodedFrames.isEmpty;
 
-        FrameModel frameModel = FrameDto.fromBytes(frameBytes, isFirstFrameBool: isFirstFrameBool);
-        _decodedFrames.add(frameModel);
-
-        _printFrameModel(frameModel, isFirstFrameBool);
-
-        if (isFirstFrameBool) {
-          onFirstFrameDecoded?.call(frameModel);
+        ABaseFrame frame;
+        if (isFirstFrame) {
+          frame = MetadataFrame.fromBytes(Uint8List.fromList(frameBytes), framesSettingsModel);
+          onFirstFrameDecoded?.call(frame);
+        } else {
+          frame = DataFrame.fromBytes(Uint8List.fromList(frameBytes), framesSettingsModel);
         }
 
-        if (frameModel.frameIndex == frameModel.framesCount - 1) {
-          onLastFrameDecoded?.call(frameModel);
+        _decodedFrames.add(frame);
+
+        _printFrame(frame);
+
+        if (frame is MetadataFrame && frame.frameIndexInt == frame.framesCountInt - 1) {
+          onLastFrameDecoded?.call(frame);
         }
 
-        onFrameDecoded?.call(frameModel);
+        onFrameDecoded?.call(frame);
 
         _cursor += frameSizeInBits;
       } catch (e) {

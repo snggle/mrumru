@@ -1,126 +1,118 @@
 import 'dart:typed_data';
 
+import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
 
 class MetadataFrame extends ABaseFrame {
-  static const int frameIndexSize = 2;
-  static const int frameLengthSize = 2;
-  static const int framesCountSize = 2;
-  static const int protocolIdSize = 4;
-  static const int sessionIdSize = 16;
-  static const int compositeChecksumSize = 16;
-  static const int frameChecksumSize = 16;
-
   @override
-  final int frameIndex;
+  final int frameIndexInt;
   @override
-  final int frameLength;
-  final int framesCount;
-  final int protocolId;
-  final String sessionId;
-  final Uint8List compositeChecksum;
-  final String data;
-  final Uint8List frameChecksum;
+  final int frameLengthInt;
+  final String compositeChecksumString;
+  final String dataString;
+  final int framesCountInt;
+  final String frameChecksumString;
+  final int protocolIdInt;
+  final String sessionIdString;
 
   MetadataFrame({
-    required this.frameIndex,
-    required this.frameLength,
-    required this.framesCount,
-    required this.protocolId,
-    required this.sessionId,
-    required this.compositeChecksum,
-    required this.data,
-    required this.frameChecksum,
+    required this.compositeChecksumString,
+    required this.dataString,
+    required this.frameChecksumString,
+    required this.frameIndexInt,
+    required this.frameLengthInt,
+    required this.framesCountInt,
+    required this.protocolIdInt,
+    required this.sessionIdString,
   });
 
-  factory MetadataFrame.fromBytes(Uint8List bytes) {
-    int offset = 0;
+  factory MetadataFrame.fromBytes(Uint8List bytesUint8List, FrameSettingsModel frameSettingsModel) {
+    int offsetInt = 0;
 
-    int frameIndex = _getUint16(bytes, offset);
-    offset += frameIndexSize;
+    final int frameIndexInt = _getUintN(bytesUint8List, offsetInt, frameSettingsModel.frameIndexBitsLengthInt);
+    offsetInt += frameSettingsModel.frameIndexBitsLengthInt ~/ 8;
 
-    int frameLength = _getUint16(bytes, offset);
-    offset += frameLengthSize;
+    final int frameLengthInt = _getUintN(bytesUint8List, offsetInt, frameSettingsModel.frameLengthBitsLengthInt);
+    offsetInt += frameSettingsModel.frameLengthBitsLengthInt ~/ 8;
 
-    int framesCount = _getUint16(bytes, offset);
-    offset += framesCountSize;
+    final int framesCountInt = _getUintN(bytesUint8List, offsetInt, frameSettingsModel.framesCountBitsLengthInt);
+    offsetInt += frameSettingsModel.framesCountBitsLengthInt ~/ 8;
 
-    int protocolId = _getUint32(bytes, offset);
-    offset += protocolIdSize;
+    final int protocolIdInt = _getUintN(bytesUint8List, offsetInt, frameSettingsModel.protocolIdBitsLengthInt);
+    offsetInt += frameSettingsModel.protocolIdBitsLengthInt ~/ 8;
 
-    Uint8List sessionIdBytes = bytes.sublist(offset, offset + sessionIdSize);
-    String sessionId = _bytesToUuidString(sessionIdBytes);
-    offset += sessionIdSize;
+    final Uint8List sessionIdBytesUint8List = bytesUint8List.sublist(offsetInt, offsetInt + frameSettingsModel.sessionIdBitsLengthInt ~/ 8);
+    final String sessionIdString = String.fromCharCodes(sessionIdBytesUint8List);
+    offsetInt += frameSettingsModel.sessionIdBitsLengthInt ~/ 8;
 
-    Uint8List compositeChecksum = bytes.sublist(offset, offset + compositeChecksumSize);
-    offset += compositeChecksumSize;
+    final Uint8List compositeChecksumBytesUint8List = bytesUint8List.sublist(offsetInt, offsetInt + frameSettingsModel.compositeChecksumBitsLengthInt ~/ 8);
+    final String compositeChecksumString = String.fromCharCodes(compositeChecksumBytesUint8List);
+    offsetInt += frameSettingsModel.compositeChecksumBitsLengthInt ~/ 8;
 
-    int dataLength =
-        frameLength - (frameIndexSize + frameLengthSize + framesCountSize + protocolIdSize + sessionIdSize + compositeChecksumSize + frameChecksumSize);
+    final int dataLengthInt = frameLengthInt -
+        (frameSettingsModel.frameIndexBitsLengthInt +
+                frameSettingsModel.frameLengthBitsLengthInt +
+                frameSettingsModel.framesCountBitsLengthInt +
+                frameSettingsModel.protocolIdBitsLengthInt +
+                frameSettingsModel.sessionIdBitsLengthInt +
+                frameSettingsModel.compositeChecksumBitsLengthInt +
+                frameSettingsModel.checksumBitsLengthInt) ~/
+            8;
 
-    String data = String.fromCharCodes(bytes.sublist(offset, offset + dataLength));
-    offset += dataLength;
+    final String dataString = String.fromCharCodes(bytesUint8List.sublist(offsetInt, offsetInt + dataLengthInt));
+    offsetInt += dataLengthInt;
 
-    Uint8List frameChecksum = bytes.sublist(offset, offset + frameChecksumSize);
+    final Uint8List frameChecksumBytesUint8List = bytesUint8List.sublist(offsetInt, offsetInt + frameSettingsModel.checksumBitsLengthInt ~/ 8);
+    final String frameChecksumString = String.fromCharCodes(frameChecksumBytesUint8List);
 
     return MetadataFrame(
-      frameIndex: frameIndex,
-      frameLength: frameLength,
-      framesCount: framesCount,
-      protocolId: protocolId,
-      sessionId: sessionId,
-      compositeChecksum: compositeChecksum,
-      data: data,
-      frameChecksum: frameChecksum,
+      compositeChecksumString: compositeChecksumString,
+      dataString: dataString,
+      frameChecksumString: frameChecksumString,
+      frameIndexInt: frameIndexInt,
+      frameLengthInt: frameLengthInt,
+      framesCountInt: framesCountInt,
+      protocolIdInt: protocolIdInt,
+      sessionIdString: sessionIdString,
     );
+  }
+  @override
+  Uint8List toBytes(FrameSettingsModel frameSettingsModel) {
+    final List<int> bytesIntList = <int>[];
+
+    _addUintN(bytesIntList, frameIndexInt, frameSettingsModel.frameIndexBitsLengthInt);
+    _addUintN(bytesIntList, frameLengthInt, frameSettingsModel.frameLengthBitsLengthInt);
+    _addUintN(bytesIntList, framesCountInt, frameSettingsModel.framesCountBitsLengthInt);
+    _addUintN(bytesIntList, protocolIdInt, frameSettingsModel.protocolIdBitsLengthInt);
+
+    bytesIntList
+      ..addAll(sessionIdString.codeUnits)
+      ..addAll(compositeChecksumString.codeUnits)
+      ..addAll(dataString.codeUnits)
+      ..addAll(frameChecksumString.codeUnits);
+
+    return Uint8List.fromList(bytesIntList);
+  }
+
+  static int _getUintN(Uint8List bytesUint8List, int offsetInt, int bitLengthInt) {
+    final int byteLengthInt = bitLengthInt ~/ 8;
+    int valueInt = 0;
+    for (int i = 0; i < byteLengthInt; i++) {
+      valueInt = (valueInt << 8) | bytesUint8List[offsetInt + i];
+    }
+    return valueInt;
+  }
+
+  static void _addUintN(List<int> bytesIntList, int valueInt, int bitLengthInt) {
+    final int byteLengthInt = bitLengthInt ~/ 8;
+    for (int i = byteLengthInt - 1; i >= 0; i--) {
+      bytesIntList.add((valueInt >> (8 * i)) & 0xFF);
+    }
   }
 
   @override
-  Uint8List toBytes() {
-    List<int> bytes = <int>[];
-
-    _addUint16(bytes, frameIndex);
-    _addUint16(bytes, frameLength);
-    _addUint16(bytes, framesCount);
-    _addUint32(bytes, protocolId);
-
-    Uint8List sessionIdBytes = _uuidStringToBytes(sessionId);
-    bytes
-      ..addAll(sessionIdBytes)
-      ..addAll(compositeChecksum)
-      ..addAll(data.codeUnits)
-      ..addAll(frameChecksum);
-
-    return Uint8List.fromList(bytes);
-  }
-
-  static int _getUint16(Uint8List bytes, int offset) {
-    return (bytes[offset] << 8) | bytes[offset + 1];
-  }
-
-  static int _getUint32(Uint8List bytes, int offset) {
-    return (bytes[offset] << 24) | (bytes[offset + 1] << 16) | (bytes[offset + 2] << 8) | bytes[offset + 3];
-  }
-
-  static void _addUint16(List<int> bytes, int value) {
-    bytes
-      ..add((value >> 8) & 0xFF)
-      ..add(value & 0xFF);
-  }
-
-  static void _addUint32(List<int> bytes, int value) {
-    bytes
-      ..add((value >> 24) & 0xFF)
-      ..add((value >> 16) & 0xFF)
-      ..add((value >> 8) & 0xFF)
-      ..add(value & 0xFF);
-  }
-
-  static String _bytesToUuidString(Uint8List bytes) {
-    return '';
-  }
-
-  static Uint8List _uuidStringToBytes(String uuid) {
-    return Uint8List(16);
+  String get binaryString {
+    Uint8List bytesUint8List = toBytes(FrameSettingsModel.withDefaults());
+    return bytesUint8List.map((int byteInt) => byteInt.toRadixString(2).padLeft(8, '0')).join();
   }
 }

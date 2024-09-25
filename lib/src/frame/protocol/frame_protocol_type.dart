@@ -9,6 +9,7 @@ enum ProtocolTypeEnum {
   undefined(7);
 
   final int value;
+
   const ProtocolTypeEnum(this.value);
 
   static ProtocolTypeEnum fromValue(int value) {

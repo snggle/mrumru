@@ -1,71 +1,82 @@
 import 'dart:typed_data';
 
+import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
 
 class DataFrame extends ABaseFrame {
-  static const int frameIndexSize = 2;
-  static const int frameLengthSize = 2;
-  static const int frameChecksumSize = 16;
-
   @override
-  final int frameIndex;
+  final int frameIndexInt;
   @override
-  final int frameLength;
-  final String data;
-  final Uint8List frameChecksum;
+  final int frameLengthInt;
+  final String dataString;
+  final String frameChecksumString;
 
   DataFrame({
-    required this.frameIndex,
-    required this.frameLength,
-    required this.data,
-    required this.frameChecksum,
+    required this.frameIndexInt,
+    required this.frameLengthInt,
+    required this.dataString,
+    required this.frameChecksumString,
   });
 
-  factory DataFrame.fromBytes(Uint8List bytes) {
-    int offset = 0;
+  factory DataFrame.fromBytes(Uint8List bytesUint8List, FrameSettingsModel frameSettingsModel) {
+    int offsetInt = 0;
 
-    int frameIndex = _getUint16(bytes, offset);
-    offset += frameIndexSize;
+    final int frameIndexInt = _getUintN(bytesUint8List, offsetInt, frameSettingsModel.frameIndexBitsLengthInt);
+    offsetInt += frameSettingsModel.frameIndexBitsLengthInt ~/ 8;
 
-    int frameLength = _getUint16(bytes, offset);
-    offset += frameLengthSize;
+    final int frameLengthInt = _getUintN(bytesUint8List, offsetInt, frameSettingsModel.frameLengthBitsLengthInt);
+    offsetInt += frameSettingsModel.frameLengthBitsLengthInt ~/ 8;
 
-    int dataLength = frameLength - (frameIndexSize + frameLengthSize + frameChecksumSize);
+    final int dataLengthInt = frameLengthInt -
+        (frameSettingsModel.frameIndexBitsLengthInt + frameSettingsModel.frameLengthBitsLengthInt + frameSettingsModel.checksumBitsLengthInt) ~/ 8;
 
-    String data = String.fromCharCodes(bytes.sublist(offset, offset + dataLength));
-    offset += dataLength;
+    final String dataString = String.fromCharCodes(bytesUint8List.sublist(offsetInt, offsetInt + dataLengthInt));
+    offsetInt += dataLengthInt;
 
-    Uint8List frameChecksum = bytes.sublist(offset, offset + frameChecksumSize);
+    final Uint8List frameChecksumBytesUint8List = bytesUint8List.sublist(offsetInt, offsetInt + frameSettingsModel.checksumBitsLengthInt ~/ 8);
+    final String frameChecksumString = String.fromCharCodes(frameChecksumBytesUint8List);
 
     return DataFrame(
-      frameIndex: frameIndex,
-      frameLength: frameLength,
-      data: data,
-      frameChecksum: frameChecksum,
+      dataString: dataString,
+      frameChecksumString: frameChecksumString,
+      frameIndexInt: frameIndexInt,
+      frameLengthInt: frameLengthInt,
     );
   }
 
   @override
-  Uint8List toBytes() {
-    List<int> bytes = <int>[];
+  Uint8List toBytes(FrameSettingsModel frameSettingsModel) {
+    final List<int> bytesIntList = <int>[];
 
-    _addUint16(bytes, frameIndex);
-    _addUint16(bytes, frameLength);
+    _addUintN(bytesIntList, frameIndexInt, frameSettingsModel.frameIndexBitsLengthInt);
+    _addUintN(bytesIntList, frameLengthInt, frameSettingsModel.frameLengthBitsLengthInt);
 
-    bytes
-      ..addAll(data.codeUnits)
-      ..addAll(frameChecksum);
+    bytesIntList
+      ..addAll(dataString.codeUnits)
+      ..addAll(frameChecksumString.codeUnits);
 
-    return Uint8List.fromList(bytes);
+    return Uint8List.fromList(bytesIntList);
   }
 
-  static int _getUint16(Uint8List bytes, int offset) {
-    return (bytes[offset] << 8) | bytes[offset + 1];
+  static int _getUintN(Uint8List bytesUint8List, int offsetInt, int bitLengthInt) {
+    final int byteLengthInt = bitLengthInt ~/ 8;
+    int valueInt = 0;
+    for (int i = 0; i < byteLengthInt; i++) {
+      valueInt = (valueInt << 8) | bytesUint8List[offsetInt + i];
+    }
+    return valueInt;
   }
 
-  static void _addUint16(List<int> bytes, int value) {
-    bytes
-      ..add((value >> 8) & 0xFF)
-      ..add(value & 0xFF);
+  static void _addUintN(List<int> bytesIntList, int valueInt, int bitLengthInt) {
+    final int byteLengthInt = bitLengthInt ~/ 8;
+    for (int i = byteLengthInt - 1; i >= 0; i--) {
+      bytesIntList.add((valueInt >> (8 * i)) & 0xFF);
+    }
+  }
+
+  @override
+  String get binaryString {
+    Uint8List bytesUint8List = toBytes(FrameSettingsModel.withDefaults());
+    return bytesUint8List.map((int byteInt) => byteInt.toRadixString(2).padLeft(8, '0')).join();
   }
 }

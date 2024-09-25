@@ -40,10 +40,7 @@ class FrameProtocolManager {
   }
 
   int get protocolId {
-    return (compressionEnum.value << 24) |
-    (encodingEnum.value << 16) |
-    (protocolTypeEnum.value << 8) |
-    versionNumberEnum.value;
+    return (compressionEnum.value << 24) | (encodingEnum.value << 16) | (protocolTypeEnum.value << 8) | versionNumberEnum.value;
   }
 
   @override

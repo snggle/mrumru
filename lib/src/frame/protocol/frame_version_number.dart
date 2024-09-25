@@ -4,6 +4,7 @@ enum VersionNumberEnum {
   undefined(2);
 
   final int value;
+
   const VersionNumberEnum(this.value);
 
   static VersionNumberEnum fromValue(int value) {

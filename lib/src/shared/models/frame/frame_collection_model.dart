@@ -1,24 +1,34 @@
 import 'package:equatable/equatable.dart';
-import 'package:mrumru/mrumru.dart';
+import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
+import 'package:mrumru/src/shared/models/frame/data_frame.dart';
+import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
 
 class FrameCollectionModel extends Equatable {
-  final List<FrameModel> frames;
+  final List<ABaseFrame> frames;
 
   const FrameCollectionModel(this.frames);
 
   /// Merges the binary representations of all frames into a single binary string.
   String get mergedBinaryFrames {
-    return frames.map((FrameModel frame) => frame.binaryString).join();
+    return frames.map((ABaseFrame frame) => frame.binaryString).join();
   }
 
   /// Converts each frame into its binary representation.
   List<String> get binaryFrames {
-    return frames.map((FrameModel frame) => frame.binaryString).toList();
+    return frames.map((ABaseFrame frame) => frame.binaryString).toList();
   }
 
   /// Merges the raw data of all frames into a single string.
   String get mergedRawData {
-    return frames.map((FrameModel e) => e.rawData).join();
+    return frames.map((ABaseFrame frame) {
+      if (frame is MetadataFrame) {
+        return frame.dataString;
+      } else if (frame is DataFrame) {
+        return frame.dataString;
+      } else {
+        return '';
+      }
+    }).join();
   }
 
   @override

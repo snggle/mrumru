@@ -3,6 +3,7 @@ enum EncodingEnum {
   undefined(1);
 
   final int value;
+
   const EncodingEnum(this.value);
 
   static EncodingEnum fromValue(int value) {
