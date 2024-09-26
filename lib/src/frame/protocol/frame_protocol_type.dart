@@ -1,4 +1,4 @@
-enum ProtocolTypeEnum {
+enum FrameProtocolType {
   rawDataTransfer(0),
   calibrationTest(1),
   simpleHandshake(2),
@@ -10,9 +10,9 @@ enum ProtocolTypeEnum {
 
   final int value;
 
-  const ProtocolTypeEnum(this.value);
+  const FrameProtocolType(this.value);
 
-  static ProtocolTypeEnum fromValue(int value) {
-    return ProtocolTypeEnum.values.firstWhere((ProtocolTypeEnum e) => e.value == value, orElse: () => ProtocolTypeEnum.undefined);
+  static FrameProtocolType fromValue(int value) {
+    return FrameProtocolType.values.firstWhere((FrameProtocolType e) => e.value == value, orElse: () => FrameProtocolType.undefined);
   }
 }

@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
-import 'package:mrumru/src/shared/models/frame/data_frame.dart';
-import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
+import 'package:mrumru/src/frame/protocol/data_frame.dart';
+import 'package:mrumru/src/frame/protocol/metadata_frame.dart';
+import 'package:mrumru/src/frame/protocol/a_base_frame.dart';
 import 'package:mrumru/src/shared/utils/app_logger.dart';
 import 'package:mrumru/src/shared/utils/binary_utils.dart';
 import 'package:mrumru/src/shared/utils/log_level.dart';

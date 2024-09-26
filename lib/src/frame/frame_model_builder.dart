@@ -3,8 +3,9 @@ import 'dart:typed_data';
 
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/frame/frame_processor.dart';
-import 'package:mrumru/src/shared/models/frame/data_frame.dart';
-import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
+import 'package:mrumru/src/frame/protocol/data_frame.dart';
+import 'package:mrumru/src/frame/protocol/metadata_frame.dart';
+
 import 'package:mrumru/src/shared/utils/crypto_utils.dart';
 class FrameModelBuilder {
   final FrameProcessor frameProcessor;

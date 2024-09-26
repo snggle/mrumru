@@ -54,11 +54,11 @@ void main() async {
       }
 
       // Assert
-      FrameProtocolManager protocolManager = const FrameProtocolManager(
-        compressionEnum: CompressionEnum.noCompression,
-        encodingEnum: EncodingEnum.defaultMethod,
-        protocolTypeEnum: ProtocolTypeEnum.rawDataTransfer,
-        versionNumberEnum: VersionNumberEnum.firstDefault,
+      FrameProtocolID protocolManager = const FrameProtocolID(
+        frameCompressionType: FrameCompressionType.noCompression,
+        frameEncodingType: FrameEncodingType.defaultMethod,
+        frameProtocolType: FrameProtocolType.rawDataTransfer,
+        frameVersionNumber: VersionNumberEnum.firstDefault,
       );
 
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(

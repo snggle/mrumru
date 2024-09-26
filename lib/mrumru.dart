@@ -109,7 +109,7 @@ export 'package:mrumru/src/shared/models/audio_settings_model.dart';
 ///   // Get [transferWavLength] from [FrameModel] calculated from the provided values.
 ///   int transferWavLength = frameModel.getTransferWavLength(audioSettingsModel);
 ///  ```
-export 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
+export 'package:mrumru/src/frame/protocol/a_base_frame.dart';
 export 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
 /// Adds frame settings that are can be modified to customize the frame structure.
 ///

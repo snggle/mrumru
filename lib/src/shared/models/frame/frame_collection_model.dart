@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
-import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
-import 'package:mrumru/src/shared/models/frame/data_frame.dart';
-import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
+import 'package:mrumru/src/frame/protocol/data_frame.dart';
+import 'package:mrumru/src/frame/protocol/metadata_frame.dart';
+import 'package:mrumru/src/frame/protocol/a_base_frame.dart';
 
 class FrameCollectionModel extends Equatable {
   final List<ABaseFrame> frames;

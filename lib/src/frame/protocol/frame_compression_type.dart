@@ -1,4 +1,4 @@
-enum CompressionEnum {
+enum FrameCompressionType {
   noCompression(0),
   zipFastest(1),
   zipDefault(2),
@@ -7,9 +7,9 @@ enum CompressionEnum {
 
   final int value;
 
-  const CompressionEnum(this.value);
+  const FrameCompressionType(this.value);
 
-  static CompressionEnum fromValue(int value) {
-    return CompressionEnum.values.firstWhere((CompressionEnum e) => e.value == value, orElse: () => CompressionEnum.undefined);
+  static FrameCompressionType fromValue(int value) {
+    return FrameCompressionType.values.firstWhere((FrameCompressionType e) => e.value == value, orElse: () => FrameCompressionType.undefined);
   }
 }
