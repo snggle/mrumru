@@ -13,6 +13,9 @@ enum FrameProtocolType {
   const FrameProtocolType(this.value);
 
   static FrameProtocolType fromValue(int value) {
-    return FrameProtocolType.values.firstWhere((FrameProtocolType e) => e.value == value, orElse: () => FrameProtocolType.undefined);
+    return FrameProtocolType.values.firstWhere(
+          (FrameProtocolType e) => e.value == value,
+      orElse: () => FrameProtocolType.undefined,
+    );
   }
 }

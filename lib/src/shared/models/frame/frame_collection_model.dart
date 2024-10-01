@@ -1,7 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:mrumru/src/frame/protocol/data_frame.dart';
-import 'package:mrumru/src/frame/protocol/metadata_frame.dart';
-import 'package:mrumru/src/frame/protocol/a_base_frame.dart';
+import 'package:mrumru/mrumru.dart';
 
 class FrameCollectionModel extends Equatable {
   final List<ABaseFrame> frames;
@@ -19,16 +17,8 @@ class FrameCollectionModel extends Equatable {
   }
 
   /// Merges the raw data of all frames into a single string.
-  String get mergedRawData {
-    return frames.map((ABaseFrame frame) {
-      if (frame is MetadataFrame) {
-        return frame.dataString;
-      } else if (frame is DataFrame) {
-        return frame.dataString;
-      } else {
-        return '';
-      }
-    }).join();
+  String get mergedDataString {
+    return frames.map((ABaseFrame frame) => frame.binaryString).join();
   }
 
   @override

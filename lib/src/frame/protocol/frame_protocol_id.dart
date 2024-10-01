@@ -27,30 +27,30 @@ class FrameProtocolID {
     );
   }
 
-  factory FrameProtocolID.fromProtocolId(int protocolId) {
-    Uint8List protocolIdBytes = Uint8List(4);
-    ByteData byteData = ByteData.sublistView(protocolIdBytes)..setUint32(0, protocolId, Endian.big);
-
-
-    FrameCompressionType compression = FrameCompressionType.fromValue(protocolIdBytes.sublist(0, 1)[0]);
-    FrameEncodingType encoding = FrameEncodingType.fromValue(protocolIdBytes.sublist(1, 2)[0]);
-    FrameProtocolType protocol = FrameProtocolType.fromValue(protocolIdBytes.sublist(2, 3)[0]);
-    FrameVersionNumber version = FrameVersionNumber.fromValue(protocolIdBytes.sublist(3, 4)[0]);
+  factory FrameProtocolID.fromBytes(Uint8List bytes) {
+    if (bytes.length != 4) {
+      throw ArgumentError('Protocol ID must be exactly 4 bytes long');
+    }
 
     return FrameProtocolID(
-      frameCompressionType: compression,
-      frameEncodingType: encoding,
-      frameProtocolType: protocol,
-      frameVersionNumber: version,
+      frameCompressionType: FrameCompressionType.fromValue(bytes[0]),
+      frameEncodingType: FrameEncodingType.fromValue(bytes[1]),
+      frameProtocolType: FrameProtocolType.fromValue(bytes[2]),
+      frameVersionNumber: FrameVersionNumber.fromValue(bytes[3]),
     );
   }
 
-  int get protocolId {
-    return (frameCompressionType.value << 24) | (frameEncodingType.value << 16) | (frameProtocolType.value << 8) | frameVersionNumber.value;
+  Uint8List toBytes() {
+    return Uint8List.fromList(<int>[
+      frameCompressionType.value,
+      frameEncodingType.value,
+      frameProtocolType.value,
+      frameVersionNumber.value,
+    ]);
   }
 
   @override
   String toString() {
-    return 'FrameProtocolManager(compressionMethod: $frameCompressionType, encodingMethod: $frameEncodingType, protocolType: $frameProtocolType, versionNumber: $frameVersionNumber)';
+    return 'FrameProtocolID(compressionMethod: $frameCompressionType, encodingMethod: $frameEncodingType, protocolType: $frameProtocolType, versionNumber: $frameVersionNumber)';
   }
 }

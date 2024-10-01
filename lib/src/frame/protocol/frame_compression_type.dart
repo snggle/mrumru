@@ -10,6 +10,9 @@ enum FrameCompressionType {
   const FrameCompressionType(this.value);
 
   static FrameCompressionType fromValue(int value) {
-    return FrameCompressionType.values.firstWhere((FrameCompressionType e) => e.value == value, orElse: () => FrameCompressionType.undefined);
+    return FrameCompressionType.values.firstWhere(
+          (FrameCompressionType e) => e.value == value,
+      orElse: () => FrameCompressionType.undefined,
+    );
   }
 }

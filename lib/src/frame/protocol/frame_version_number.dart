@@ -8,6 +8,9 @@ enum FrameVersionNumber {
   const FrameVersionNumber(this.value);
 
   static FrameVersionNumber fromValue(int value) {
-    return FrameVersionNumber.values.firstWhere((FrameVersionNumber e) => e.value == value, orElse: () => FrameVersionNumber.undefined);
+    return FrameVersionNumber.values.firstWhere(
+          (FrameVersionNumber e) => e.value == value,
+      orElse: () => FrameVersionNumber.undefined,
+    );
   }
 }

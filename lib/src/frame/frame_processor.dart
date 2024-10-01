@@ -1,16 +1,19 @@
-import 'dart:convert';
+// frame_processor.dart
+
 import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 
 class FrameProcessor {
-  Uint8List computeFrameChecksum(String text) {
-    List<int> bytes = utf8.encode(text);
-    Digest md5Digest = md5.convert(bytes);
-    return Uint8List.fromList(md5Digest.bytes);
+  /// Computes the checksum for a frame using MD5.
+  static Uint8List computeFrameChecksum(Uint8List data) {
+    final Digest digest = md5.convert(data);
+    return Uint8List.fromList(digest.bytes);
   }
-  Uint8List computeCompositeChecksum(List<Uint8List> frameChecksums) {
-    List<int> concatenatedBytes = frameChecksums.expand((Uint8List bytes) => bytes).toList();
-    Digest md5Digest = md5.convert(concatenatedBytes);
-    return Uint8List.fromList(md5Digest.bytes);
+
+  /// Computes the composite checksum over all frame checksums.
+  static Uint8List computeCompositeChecksum(List<Uint8List> checksums) {
+    final List<int> concatenated = checksums.expand((Uint8List bytes) => bytes).toList();
+    final Digest digest = md5.convert(concatenated);
+    return Uint8List.fromList(digest.bytes);
   }
 }
