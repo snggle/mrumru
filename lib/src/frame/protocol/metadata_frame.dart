@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/frame/frame_processor.dart';
+import 'package:mrumru/src/frame/protocol/a_base_frame.dart';
 import 'package:mrumru/src/frame/protocol/frame_protocol_id.dart';
 import 'package:mrumru/src/shared/utils/byte_utils.dart';
 

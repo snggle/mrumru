@@ -85,6 +85,7 @@ export 'package:mrumru/src/audio/recorder/audio_recorder_controller.dart';
 ///
 ///   ```
 export 'package:mrumru/src/shared/models/audio_settings_model.dart';
+export 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
 /// Provides model of frame used to encode and decode data.
 ///
 /// Usage:
@@ -109,21 +110,5 @@ export 'package:mrumru/src/shared/models/audio_settings_model.dart';
 ///   // Get [transferWavLength] from [FrameModel] calculated from the provided values.
 ///   int transferWavLength = frameModel.getTransferWavLength(audioSettingsModel);
 ///  ```
-export 'package:mrumru/src/frame/protocol/a_base_frame.dart';
+export 'package:mrumru/src/shared/models/frame/data_frame.dart';
 export 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
-/// Adds frame settings that are can be modified to customize the frame structure.
-///
-/// Usage:
-///  ```
-///   // Creates an instance of [FrameSettingsModel].
-///   FrameSettingsModel frameSettingsModel = FrameSettingsModel(
-///     frameIndexBitsLength: 4,
-///     framesCountBitsLength: 4,
-///     dataBitsLength: 8,
-///     checksumBitsLength: 4,
-///   );
-///
-///   // Creates an instance of [FrameSettingsModel] with default values.
-///   FrameSettingsModel frameSettingsModel = FrameSettingsModel.withDefaults();
-///  ```
-export 'package:mrumru/src/shared/models/frame/frame_settings_model.dart';

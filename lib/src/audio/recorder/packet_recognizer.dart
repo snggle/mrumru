@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/recorder/correlation/start_index_correlation_calculator.dart';
@@ -6,8 +7,8 @@ import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dar
 import 'package:mrumru/src/audio/recorder/queue/events/packet_remaining_event.dart';
 import 'package:mrumru/src/audio/recorder/queue/packet_event_queue.dart';
 import 'package:mrumru/src/frame/frame_model_decoder.dart';
-import 'package:mrumru/src/frame/protocol/metadata_frame.dart';
-import 'package:mrumru/src/frame/protocol/a_base_frame.dart';
+import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
+import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
 import 'package:mrumru/src/shared/models/sample_model.dart';
 import 'package:mrumru/src/shared/utils/app_logger.dart';
 import 'package:mrumru/src/shared/utils/log_level.dart';
@@ -24,17 +25,14 @@ class PacketRecognizer {
 
   bool _recordingBool = false;
   int? _startOffset;
-  int? _endOffset;
 
   PacketRecognizer({
     required AudioSettingsModel audioSettingsModel,
     required void Function(FrameCollectionModel) onDecodingCompleted,
-    required FrameSettingsModel frameSettingsModel,
-    ValueChanged<ABaseFrame>? onFrameDecoded,
+    ValueChanged<DataFrame>? onFrameDecoded,
   })  : _audioSettingsModel = audioSettingsModel,
         _onDecodingCompleted = onDecodingCompleted {
     _frameModelDecoder = FrameModelDecoder(
-      framesSettingsModel: frameSettingsModel,
       onFirstFrameDecoded: _handleFirstFrameDecoded,
       onLastFrameDecoded: _handleLastFrameDecoded,
       onFrameDecoded: onFrameDecoded,
@@ -48,7 +46,7 @@ class PacketRecognizer {
     _recordingBool = true;
 
     while (_recordingBool) {
-      if (!_packetsQueue.isLongerThan(_audioSettingsModel.sampleSize)) {
+      if (_packetsQueue.isLongerThan(_audioSettingsModel.sampleSize) == false) {
         await Future<void>.delayed(_nextActionWaitingDuration);
         continue;
       }
@@ -79,18 +77,15 @@ class PacketRecognizer {
     _packetsQueue.clear();
     _frameModelDecoder.clear();
     _startOffset = null;
-    _endOffset = null;
   }
 
-  void _handleFirstFrameDecoded(ABaseFrame frame) {
-    _endOffset = _calculateTransferWavLength(frame);
-    AppLogger().log(
-        message: 'End offset found: $_endOffset', logLevel: LogLevel.debug);
+  void _handleFirstFrameDecoded(MetadataFrame frameModel) {
+    print('First frame decoded: ${frameModel.frameIndex}');
   }
 
-  void _handleLastFrameDecoded(ABaseFrame frame) {
+  void _handleLastFrameDecoded(AFrameBase frameModel) {
     AppLogger().log(
-        message: 'Last frame decoded: ${frame.frameIndexInt}', logLevel: LogLevel.debug);
+        message: 'Last frame decoded: ${frameModel.frameIndex}', logLevel: LogLevel.debug);
     stopRecording();
   }
 
@@ -128,11 +123,6 @@ class PacketRecognizer {
     SampleModel sampleModel =
     SampleModel.fromWave(sampleWave, _audioSettingsModel);
     _frameModelDecoder.addBinaries(<String>[sampleModel.calcBinary()]);
-  }
-
-  int _calculateTransferWavLength(ABaseFrame frame) {
-    int framesCount = (frame is MetadataFrame) ? frame.framesCountInt : 1;
-    return framesCount * _audioSettingsModel.sampleSize;
   }
 }
 

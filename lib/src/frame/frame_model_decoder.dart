@@ -1,25 +1,25 @@
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/frame/protocol/data_frame.dart';
-import 'package:mrumru/src/frame/protocol/metadata_frame.dart';
-import 'package:mrumru/src/frame/protocol/a_base_frame.dart';
+import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
+import 'package:mrumru/src/shared/models/frame/data_frame.dart';
+import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
 import 'package:mrumru/src/shared/utils/app_logger.dart';
 import 'package:mrumru/src/shared/utils/binary_utils.dart';
+import 'package:mrumru/src/shared/utils/crypto_utils.dart';
 import 'package:mrumru/src/shared/utils/log_level.dart';
 
 class FrameModelDecoder {
-  final FrameSettingsModel framesSettingsModel;
-  final ValueChanged<ABaseFrame>? onFrameDecoded;
-  final ValueChanged<ABaseFrame>? onFirstFrameDecoded;
-  final ValueChanged<ABaseFrame>? onLastFrameDecoded;
+  final ValueChanged<DataFrame>? onFrameDecoded;
+  final ValueChanged<MetadataFrame>? onFirstFrameDecoded;
+  final ValueChanged<DataFrame>? onLastFrameDecoded;
 
-  final List<ABaseFrame> _decodedFrames = <ABaseFrame>[];
+  final List<AFrameBase> _decodedFrames = <AFrameBase>[];
   final StringBuffer _completeBinary = StringBuffer();
+  int _frameCount = 0;
   int _cursor = 0;
 
   FrameModelDecoder({
-    required this.framesSettingsModel,
     this.onFrameDecoded,
     this.onFirstFrameDecoded,
     this.onLastFrameDecoded,
@@ -33,7 +33,7 @@ class FrameModelDecoder {
   }
 
   FrameCollectionModel get decodedContent {
-    return FrameCollectionModel(_decodedFrames);
+    return FrameCollectionModel(List<AFrameBase>.from(_decodedFrames));
   }
 
   void clear() {
@@ -42,71 +42,35 @@ class FrameModelDecoder {
     _cursor = 0;
   }
 
-
-  void _printFrame(ABaseFrame frame) {
-    print('Decoded Frame:');
-    print('Frame Index: ${frame.frameIndexInt}');
-    print('Frame Length: ${frame.frameLengthInt}');
-    if (frame is MetadataFrame) {
-      print('Frames Count: ${frame.framesCountInt}');
-      print('Protocol ID: ${frame.protocolIdInt}');
-      print('Session ID: ${frame.sessionIdString}');
-      print('Composite Checksum: ${frame.compositeChecksumUint8List}');
-    }
-    if (frame is DataFrame || frame is MetadataFrame) {
-      print('Data: ${frame.frameIndexInt}');
-    }
-    print('Frame Checksum: ${frame.binaryString}');
-    print('-----------------------------');
-  }
-
   void _decodeFrames() {
-    while (_cursor < _completeBinary.length) {
-      int frameHeaderSize = (framesSettingsModel.frameIndexBitsLengthInt +
-          framesSettingsModel.frameLengthBitsLengthInt) ~/
-          8;
-      if (_completeBinary.length - _cursor < frameHeaderSize * 8) {
-        break;
-      }
+    int headerBitsLength =
+        (MetadataFrame.frameIndexSize + MetadataFrame.frameLengthSize) * 8;
 
-      String headerBinary = _completeBinary.toString().substring(_cursor, _cursor + frameHeaderSize * 8);
-      List<int> headerBytes = BinaryUtils.binaryStringToByteList(headerBinary);
-      ByteData headerData = ByteData.sublistView(Uint8List.fromList(headerBytes));
-
-      int frameIndex = headerData.getUint16(0);
-      int frameLength = headerData.getUint16(2);
-
-      int frameSizeInBits = frameLength * 8;
-
-      if (_completeBinary.length - _cursor < frameSizeInBits) {
-        break;
-      }
-
-      String frameBinary = _completeBinary.toString().substring(_cursor, _cursor + frameSizeInBits);
-      List<int> frameBytes = BinaryUtils.binaryStringToByteList(frameBinary);
-
+    while (_hasEnoughDataForHeader(headerBitsLength)) {
       try {
-        bool isFirstFrame = _decodedFrames.isEmpty;
+        int initialCursor = _cursor;
 
-        ABaseFrame frame;
-        if (isFirstFrame) {
-          frame = MetadataFrame.fromBytes(Uint8List.fromList(frameBytes), framesSettingsModel);
-          onFirstFrameDecoded?.call(frame);
-        } else {
-          frame = DataFrame.fromBytes(Uint8List.fromList(frameBytes), framesSettingsModel);
+        ByteData headerData = _readHeader(headerBitsLength);
+
+        int frameIndex = headerData.getUint16(0, Endian.big);
+        int frameLength =
+        headerData.getUint16(MetadataFrame.frameIndexSize, Endian.big);
+
+        int frameSizeInBits = frameLength * 8;
+
+        if (!_hasEnoughDataForFrame(initialCursor, frameSizeInBits)) {
+          break;
         }
+
+        Uint8List frameBytes = _readFrameBytes(initialCursor, frameSizeInBits);
+
+        AFrameBase frame = _decodeFrame(frameIndex, frameBytes);
+
+        _verifyFrameChecksum(frame);
 
         _decodedFrames.add(frame);
 
-        _printFrame(frame);
-
-        if (frame is MetadataFrame && frame.frameIndexInt == frame.framesCountInt - 1) {
-          onLastFrameDecoded?.call(frame);
-        }
-
-        onFrameDecoded?.call(frame);
-
-        _cursor += frameSizeInBits;
+        _cursor = initialCursor + frameSizeInBits;
       } catch (e) {
         AppLogger().log(
           message: 'FrameModelDecoder: Frame decoding failed. Error: $e',
@@ -114,6 +78,96 @@ class FrameModelDecoder {
         );
         break;
       }
+    }
+
+    if (_decodedFrames.length == _frameCount + 1) {
+      _verifyCompositeChecksum();
+    }
+  }
+
+  bool _hasEnoughDataForHeader(int headerBitsLength) {
+    return _cursor + headerBitsLength <= _completeBinary.length;
+  }
+
+  ByteData _readHeader(int headerBitsLength) {
+    String headerBinary =
+    _completeBinary.toString().substring(_cursor, _cursor + headerBitsLength);
+    List<int> headerBytes = BinaryUtils.binaryStringToByteList(headerBinary);
+    ByteData headerData = ByteData.sublistView(Uint8List.fromList(headerBytes));
+
+
+    return headerData;
+  }
+
+  bool _hasEnoughDataForFrame(int initialCursor, int frameSizeInBits) {
+    return initialCursor + frameSizeInBits <= _completeBinary.length;
+  }
+
+  Uint8List _readFrameBytes(int initialCursor, int frameSizeInBits) {
+    String frameBinary = _completeBinary.toString()
+        .substring(initialCursor, initialCursor + frameSizeInBits);
+    List<int> frameBytes = BinaryUtils.binaryStringToByteList(frameBinary);
+
+
+    return Uint8List.fromList(frameBytes);
+  }
+
+  AFrameBase _decodeFrame(int frameIndex, Uint8List frameBytes) {
+    AFrameBase frame;
+    if (_decodedFrames.isEmpty && frameIndex == 0) {
+      frame = MetadataFrame.fromBytes(frameBytes);
+      _frameCount = (frame as MetadataFrame).framesCount;
+      onFirstFrameDecoded?.call(frame as MetadataFrame);
+    } else {
+      frame = DataFrame.fromBytes(frameBytes);
+      onFrameDecoded?.call(frame as DataFrame);
+
+      if (frame.frameIndex == _frameCount) {
+        onLastFrameDecoded?.call(frame as DataFrame);
+      }
+    }
+    return frame;
+  }
+
+  void _verifyFrameChecksum(AFrameBase frame) {
+    Uint8List expectedChecksum;
+    if (frame is DataFrame) {
+      expectedChecksum = CryptoUtils.calcChecksum(text: frame.data);
+    } else {
+      expectedChecksum = CryptoUtils.calcChecksumFromBytes(Uint8List(0));
+    }
+
+    if (!BinaryUtils.compareUint8Lists(frame.frameChecksum, expectedChecksum)) {
+      AppLogger().log(
+        message:
+        'FrameModelDecoder: Frame checksum mismatch for frameIndex ${frame.frameIndex}',
+        logLevel: LogLevel.error,
+      );
+    }
+  }
+
+  void _verifyCompositeChecksum() {
+    List<int> allFramesBytes = <int>[];
+    for (AFrameBase frame in _decodedFrames) {
+      allFramesBytes.addAll(frame.toBytes());
+    }
+
+    Uint8List receivedCompositeChecksum =
+        (_decodedFrames.first as MetadataFrame).compositeChecksum;
+    Uint8List calculatedChecksum =
+    CryptoUtils.calcChecksumFromBytes(Uint8List.fromList(allFramesBytes));
+
+    if (BinaryUtils.compareUint8Lists(
+        receivedCompositeChecksum, calculatedChecksum)) {
+      AppLogger().log(
+        message: 'Composite checksum verified successfully.',
+        logLevel: LogLevel.info,
+      );
+    } else {
+      AppLogger().log(
+        message: 'Composite checksum mismatch!',
+        logLevel: LogLevel.error,
+      );
     }
   }
 }

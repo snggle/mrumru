@@ -8,7 +8,6 @@ import 'package:mrumru/mrumru.dart';
 import 'package:path_provider/path_provider.dart';
 
 class SendTabCubit extends Cubit<ASendTabState> {
-  final FrameSettingsModel _frameSettingsModel = FrameSettingsModel.withDefaults();
   late AudioSettingsModel audioSettingsModel = AudioSettingsModel.withDefaults();
   AudioGenerator? _audioGenerator;
 
@@ -20,7 +19,6 @@ class SendTabCubit extends Cubit<ASendTabState> {
     _audioGenerator = AudioGenerator(
       audioSink: audioStreamSink,
       audioSettingsModel: audioSettingsModel,
-      frameSettingsModel: _frameSettingsModel,
     );
     await _audioGenerator!.generate(text);
 
@@ -40,7 +38,6 @@ class SendTabCubit extends Cubit<ASendTabState> {
     _audioGenerator = AudioGenerator(
       audioSink: audioMultiSink,
       audioSettingsModel: audioSettingsModel,
-      frameSettingsModel: _frameSettingsModel,
     );
     unawaited(_audioGenerator?.generate(text));
 

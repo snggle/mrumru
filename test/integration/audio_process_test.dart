@@ -7,11 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/recorder/packet_recognizer.dart';
 import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dart';
-import 'package:mrumru/src/frame/protocol/frame_protocol_id.dart';
-import 'package:mrumru/src/frame/protocol/frame_compression_type.dart';
-import 'package:mrumru/src/frame/protocol/frame_encoding_type.dart';
-import 'package:mrumru/src/frame/protocol/frame_protocol_type.dart';
-import 'package:mrumru/src/shared/enums/frame_version_number.dart';
 import 'package:wav/wav.dart';
 
 void main() async {
@@ -54,11 +49,11 @@ void main() async {
       }
 
       // Assert
-      FrameProtocolID protocolManager = const FrameProtocolID(
-        frameCompressionType: FrameCompressionType.noCompression,
-        frameEncodingType: FrameEncodingType.defaultMethod,
-        frameProtocolType: FrameProtocolType.rawDataTransfer,
-        frameVersionNumber: VersionNumberEnum.firstDefault,
+      FrameProtocolManager protocolManager = const FrameProtocolManager(
+        compressionEnum: CompressionEnum.noCompression,
+        encodingEnum: EncodingEnum.defaultMethod,
+        protocolTypeEnum: ProtocolTypeEnum.rawDataTransfer,
+        versionNumberEnum: VersionNumberEnum.firstDefault,
       );
 
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(

@@ -27,6 +27,7 @@ class FrameProtocolID {
     );
   }
 
+  /// Creates FrameProtocolID from Uint8List (4 bytes)
   factory FrameProtocolID.fromBytes(Uint8List bytes) {
     if (bytes.length != 4) {
       throw ArgumentError('Protocol ID must be exactly 4 bytes long');
@@ -40,6 +41,7 @@ class FrameProtocolID {
     );
   }
 
+  /// Converts FrameProtocolID to Uint8List (4 bytes)
   Uint8List toBytes() {
     return Uint8List.fromList(<int>[
       frameCompressionType.value,
@@ -47,6 +49,24 @@ class FrameProtocolID {
       frameProtocolType.value,
       frameVersionNumber.value,
     ]);
+  }
+
+  /// Gets a combined protocol ID as an integer (32-bit value).
+  int get protocolValue {
+    return (frameCompressionType.value << 24) |
+    (frameEncodingType.value << 16) |
+    (frameProtocolType.value << 8) |
+    frameVersionNumber.value;
+  }
+
+  /// Creates FrameProtocolID from a combined 32-bit integer value.
+  factory FrameProtocolID.fromValue(int protocolId) {
+    return FrameProtocolID(
+      frameCompressionType: FrameCompressionType.fromValue((protocolId >> 24) & 0xFF),
+      frameEncodingType: FrameEncodingType.fromValue((protocolId >> 16) & 0xFF),
+      frameProtocolType: FrameProtocolType.fromValue((protocolId >> 8) & 0xFF),
+      frameVersionNumber: FrameVersionNumber.fromValue(protocolId & 0xFF),
+    );
   }
 
   @override

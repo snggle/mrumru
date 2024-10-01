@@ -3,17 +3,15 @@ import 'package:flutter/foundation.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/recorder/packet_recognizer.dart';
 import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dart';
-import 'package:mrumru/src/frame/protocol/a_base_frame.dart';
 import 'package:mrumru/src/shared/utils/wav_utils.dart';
 import 'package:record/record.dart';
 import 'package:wav/wav.dart';
 
 class AudioRecorderController {
   final AudioRecorder audioRecorder = AudioRecorder();
-  final ValueChanged<ABaseFrame>? onFrameReceived;
+  final ValueChanged<DataFrame>? onFrameReceived;
   final ValueChanged<FrameCollectionModel> onRecordingCompleted;
   final AudioSettingsModel audioSettingsModel;
-  final FrameSettingsModel frameSettingsModel;
   late final PacketRecognizer packetRecognizer;
   StreamSubscription<Uint8List>? recordingStreamSubscription;
 
@@ -21,7 +19,6 @@ class AudioRecorderController {
     required this.audioSettingsModel,
     required this.onRecordingCompleted,
     required this.onFrameReceived,
-    required this.frameSettingsModel,
   });
 
   Future<void> startRecording() async {
@@ -34,7 +31,6 @@ class AudioRecorderController {
 
     packetRecognizer = PacketRecognizer(
       audioSettingsModel: audioSettingsModel,
-      frameSettingsModel: frameSettingsModel,
       onFrameDecoded: onFrameReceived,
       onDecodingCompleted: _completeDecoding,
     );

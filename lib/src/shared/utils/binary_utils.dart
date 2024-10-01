@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 class BinaryUtils {
-
   static String convertAsciiToBinary(String asciiText) {
     return asciiText.codeUnits.map((int x) => x.toRadixString(2).padLeft(8, '0')).join();
   }
@@ -33,24 +32,48 @@ class BinaryUtils {
     return chunks;
   }
 
-  static Uint8List binaryStringToBytes(String binaryString) {
-    final int length = binaryString.length;
-    final int byteCount = length ~/ 8;
-    final Uint8List bytes = Uint8List(byteCount);
-    for (int i = 0; i < byteCount; i++) {
-      final String byteString = binaryString.substring(i * 8, (i + 1) * 8);
-      bytes[i] = int.parse(byteString, radix: 2);
-    }
-    return bytes;
-  }
-
-  static List<int> binaryStringToByteList(String binaryText) {
-    List<int> byteList = <int>[];
+  static Uint8List binaryStringToByteList(String binaryText) {
+    Uint8List byteList = Uint8List((binaryText.length / 8).ceil());
     for (int i = 0; i < binaryText.length; i += 8) {
       String byteString = binaryText.substring(i, i + 8);
       int byte = int.parse(byteString, radix: 2);
-      byteList.add(byte);
+      byteList[i ~/ 8] = byte;
     }
     return byteList;
   }
+
+  static Uint8List intToBytes(int value, int byteSize) {
+    ByteData data = ByteData(byteSize);
+    if (byteSize == 2) {
+      data.setUint16(0, value);
+    } else if (byteSize == 4) {
+      data.setUint32(0, value);
+    }
+    return data.buffer.asUint8List();
+  }
+
+  static bool compareUint8Lists(Uint8List a, Uint8List b) {
+    if (a.length != b.length) {
+      return false;
+    }
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  static String convertBytesToBinary(Uint8List bytes) {
+    return bytes.map((int x) => x.toRadixString(2).padLeft(8, '0')).join();
+  }
+
+  static Uint8List convertBinaryToBytes(String binaryText) {
+    return binaryStringToByteList(binaryText);
+  }
+
+  static Uint8List stringToBytes(String input, int expectedLength) {
+    return Uint8List.fromList(input.codeUnits).sublist(0, expectedLength);
+  }
+
 }

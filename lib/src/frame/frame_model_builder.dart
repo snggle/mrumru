@@ -1,108 +1,84 @@
-import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
-
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/frame/frame_processor.dart';
-import 'package:mrumru/src/frame/protocol/data_frame.dart';
 import 'package:mrumru/src/frame/protocol/frame_protocol_id.dart';
-import 'package:mrumru/src/frame/protocol/metadata_frame.dart';
-
+import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
+import 'package:mrumru/src/shared/models/frame/data_frame.dart';
+import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
 import 'package:mrumru/src/shared/utils/crypto_utils.dart';
+import 'package:mrumru/src/shared/utils/secure_random.dart';
 
 class FrameModelBuilder {
+  final int asciiCharacterCountInFrame;
+
+  FrameModelBuilder({required this.asciiCharacterCountInFrame});
+
   FrameCollectionModel buildFrameCollection(String rawData) {
-    final List<ABaseFrame> frames = <ABaseFrame>[];
-    final List<Uint8List> frameChecksums = <Uint8List>[];
-    const int maxDataSize = 256;
+    List<AFrameBase> frames = <AFrameBase>[];
+    int dataFramesCount = (rawData.length / asciiCharacterCountInFrame).ceil();
+    int sessionId = _generateSessionId();
 
-    final List<String> dataChunks = _splitDataIntoChunks(rawData, maxDataSize);
-    final int framesCount = dataChunks.length;
+    for (int i = 0; i < dataFramesCount; i++) {
+      String data = _splitDataForIndex(rawData, i);
+      int frameIndex = i + 1;
+      int frameLength = DataFrame.calculateFrameLength(data.length);
+      Uint8List frameChecksum = CryptoUtils.calcChecksum(text: data);
 
-    final String sessionId = _generateSessionId();
-
-    for (int i = 0; i < framesCount; i++) {
-      if (i == 0) {
-        final MetadataFrame metadataFrame = _buildMetadataFrame(
-          dataString: dataChunks[i],
-          frameIndex: i,
-          framesCount: framesCount,
-          protocolID: FrameProtocolID.defaultProtocol(),
-          sessionId: sessionId,
-        );
-        frames.add(metadataFrame);
-        frameChecksums.add(metadataFrame.frameChecksum);
-      } else {
-        final DataFrame dataFrame = _buildDataFrame(
-          dataString: dataChunks[i],
-          frameIndex: i,
-        );
-        frames.add(dataFrame);
-        frameChecksums.add(dataFrame.frameChecksum);
-      }
+      frames.add(DataFrame(
+        frameIndex: frameIndex,
+        frameLength: frameLength,
+        frameChecksum: frameChecksum,
+        data: data,
+      ));
     }
 
-    final Uint8List compositeChecksum = FrameProcessor.computeCompositeChecksum(frameChecksums);
+    int metadataFrameLength = MetadataFrame.calculateFrameLength();
+    Uint8List compositeChecksum = Uint8List(MetadataFrame.checksumSize);
+    Uint8List metadataFrameChecksum = CryptoUtils.calcChecksumFromBytes(Uint8List(0));
 
-    final MetadataFrame firstFrame = frames.first as MetadataFrame;
-    firstFrame.updateCompositeChecksum(compositeChecksum);
+    MetadataFrame metadataFrame = MetadataFrame(
+      frameIndex: 0,
+      frameLength: metadataFrameLength,
+      frameChecksum: metadataFrameChecksum,
+      framesCount: dataFramesCount,
+      frameProtocolID: FrameProtocolID.defaultProtocol(),
+      sessionId: sessionId,
+      compositeChecksum: compositeChecksum,
+    );
+
+    frames.insert(0, metadataFrame);
+
+    List<int> allFramesBytes = <int>[];
+    for (AFrameBase frame in frames) {
+      allFramesBytes.addAll(frame.toBytes());
+    }
+
+    Uint8List computedCompositeChecksum = CryptoUtils.calcChecksumFromBytes(Uint8List.fromList(allFramesBytes));
+
+    metadataFrame = MetadataFrame(
+      frameIndex: metadataFrame.frameIndex,
+      frameLength: metadataFrame.frameLength,
+      frameChecksum: metadataFrame.frameChecksum,
+      framesCount: metadataFrame.framesCount,
+      frameProtocolID: metadataFrame.frameProtocolID,
+      sessionId: metadataFrame.sessionId,
+      compositeChecksum: computedCompositeChecksum,
+    );
+
+    frames[0] = metadataFrame;
 
     return FrameCollectionModel(frames);
   }
 
-  List<String> _splitDataIntoChunks(String data, int chunkSize) {
-    final List<String> chunks = <String>[];
-    for (int i = 0; i < data.length; i += chunkSize) {
-      final int end = (i + chunkSize < data.length) ? i + chunkSize : data.length;
-      chunks.add(data.substring(i, end));
-    }
-    return chunks;
+  String _splitDataForIndex(String rawData, int index) {
+    int startIndex = index * asciiCharacterCountInFrame;
+    int endIndex = min(startIndex + asciiCharacterCountInFrame, rawData.length);
+    return rawData.substring(startIndex, endIndex);
   }
 
-  String _generateSessionId() {
-    final Uint8List randomBytes = Uint8List(16);
-    return base64Url.encode(randomBytes);
-  }
-
-  MetadataFrame _buildMetadataFrame({
-    required String dataString,
-    required int frameIndex,
-    required int framesCount,
-    required FrameProtocolID protocolID,
-    required String sessionId,
-  }) {
-    final int frameLength = _calculateFrameLength(dataString, isMetadataFrame: true);
-    final MetadataFrame metadataFrame = MetadataFrame(
-      frameIndex: frameIndex,
-      frameLength: frameLength,
-      framesCount: framesCount,
-      protocolID: protocolID,
-      sessionId: sessionId,
-      compositeChecksum: Uint8List(16),
-      dataString: dataString,
-      frameChecksum: Uint8List(16),
-    )..computeChecksums();
-    return metadataFrame;
-  }
-
-  DataFrame _buildDataFrame({
-    required String dataString,
-    required int frameIndex,
-  }) {
-    final int frameLength = _calculateFrameLength(dataString, isMetadataFrame: false);
-    final DataFrame dataFrame = DataFrame(
-      frameIndex: frameIndex,
-      frameLength: frameLength,
-      dataString: dataString,
-      frameChecksum: Uint8List(16),
-    )..computeChecksum();
-    return dataFrame;
-  }
-
-  int _calculateFrameLength(String dataString, {required bool isMetadataFrame}) {
-    int length = 2 + 2 + dataString.length + 16;
-    if (isMetadataFrame) {
-      length += 2 + 4 + 16 + 16;
-    }
-    return length;
+  int _generateSessionId() {
+    Uint8List randomBytes = SecureRandom.getBytes(length: 4, max: 4);
+    ByteData byteData = ByteData.sublistView(randomBytes);
+    return byteData.getUint32(0);
   }
 }
