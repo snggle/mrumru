@@ -56,6 +56,31 @@ export 'package:mrumru/src/audio/generator/sink/i_audio_sink.dart';
 ///   audioRecorderController.stopRecording();
 ///  ```
 export 'package:mrumru/src/audio/recorder/audio_recorder_controller.dart';
+/// Provides model of frame used to encode and decode data.
+///
+/// Usage:
+///  ```
+///   // Creates an instance of [FrameModel].
+///   FrameModel frameModel = FrameModel(
+///     frameIndex: 0,
+///     framesCount: 20,
+///     rawData: '1234',
+///     frameSettings: FrameSettingsModel(),
+///   );
+///
+///   // Get [mergedBinaryFrames] from [FrameModel] created from decoded content of the frame.
+///   String mergedBinaryFrames = frameModel.mergedBinaryFrames;
+///
+///   // Create from binary string frame for decoding.
+///   FrameModel frameModel = FrameModel.fromBinaryString('101010101010101010101010');
+///
+///   // Get [binaryString] from [FrameModel] created from decoded content of the frame.
+///   String binaryString = frameModel.binaryString;
+///
+///   // Get [transferWavLength] from [FrameModel] calculated from the provided values.
+///   int transferWavLength = frameModel.getTransferWavLength(audioSettingsModel);
+///  ```
+export 'package:mrumru/src/frame/protocol/a_base_frame.dart';
 /// Adds audio settings that can be modified to customize the audio structure.
 ///
 /// Usage:
@@ -85,31 +110,6 @@ export 'package:mrumru/src/audio/recorder/audio_recorder_controller.dart';
 ///
 ///   ```
 export 'package:mrumru/src/shared/models/audio_settings_model.dart';
-/// Provides model of frame used to encode and decode data.
-///
-/// Usage:
-///  ```
-///   // Creates an instance of [FrameModel].
-///   FrameModel frameModel = FrameModel(
-///     frameIndex: 0,
-///     framesCount: 20,
-///     rawData: '1234',
-///     frameSettings: FrameSettingsModel(),
-///   );
-///
-///   // Get [mergedBinaryFrames] from [FrameModel] created from decoded content of the frame.
-///   String mergedBinaryFrames = frameModel.mergedBinaryFrames;
-///
-///   // Create from binary string frame for decoding.
-///   FrameModel frameModel = FrameModel.fromBinaryString('101010101010101010101010');
-///
-///   // Get [binaryString] from [FrameModel] created from decoded content of the frame.
-///   String binaryString = frameModel.binaryString;
-///
-///   // Get [transferWavLength] from [FrameModel] calculated from the provided values.
-///   int transferWavLength = frameModel.getTransferWavLength(audioSettingsModel);
-///  ```
-export 'package:mrumru/src/frame/protocol/a_base_frame.dart';
 export 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
 /// Adds frame settings that are can be modified to customize the frame structure.
 ///

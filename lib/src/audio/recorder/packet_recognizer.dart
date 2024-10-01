@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/recorder/correlation/start_index_correlation_calculator.dart';
@@ -7,7 +8,6 @@ import 'package:mrumru/src/audio/recorder/queue/events/packet_remaining_event.da
 import 'package:mrumru/src/audio/recorder/queue/packet_event_queue.dart';
 import 'package:mrumru/src/frame/frame_model_decoder.dart';
 import 'package:mrumru/src/frame/protocol/metadata_frame.dart';
-import 'package:mrumru/src/frame/protocol/a_base_frame.dart';
 import 'package:mrumru/src/shared/models/sample_model.dart';
 import 'package:mrumru/src/shared/utils/app_logger.dart';
 import 'package:mrumru/src/shared/utils/log_level.dart';
@@ -90,7 +90,7 @@ class PacketRecognizer {
 
   void _handleLastFrameDecoded(ABaseFrame frame) {
     AppLogger().log(
-        message: 'Last frame decoded: ${frame.frameIndexInt}', logLevel: LogLevel.debug);
+        message: 'Last frame decoded: ${frame.frameIndex}', logLevel: LogLevel.debug);
     stopRecording();
   }
 
@@ -131,7 +131,7 @@ class PacketRecognizer {
   }
 
   int _calculateTransferWavLength(ABaseFrame frame) {
-    int framesCount = (frame is MetadataFrame) ? frame.framesCountInt : 1;
+    int framesCount = (frame is MetadataFrame) ? frame.framesCount : 1;
     return framesCount * _audioSettingsModel.sampleSize;
   }
 }

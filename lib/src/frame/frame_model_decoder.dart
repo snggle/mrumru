@@ -1,9 +1,9 @@
 import 'dart:typed_data';
+
 import 'package:flutter/cupertino.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/frame/protocol/data_frame.dart';
 import 'package:mrumru/src/frame/protocol/metadata_frame.dart';
-import 'package:mrumru/src/frame/protocol/a_base_frame.dart';
 import 'package:mrumru/src/shared/utils/app_logger.dart';
 import 'package:mrumru/src/shared/utils/binary_utils.dart';
 import 'package:mrumru/src/shared/utils/log_level.dart';
@@ -45,16 +45,16 @@ class FrameModelDecoder {
 
   void _printFrame(ABaseFrame frame) {
     print('Decoded Frame:');
-    print('Frame Index: ${frame.frameIndexInt}');
-    print('Frame Length: ${frame.frameLengthInt}');
+    print('Frame Index: ${frame.frameIndex}');
+    print('Frame Length: ${frame.frameLength}');
     if (frame is MetadataFrame) {
-      print('Frames Count: ${frame.framesCountInt}');
-      print('Protocol ID: ${frame.protocolIdInt}');
-      print('Session ID: ${frame.sessionIdString}');
-      print('Composite Checksum: ${frame.compositeChecksumUint8List}');
+      print('Frames Count: ${frame.framesCount}');
+      print('Protocol ID: ${frame.protocolID}');
+      print('Session ID: ${frame.sessionId}');
+      print('Composite Checksum: ${frame.compositeChecksum}');
     }
     if (frame is DataFrame || frame is MetadataFrame) {
-      print('Data: ${frame.frameIndexInt}');
+      print('Data: ${frame.dataString}');
     }
     print('Frame Checksum: ${frame.binaryString}');
     print('-----------------------------');
@@ -90,17 +90,17 @@ class FrameModelDecoder {
 
         ABaseFrame frame;
         if (isFirstFrame) {
-          frame = MetadataFrame.fromBytes(Uint8List.fromList(frameBytes), framesSettingsModel);
+          frame = MetadataFrame.fromBytes(Uint8List.fromList(frameBytes));
           onFirstFrameDecoded?.call(frame);
         } else {
-          frame = DataFrame.fromBytes(Uint8List.fromList(frameBytes), framesSettingsModel);
+          frame = DataFrame.fromBytes(Uint8List.fromList(frameBytes));
         }
 
         _decodedFrames.add(frame);
 
         _printFrame(frame);
 
-        if (frame is MetadataFrame && frame.frameIndexInt == frame.framesCountInt - 1) {
+        if (frame is MetadataFrame && frame.frameIndex == frame.framesCount - 1) {
           onLastFrameDecoded?.call(frame);
         }
 

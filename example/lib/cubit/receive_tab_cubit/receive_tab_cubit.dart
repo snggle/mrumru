@@ -45,7 +45,7 @@ class ReceiveTabCubit extends Cubit<AReceiveTabState> {
   }
 
   void _handleRecordingCompleted(FrameCollectionModel frameCollectionModel) {
-    String decodedMessage = frameCollectionModel.mergedRawData;
+    String decodedMessage = frameCollectionModel.mergedDataString;
     emit(ReceiveTabResultState(decodedMessage: decodedMessage));
   }
 

@@ -60,7 +60,7 @@ class AudioGenerator {
 
   /// This method parses the text message into binary data.
   String _parseTextToBinary(String text) {
-    FrameModelBuilder frameModelBuilder = FrameModelBuilder(frameSettingsModel: _frameSettingsModel);
+    FrameModelBuilder frameModelBuilder = FrameModelBuilder();
     FrameCollectionModel frameCollectionModel = frameModelBuilder.buildFrameCollection(text);
     String binaryData = frameCollectionModel.mergedBinaryFrames;
     return _fillBinaryWithZeros(binaryData);

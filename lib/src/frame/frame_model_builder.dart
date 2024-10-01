@@ -7,8 +7,6 @@ import 'package:mrumru/src/frame/protocol/data_frame.dart';
 import 'package:mrumru/src/frame/protocol/frame_protocol_id.dart';
 import 'package:mrumru/src/frame/protocol/metadata_frame.dart';
 
-import 'package:mrumru/src/shared/utils/crypto_utils.dart';
-
 class FrameModelBuilder {
   FrameCollectionModel buildFrameCollection(String rawData) {
     final List<ABaseFrame> frames = <ABaseFrame>[];
@@ -20,6 +18,7 @@ class FrameModelBuilder {
 
     final String sessionId = _generateSessionId();
 
+    // Build frames and collect their checksums
     for (int i = 0; i < framesCount; i++) {
       if (i == 0) {
         final MetadataFrame metadataFrame = _buildMetadataFrame(
@@ -40,11 +39,14 @@ class FrameModelBuilder {
         frameChecksums.add(dataFrame.frameChecksum);
       }
     }
+    MetadataFrame firstFrame = frames.first as MetadataFrame;
 
-    final Uint8List compositeChecksum = FrameProcessor.computeCompositeChecksum(frameChecksums);
+    Uint8List compositeChecksum = FrameProcessor.computeCompositeChecksum(frameChecksums);
+    firstFrame
+      ..updateCompositeChecksum(compositeChecksum)
+      ..computeChecksums();
 
-    final MetadataFrame firstFrame = frames.first as MetadataFrame;
-    firstFrame.updateCompositeChecksum(compositeChecksum);
+    frameChecksums[0] = firstFrame.frameChecksum;
 
     return FrameCollectionModel(frames);
   }
@@ -59,7 +61,7 @@ class FrameModelBuilder {
   }
 
   String _generateSessionId() {
-    final Uint8List randomBytes = Uint8List(16);
+    Uint8List randomBytes = Uint8List(16);
     return base64Url.encode(randomBytes);
   }
 
@@ -70,8 +72,8 @@ class FrameModelBuilder {
     required FrameProtocolID protocolID,
     required String sessionId,
   }) {
-    final int frameLength = _calculateFrameLength(dataString, isMetadataFrame: true);
-    final MetadataFrame metadataFrame = MetadataFrame(
+    int frameLength = _calculateFrameLength(dataString, isMetadataFrame: true);
+    MetadataFrame metadataFrame = MetadataFrame(
       frameIndex: frameIndex,
       frameLength: frameLength,
       framesCount: framesCount,
