@@ -13,9 +13,6 @@ class AudioGenerator {
   /// The settings model for audio configuration.
   final AudioSettingsModel _audioSettingsModel;
 
-  /// The settings model for frame configuration.
-  final FrameSettingsModel _frameSettingsModel;
-
   /// Optional notifier for audio generation events.
   final AudioGeneratorNotifier? _audioGeneratorNotifier;
 
@@ -29,10 +26,8 @@ class AudioGenerator {
   AudioGenerator({
     required IAudioSink audioSink,
     required AudioSettingsModel audioSettingsModel,
-    required FrameSettingsModel frameSettingsModel,
     AudioGeneratorNotifier? audioGeneratorNotifier,
   })  : _audioGeneratorNotifier = audioGeneratorNotifier,
-        _frameSettingsModel = frameSettingsModel,
         _audioSettingsModel = audioSettingsModel,
         _audioSink = audioSink,
         _samplesProcessor = SamplesProcessor(),
@@ -60,19 +55,12 @@ class AudioGenerator {
 
   /// This method parses the text message into binary data.
   String _parseTextToBinary(String text) {
-    FrameModelBuilder frameModelBuilder = FrameModelBuilder(frameSettingsModel: _frameSettingsModel);
+    FrameModelBuilder frameModelBuilder = FrameModelBuilder(asciiCharacterCountInFrame: 32);
     FrameCollectionModel frameCollectionModel = frameModelBuilder.buildFrameCollection(text);
     String binaryData = frameCollectionModel.mergedBinaryFrames;
-    return _fillBinaryWithZeros(binaryData);
+    return binaryData;
   }
 
-  /// This method fills the binary data with zeros to make it divisible by the required number of bits.
-  String _fillBinaryWithZeros(String binaryData) {
-    int divider = _audioSettingsModel.bitsPerFrequency * _audioSettingsModel.chunksCount;
-    int remainder = binaryData.length % divider;
-    int zerosToAdd = remainder == 0 ? 0 : divider - remainder;
-    return binaryData + List<String>.filled(zerosToAdd, '0').join('');
-  }
 
   /// This method uses a [SamplesProcessor] to process the samples into wave
   /// and pushes each sample to the audio sink.

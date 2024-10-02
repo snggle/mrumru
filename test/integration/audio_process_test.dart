@@ -49,28 +49,35 @@ void main() async {
       }
 
       // Assert
+      FrameProtocolManager protocolManager = const FrameProtocolManager(
+        compressionEnum: CompressionEnum.noCompression,
+        encodingEnum: EncodingEnum.defaultMethod,
+        protocolTypeEnum: ProtocolTypeEnum.rawDataTransfer,
+        versionNumberEnum: VersionNumberEnum.firstDefault,
+      );
+
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(
         <FrameModel>[
-          FrameModel(frameIndex: 0, framesCount: 20, rawData: '1234', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 1, framesCount: 20, rawData: '5678', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 2, framesCount: 20, rawData: '9:;<', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 3, framesCount: 20, rawData: '=>?@', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 4, framesCount: 20, rawData: 'ABCD', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 5, framesCount: 20, rawData: 'EFGH', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 6, framesCount: 20, rawData: 'IJKL', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 7, framesCount: 20, rawData: 'MNOP', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 8, framesCount: 20, rawData: 'QRST', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 9, framesCount: 20, rawData: 'UVWX', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 10, framesCount: 20, rawData: 'YZ[]', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 11, framesCount: 20, rawData: '^_`a', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 12, framesCount: 20, rawData: 'bcde', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 13, framesCount: 20, rawData: 'fghi', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 14, framesCount: 20, rawData: 'jklm', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 15, framesCount: 20, rawData: 'nopq', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 16, framesCount: 20, rawData: 'rstu', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 17, framesCount: 20, rawData: 'vwxy', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 18, framesCount: 20, rawData: 'z{|}', frameSettings: actualFrameSettingsModel),
-          FrameModel(frameIndex: 19, framesCount: 20, rawData: '~', frameSettings: actualFrameSettingsModel)
+          FrameModel(frameIndex: 0, framesCount: 20, rawData: '1234', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2),
+          FrameModel(frameIndex: 1, framesCount: 20, rawData: '5678', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2),
+          FrameModel(frameIndex: 2, framesCount: 20, rawData: '9:;<', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2),
+          FrameModel(frameIndex: 3, framesCount: 20, rawData: '=>?@', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2),
+          FrameModel(frameIndex: 4, framesCount: 20, rawData: 'ABCD', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2),
+          FrameModel(frameIndex: 5, framesCount: 20, rawData: 'EFGH', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2),
+          FrameModel(frameIndex: 6, framesCount: 20, rawData: 'IJKL', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2),
+          FrameModel(frameIndex: 7, framesCount: 20, rawData: 'MNOP', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2),
+          FrameModel(frameIndex: 8, framesCount: 20, rawData: 'QRST', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2),
+          FrameModel(frameIndex: 9, framesCount: 20, rawData: 'UVWX', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2),
+          FrameModel(frameIndex: 10, framesCount: 20, rawData: 'YZ[]', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2),
+          FrameModel(frameIndex: 11, framesCount: 20, rawData: '^_`a', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2),
+          FrameModel(frameIndex: 12, framesCount: 20, rawData: 'bcde', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2),
+          FrameModel(frameIndex: 13, framesCount: 20, rawData: 'fghi', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2),
+          FrameModel(frameIndex: 14, framesCount: 20, rawData: 'jklm', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2),
+          FrameModel(frameIndex: 15, framesCount: 20, rawData: 'nopq', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2),
+          FrameModel(frameIndex: 16, framesCount: 20, rawData: 'rstu', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2),
+          FrameModel(frameIndex: 17, framesCount: 20, rawData: 'vwxy', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2),
+          FrameModel(frameIndex: 18, framesCount: 20, rawData: 'z{|}', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2),
+          FrameModel(frameIndex: 19, framesCount: 20, rawData: '~', protocolManager: protocolManager, frameLength: 2, compositeChecksum: 2)
         ],
       );
 

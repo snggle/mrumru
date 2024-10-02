@@ -52,7 +52,8 @@ class SampleGenerator {
     List<SampleModel> samples = <SampleModel>[];
 
     for (int i = 0; i < allBaseFrequencies.length; i += _audioSettingsModel.chunksCount) {
-      List<int> sampleBaseFrequencies = allBaseFrequencies.sublist(i, i + _audioSettingsModel.chunksCount);
+      int endIndex = math.min(i + _audioSettingsModel.chunksCount, allBaseFrequencies.length);
+      List<int> sampleBaseFrequencies = allBaseFrequencies.sublist(i, endIndex);
       List<int> sampleChunkedFrequencies = _allocateFrequenciesToChunks(sampleBaseFrequencies);
       sampleChunkedFrequencies = _audioSettingsModel.assignDynamicGap(sampleChunkedFrequencies);
 

@@ -8,7 +8,6 @@ import 'package:mrumru/mrumru.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ReceiveTabCubit extends Cubit<AReceiveTabState> {
-  final FrameSettingsModel _frameSettingsModel = FrameSettingsModel.withDefaults();
   late AudioSettingsModel audioSettingsModel = AudioSettingsModel.withDefaults();
   late AudioRecorderController _audioRecorderController;
 
@@ -20,7 +19,6 @@ class ReceiveTabCubit extends Cubit<AReceiveTabState> {
     try {
       _audioRecorderController = AudioRecorderController(
         audioSettingsModel: audioSettingsModel,
-        frameSettingsModel: _frameSettingsModel,
         onRecordingCompleted: _handleRecordingCompleted,
         onFrameReceived: _handleFrameReceived,
       );
@@ -49,8 +47,8 @@ class ReceiveTabCubit extends Cubit<AReceiveTabState> {
     emit(ReceiveTabResultState(decodedMessage: decodedMessage));
   }
 
-  void _handleFrameReceived(FrameModel frameModel) {
-    String decodedMessage = frameModel.rawData;
+  void _handleFrameReceived(DataFrame frameBase) {
+    String decodedMessage = frameBase.data;
     if (state is ReceiveTabRecordingState) {
       decodedMessage = '${(state as ReceiveTabRecordingState).decodedMessage}$decodedMessage';
     }
