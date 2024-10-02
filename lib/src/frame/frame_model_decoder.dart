@@ -6,6 +6,7 @@ import 'package:mrumru/src/frame/protocol/data_frame.dart';
 import 'package:mrumru/src/frame/protocol/metadata_frame.dart';
 import 'package:mrumru/src/shared/utils/app_logger.dart';
 import 'package:mrumru/src/shared/utils/binary_utils.dart';
+import 'package:mrumru/src/shared/utils/byte_utils.dart';
 import 'package:mrumru/src/shared/utils/log_level.dart';
 
 class FrameModelDecoder {
@@ -17,6 +18,7 @@ class FrameModelDecoder {
   final List<ABaseFrame> _decodedFrames = <ABaseFrame>[];
   final StringBuffer _completeBinary = StringBuffer();
   int _cursor = 0;
+  int? _framesCount; // Store framesCount after decoding the first frame
 
   FrameModelDecoder({
     required this.framesSettingsModel,
@@ -33,87 +35,70 @@ class FrameModelDecoder {
   }
 
   FrameCollectionModel get decodedContent {
-    return FrameCollectionModel(_decodedFrames);
+    return FrameCollectionModel(List<ABaseFrame>.from(_decodedFrames));
   }
 
   void clear() {
     _decodedFrames.clear();
     _completeBinary.clear();
     _cursor = 0;
-  }
-
-
-  void _printFrame(ABaseFrame frame) {
-    print('Decoded Frame:');
-    print('Frame Index: ${frame.frameIndex}');
-    print('Frame Length: ${frame.frameLength}');
-    if (frame is MetadataFrame) {
-      print('Frames Count: ${frame.framesCount}');
-      print('Protocol ID: ${frame.protocolID}');
-      print('Session ID: ${frame.sessionId}');
-      print('Composite Checksum: ${frame.compositeChecksum}');
-    }
-    if (frame is DataFrame || frame is MetadataFrame) {
-      print('Data: ${frame.dataString}');
-    }
-    print('Frame Checksum: ${frame.binaryString}');
-    print('-----------------------------');
+    _framesCount = null;
   }
 
   void _decodeFrames() {
     while (_cursor < _completeBinary.length) {
-      int frameHeaderSize = (framesSettingsModel.frameIndexBitsLengthInt +
-          framesSettingsModel.frameLengthBitsLengthInt) ~/
-          8;
-      if (_completeBinary.length - _cursor < frameHeaderSize * 8) {
+      int frameHeaderBitsLength = 32;
+      int frameHeaderBytesLength = frameHeaderBitsLength ~/ 8;
+
+      if (_completeBinary.length - _cursor < frameHeaderBitsLength) {
+        // Not enough data for frame header
         break;
       }
 
-      String headerBinary = _completeBinary.toString().substring(_cursor, _cursor + frameHeaderSize * 8);
-      List<int> headerBytes = BinaryUtils.binaryStringToByteList(headerBinary);
-      ByteData headerData = ByteData.sublistView(Uint8List.fromList(headerBytes));
+      // Read frame header
+      String headerBinary = _completeBinary.toString().substring(_cursor, _cursor + frameHeaderBitsLength);
+      Uint8List headerBytes = BinaryUtils.binaryStringToBytes(headerBinary);
 
-      int frameIndex = headerData.getUint16(0);
-      int frameLength = headerData.getUint16(2);
+      int frameIndex = ByteUtils.bytesToInt(headerBytes.sublist(0, 2));
+      int frameLength = ByteUtils.bytesToInt(headerBytes.sublist(2, 4));
 
-      int frameSizeInBits = frameLength * 8;
+      int frameBitsLength = frameLength * 8;
 
-      if (_completeBinary.length - _cursor < frameSizeInBits) {
+      if (_completeBinary.length - _cursor < frameBitsLength) {
+        // Not enough data for the entire frame
         break;
       }
 
-      String frameBinary = _completeBinary.toString().substring(_cursor, _cursor + frameSizeInBits);
-      List<int> frameBytes = BinaryUtils.binaryStringToByteList(frameBinary);
+      // Read the entire frame
+      String frameBinary = _completeBinary.toString().substring(_cursor, _cursor + frameBitsLength);
+      Uint8List frameBytes = BinaryUtils.binaryStringToBytes(frameBinary);
 
       try {
-        bool isFirstFrame = _decodedFrames.isEmpty;
-
         ABaseFrame frame;
-        if (isFirstFrame) {
-          frame = MetadataFrame.fromBytes(Uint8List.fromList(frameBytes));
+        if (_decodedFrames.isEmpty) {
+          frame = MetadataFrame.fromBytes(frameBytes);
+          _framesCount = (frame as MetadataFrame).framesCount;
           onFirstFrameDecoded?.call(frame);
         } else {
-          frame = DataFrame.fromBytes(Uint8List.fromList(frameBytes));
+          frame = DataFrame.fromBytes(frameBytes);
         }
 
         _decodedFrames.add(frame);
-
         _printFrame(frame);
-
-        if (frame is MetadataFrame && frame.frameIndex == frame.framesCount - 1) {
+        if (_framesCount != null && frame.frameIndex == _framesCount! - 1) {
           onLastFrameDecoded?.call(frame);
         }
 
         onFrameDecoded?.call(frame);
-
-        _cursor += frameSizeInBits;
+        _cursor += frameBitsLength;
       } catch (e) {
-        AppLogger().log(
-          message: 'FrameModelDecoder: Frame decoding failed. Error: $e',
-          logLevel: LogLevel.error,
-        );
+        print('Frame decoding failed: $e');
         break;
       }
     }
+  }
+
+  void _printFrame(ABaseFrame frame) {
+    print('Decoded frame index: ${frame.frameIndex}');
   }
 }
