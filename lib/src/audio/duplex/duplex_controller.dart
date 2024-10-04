@@ -20,16 +20,13 @@ class DuplexController {
   /// Creates an instance of [DuplexController].
   DuplexController({
     required AudioSettingsModel audioSettingsModel,
-    required FrameSettingsModel frameSettingsModel,
     required DuplexControllerNotifier duplexControllerNotifier,
   })  : _duplexControllerNotifier = duplexControllerNotifier,
         _duplexEmitterController = DuplexEmitterController(
           audioSettingsModel: audioSettingsModel,
-          frameSettingsModel: frameSettingsModel,
         ),
         _duplexRecorderController = DuplexRecorderController(
           audioSettingsModel: audioSettingsModel,
-          frameSettingsModel: frameSettingsModel,
         );
 
   /// Starts communication by sending a message.

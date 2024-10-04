@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mrumru/mrumru.dart';
 
 class DuplexTabCubit extends Cubit<DuplexTabState> {
-  final FrameSettingsModel _frameSettingsModel = FrameSettingsModel.withDefaults();
   final TextEditingController messageTextController = TextEditingController();
   final TextEditingController sendingTextController = TextEditingController();
 
@@ -35,7 +34,6 @@ class DuplexTabCubit extends Cubit<DuplexTabState> {
     messageTextController.clear();
     _duplexController = DuplexController(
       audioSettingsModel: audioSettingsModel,
-      frameSettingsModel: _frameSettingsModel,
       duplexControllerNotifier: DuplexControllerNotifier(
         onEmitMessage: (String message) {
           messageTextController.text += 'Emitted $message\n';

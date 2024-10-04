@@ -4,7 +4,6 @@ import 'package:mrumru/mrumru.dart';
 class DuplexEmitterController {
   /// The audio settings model for audio configuration and frame configuration for frame structure.
   final AudioSettingsModel _audioSettingsModel;
-  final FrameSettingsModel _frameSettingsModel;
 
   /// The audio generator for generating audio samples.
   AudioGenerator? _audioGenerator;
@@ -15,9 +14,7 @@ class DuplexEmitterController {
   /// Creates an instance of [DuplexEmitterController].
   DuplexEmitterController({
     required AudioSettingsModel audioSettingsModel,
-    required FrameSettingsModel frameSettingsModel,
-  })  : _frameSettingsModel = frameSettingsModel,
-        _audioSettingsModel = audioSettingsModel;
+  })  :_audioSettingsModel = audioSettingsModel;
 
   /// Emits audio samples from provided data.
   Future<void> emit(String data) async {
@@ -40,7 +37,6 @@ class DuplexEmitterController {
     _audioGenerator = AudioGenerator(
       audioSink: _audioStreamSink!,
       audioSettingsModel: _audioSettingsModel,
-      frameSettingsModel: _frameSettingsModel,
     );
   }
 }

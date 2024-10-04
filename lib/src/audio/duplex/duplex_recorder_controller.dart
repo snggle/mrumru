@@ -5,7 +5,6 @@ import 'package:mrumru/mrumru.dart';
 class DuplexRecorderController {
   /// Settings for audio and frame models used in the recording process.
   final AudioSettingsModel _audioSettingsModel;
-  final FrameSettingsModel _frameSettingsModel;
 
   /// The completer for the recorder controller.
   Completer<FrameCollectionModel> _recorderCompleter = Completer<FrameCollectionModel>();
@@ -16,9 +15,7 @@ class DuplexRecorderController {
   /// Creates a new instance of [DuplexRecorderController].
   DuplexRecorderController({
     required AudioSettingsModel audioSettingsModel,
-    required FrameSettingsModel frameSettingsModel,
-  })  : _audioSettingsModel = audioSettingsModel,
-        _frameSettingsModel = frameSettingsModel;
+  })  : _audioSettingsModel = audioSettingsModel;
 
   /// Listens for audio samples and returns the received data.
   Future<FrameCollectionModel> listen() async {
@@ -42,9 +39,8 @@ class DuplexRecorderController {
     _recorderCompleter = Completer<FrameCollectionModel>();
     _audioRecorderController = AudioRecorderController(
       audioSettingsModel: _audioSettingsModel,
-      frameSettingsModel: _frameSettingsModel,
       onRecordingCompleted: _handleRecordingCompleted,
-      onFrameReceived: (FrameModel frameModel) {},
+      onFrameReceived: (AFrameBase frameModel) {},
     );
   }
 
