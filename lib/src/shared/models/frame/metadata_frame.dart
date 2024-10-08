@@ -42,12 +42,12 @@ class MetadataFrame extends AFrameBase {
     return Uint8List.fromList(<int>[
       ..._frameIndex.bytes,
       ..._frameLength.bytes,
-      ..._frameChecksum.bytes,
       ..._framesCount.bytes,
       ..._frameProtocolID.bytes,
       ..._sessionId.bytes,
       ..._compositeChecksum.bytes,
       ..._data.bytes,
+      ..._frameChecksum.bytes,
     ]);
   }
 
@@ -79,7 +79,6 @@ class MetadataFrame extends AFrameBase {
       ...uint32compositeChecksum.bytes,
       ...uintDynamicData.bytes,
     ]);
-
     Uint8List checksumFull = CryptoUtils.calcChecksumFromBytes(checksumData);
     Uint16 uint16frameChecksum = Uint16(checksumFull.sublist(0, 2));
 
@@ -102,7 +101,8 @@ class MetadataFrame extends AFrameBase {
     UintReminder<Uint32FrameProtocolID> frameProtocolID = Uint32FrameProtocolID.fromBytes(framesCount.reminder);
     UintReminder<Uint32> sessionId = Uint32.fromBytes(frameProtocolID.reminder);
     UintReminder<Uint32> compositeChecksum = Uint32.fromBytes(sessionId.reminder);
-    UintReminder<UintDynamic> data = UintDynamic.fromBytes(compositeChecksum.reminder, frameLength.value.toInt());
+    int dataBitsSize = frameLength.value.toInt() * 8;
+    UintReminder<UintDynamic> data = UintDynamic.fromBytes(compositeChecksum.reminder, dataBitsSize);
     UintReminder<Uint16> frameChecksum = Uint16.fromBytes(data.reminder);
 
     return FrameReminder<MetadataFrame>(

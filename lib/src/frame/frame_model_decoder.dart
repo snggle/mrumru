@@ -13,6 +13,9 @@ class FrameModelDecoder {
   final List<AFrameBase> _decodedFrames = <AFrameBase>[];
   final StringBuffer _completeBinary = StringBuffer();
 
+  int _totalDataFrames = 0;
+  int _decodedDataFrames = 0;
+
   FrameModelDecoder({
     this.onFrameDecoded,
     this.onFirstFrameDecoded,
@@ -33,13 +36,17 @@ class FrameModelDecoder {
   void clear() {
     _decodedFrames.clear();
     _completeBinary.clear();
+    _cursor = 0;
+    _metadataFrameDecodedBool = false;
+    _decodedDataFrames = 0;
+    _totalDataFrames = 0;
   }
 
-  int cursor = 0;
+  int _cursor = 0;
   bool _metadataFrameDecodedBool = false;
 
   void _decodeFrames() {
-    if (_metadataFrameDecodedBool) {
+    if (!_metadataFrameDecodedBool) {
       _decodeMetadataFrame();
     } else {
       _decodeDataFrame();
@@ -47,31 +54,50 @@ class FrameModelDecoder {
   }
 
   void _decodeMetadataFrame() {
-    Uint8List bytes = BinaryUtils.convertBinaryToBytes(_completeBinary.toString().substring(cursor));
+    String binaryData = _completeBinary.toString().substring(_cursor);
+    Uint8List bytes = BinaryUtils.convertBinaryToBytes(binaryData);
+
     try {
       FrameReminder<MetadataFrame> metadataFrame = MetadataFrame.fromBytes(bytes);
       _metadataFrameDecodedBool = true;
       _decodedFrames.add(metadataFrame.value);
       onFirstFrameDecoded?.call(metadataFrame.value);
 
-      cursor += metadataFrame.reminder.length * 8;
-      return;
-    } catch (_) {
-      return;
+      _totalDataFrames = metadataFrame.value.framesCount.toInt();
+
+      print('Decoded MetadataFrame - Frame Count (Total Expected): $_totalDataFrames');
+
+      int bitsConsumed = (bytes.length - metadataFrame.reminder.length) * 8;
+      _cursor += bitsConsumed;
+
+      _decodeFrames();
+    } catch (e) {
+      print('Error decoding MetadataFrame: $e');
     }
   }
 
   void _decodeDataFrame() {
-    Uint8List bytes = BinaryUtils.convertBinaryToBytes(_completeBinary.toString().substring(cursor));
+    String binaryData = _completeBinary.toString().substring(_cursor);
+    Uint8List bytes = BinaryUtils.convertBinaryToBytes(binaryData);
 
     try {
       FrameReminder<DataFrame> dataFrame = DataFrame.fromBytes(bytes);
       _decodedFrames.add(dataFrame.value);
+      _decodedDataFrames++;
       onFrameDecoded?.call(dataFrame.value);
 
-      cursor += dataFrame.reminder.length * 8;
-    } catch (_) {
-      return;
+      print('Decoded Data Frame Index: ${dataFrame.value.frameIndex.toInt()}, Total Decoded Frames: $_decodedDataFrames, Expected Frames: $_totalDataFrames');
+
+      int bitsConsumed = (bytes.length - dataFrame.reminder.length) * 8;
+      _cursor += bitsConsumed;
+
+      if (_decodedDataFrames == _totalDataFrames) {
+        onLastFrameDecoded?.call(dataFrame.value);
+      } else {
+        _decodeFrames();
+      }
+    } catch (e) {
+      print('Error decoding DataFrame: $e');
     }
   }
 }

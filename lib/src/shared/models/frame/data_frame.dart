@@ -30,12 +30,12 @@ class DataFrame extends AFrameBase {
     Uint16 uint16frameLength = Uint16.fromInt(data.length);
     UintDynamic uintDynamicData = UintDynamic(data, data.length * 8);
 
+    // Calculate frame checksum
     Uint8List checksumData = Uint8List.fromList(<int>[
       ...uint16frameIndex.bytes,
       ...uint16frameLength.bytes,
       ...uintDynamicData.bytes,
     ]);
-
     Uint8List checksumFull = CryptoUtils.calcChecksumFromBytes(checksumData);
     Uint16 uint16frameChecksum = Uint16(checksumFull.sublist(0, 2));
 
@@ -50,15 +50,16 @@ class DataFrame extends AFrameBase {
   static FrameReminder<DataFrame> fromBytes(Uint8List bytes) {
     UintReminder<Uint16> frameIndex = Uint16.fromBytes(bytes);
     UintReminder<Uint16> frameLength = Uint16.fromBytes(frameIndex.reminder);
-    UintReminder<UintDynamic> data = UintDynamic.fromBytes(frameLength.reminder, frameLength.value.toInt());
+    int dataBitsSize = frameLength.value.toInt() * 8;
+    UintReminder<UintDynamic> data = UintDynamic.fromBytes(frameLength.reminder, dataBitsSize);
     UintReminder<Uint16> frameChecksum = Uint16.fromBytes(data.reminder);
 
     return FrameReminder<DataFrame>(
       value: DataFrame(
         frameIndex: frameIndex.value,
         frameLength: frameLength.value,
-        frameChecksum: frameChecksum.value,
         data: data.value,
+        frameChecksum: frameChecksum.value,
       ),
       reminder: frameChecksum.reminder,
     );
@@ -86,5 +87,10 @@ class DataFrame extends AFrameBase {
   Uint16 get frameChecksum => _frameChecksum;
 
   @override
-  List<Object?> get props => <Object?>[_frameIndex, _frameLength, _data, _frameChecksum];
+  List<Object?> get props => <Object?>[
+        _frameIndex,
+        _frameLength,
+        _data,
+        _frameChecksum,
+      ];
 }
