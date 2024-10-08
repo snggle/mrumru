@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:example/cubit/receive_tab_cubit/a_receive_tab_state.dart';
 import 'package:example/cubit/receive_tab_cubit/states/receive_tab_empty_state.dart';
 import 'package:example/cubit/receive_tab_cubit/states/receive_tab_recording_state.dart';
@@ -43,15 +46,10 @@ class ReceiveTabCubit extends Cubit<AReceiveTabState> {
   }
 
   void _handleRecordingCompleted(FrameCollectionModel frameCollectionModel) {
-    String decodedMessage = frameCollectionModel.mergedRawData;
+    Uint8List bytes = frameCollectionModel.mergedRawDataBytes;
+    String decodedMessage = utf8.decode(bytes);
     emit(ReceiveTabResultState(decodedMessage: decodedMessage));
   }
 
-  void _handleFrameReceived(DataFrame frameBase) {
-    String decodedMessage = frameBase.data;
-    if (state is ReceiveTabRecordingState) {
-      decodedMessage = '${(state as ReceiveTabRecordingState).decodedMessage}$decodedMessage';
-    }
-    emit(ReceiveTabRecordingState(decodedMessage: decodedMessage));
-  }
+  void _handleFrameReceived(DataFrame frameBase) {}
 }

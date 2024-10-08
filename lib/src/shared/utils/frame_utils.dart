@@ -9,8 +9,8 @@ class FrameProcessor {
 
   /// Computes the composite checksum over all frame checksums using CryptoUtils.
   static Uint8List computeCompositeChecksum(List<Uint8List> checksums) {
-     List<int> concatenated = checksums.expand((Uint8List bytes) => bytes).toList();
-     String concatenatedString = String.fromCharCodes(concatenated);
+    List<int> concatenated = checksums.expand((Uint8List bytes) => bytes).toList();
+    String concatenatedString = String.fromCharCodes(concatenated);
     return CryptoUtils.calcChecksum(text: concatenatedString);
   }
 }

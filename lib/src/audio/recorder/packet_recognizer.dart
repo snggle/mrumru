@@ -84,8 +84,7 @@ class PacketRecognizer {
   }
 
   void _handleLastFrameDecoded(AFrameBase frameModel) {
-    AppLogger().log(
-        message: 'Last frame decoded: ${frameModel.frameIndex}', logLevel: LogLevel.debug);
+    AppLogger().log(message: 'Last frame decoded: ${frameModel.frameIndex}', logLevel: LogLevel.debug);
     stopRecording();
   }
 
@@ -98,15 +97,12 @@ class PacketRecognizer {
   }
 
   Future<void> _findStartOffset() async {
-    List<double> waveToProcess =
-    await _packetsQueue.readWave(_audioSettingsModel.maxStartOffset);
-    _startOffset = await compute(
-        _computeStartOffset, <dynamic>[waveToProcess, _audioSettingsModel]);
+    List<double> waveToProcess = await _packetsQueue.readWave(_audioSettingsModel.maxStartOffset);
+    _startOffset = await compute(_computeStartOffset, <dynamic>[waveToProcess, _audioSettingsModel]);
 
     List<double> remainingData = waveToProcess.sublist(_startOffset!);
     _packetsQueue.push(PacketRemainingEvent(remainingData));
-    AppLogger().log(
-        message: 'Start offset found: $_startOffset', logLevel: LogLevel.debug);
+    AppLogger().log(message: 'Start offset found: $_startOffset', logLevel: LogLevel.debug);
   }
 
   Future<void> _tryProcessWave() async {
@@ -118,10 +114,8 @@ class PacketRecognizer {
   }
 
   Future<void> _processSampleWave() async {
-    List<double> sampleWave =
-    await _packetsQueue.readWave(_audioSettingsModel.sampleSize);
-    SampleModel sampleModel =
-    SampleModel.fromWave(sampleWave, _audioSettingsModel);
+    List<double> sampleWave = await _packetsQueue.readWave(_audioSettingsModel.sampleSize);
+    SampleModel sampleModel = SampleModel.fromWave(sampleWave, _audioSettingsModel);
     _frameModelDecoder.addBinaries(<String>[sampleModel.calcBinary()]);
   }
 }
@@ -130,8 +124,6 @@ Future<int> _computeStartOffset(List<dynamic> props) async {
   List<double> wave = props[0] as List<double>;
   AudioSettingsModel audioSettingsModel = props[1] as AudioSettingsModel;
 
-  StartIndexCorrelationCalculator startIndexCorrelationCalculator =
-  StartIndexCorrelationCalculator(audioSettingsModel: audioSettingsModel);
-  return startIndexCorrelationCalculator.findIndexWithHighestCorrelation(
-      wave, audioSettingsModel.startFrequencies);
+  StartIndexCorrelationCalculator startIndexCorrelationCalculator = StartIndexCorrelationCalculator(audioSettingsModel: audioSettingsModel);
+  return startIndexCorrelationCalculator.findIndexWithHighestCorrelation(wave, audioSettingsModel.startFrequencies);
 }

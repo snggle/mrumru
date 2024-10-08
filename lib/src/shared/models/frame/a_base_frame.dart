@@ -1,15 +1,12 @@
-import 'dart:typed_data';
+import 'package:equatable/equatable.dart';
+import 'package:mrumru/src/shared/utils/uints/uint_16.dart';
 
-abstract class AFrameBase {
-  final int frameIndex;
-  final int frameLength;
-  final Uint8List frameChecksum;
+abstract class AFrameBase with EquatableMixin {
+  Uint16 get frameIndex;
 
-  AFrameBase({
-    required this.frameIndex,
-    required this.frameLength,
-    required this.frameChecksum,
-  });
+  Uint16 get frameLength;
+
+  Uint16 get frameChecksum;
 
   // Abstract method to convert to bytes
   List<int> toBytes();

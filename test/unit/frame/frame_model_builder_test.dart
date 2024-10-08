@@ -1,14 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/frame/frame_model_builder.dart';
+import 'package:mrumru/src/frame/frame_model_encoder.dart';
 
 void main() {
-  late FrameModelBuilder actualFrameBuilder;
+  late FrameModelEncoder actualFrameBuilder;
   late String actualRawData;
   late FrameSettingsModel actualFrameSettings = FrameSettingsModel.withDefaults();
 
   setUp(() {
-    actualFrameBuilder = FrameModelBuilder(frameSettingsModel: actualFrameSettings);
+    actualFrameBuilder = FrameModelEncoder(frameSettingsModel: actualFrameSettings);
     actualRawData = '123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
     actualFrameSettings = FrameSettingsModel.withDefaults();
   });
