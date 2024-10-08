@@ -47,6 +47,7 @@ class MetadataFrame extends AFrameBase {
       ..._frameProtocolID.bytes,
       ..._sessionId.bytes,
       ..._compositeChecksum.bytes,
+      ..._data.bytes,
     ]);
   }
 
@@ -66,7 +67,8 @@ class MetadataFrame extends AFrameBase {
     Uint8List compositeChecksumData = Uint8List.fromList(<int>[
       for (DataFrame dataFrame in dataFrames) ...dataFrame.frameChecksum.bytes,
     ]);
-    Uint32 uint32compositeChecksum = Uint32(CryptoUtils.calcChecksumFromBytes(compositeChecksumData));
+    Uint8List compositeChecksumFull = CryptoUtils.calcChecksumFromBytes(compositeChecksumData);
+    Uint32 uint32compositeChecksum = Uint32(compositeChecksumFull.sublist(0, 4));
 
     Uint8List checksumData = Uint8List.fromList(<int>[
       ...uint16frameIndex.bytes,
@@ -78,8 +80,8 @@ class MetadataFrame extends AFrameBase {
       ...uintDynamicData.bytes,
     ]);
 
-    Uint8List checksum = CryptoUtils.calcChecksumFromBytes(checksumData);
-    Uint16 uint16frameChecksum = Uint16(checksum.sublist(0, 16));
+    Uint8List checksumFull = CryptoUtils.calcChecksumFromBytes(checksumData);
+    Uint16 uint16frameChecksum = Uint16(checksumFull.sublist(0, 2));
 
     return MetadataFrame(
       frameIndex: uint16frameIndex,

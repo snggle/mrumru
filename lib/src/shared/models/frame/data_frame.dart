@@ -30,10 +30,14 @@ class DataFrame extends AFrameBase {
     Uint16 uint16frameLength = Uint16.fromInt(data.length);
     UintDynamic uintDynamicData = UintDynamic(data, data.length * 8);
 
-    Uint8List checksumData = Uint8List.fromList(<int>[...uint16frameIndex.bytes, ...uint16frameLength.bytes, ...data]);
-    Uint8List checksum = CryptoUtils.calcChecksumFromBytes(checksumData);
+    Uint8List checksumData = Uint8List.fromList(<int>[
+      ...uint16frameIndex.bytes,
+      ...uint16frameLength.bytes,
+      ...uintDynamicData.bytes,
+    ]);
 
-    Uint16 uint16frameChecksum = Uint16(checksum.sublist(0, 16));
+    Uint8List checksumFull = CryptoUtils.calcChecksumFromBytes(checksumData);
+    Uint16 uint16frameChecksum = Uint16(checksumFull.sublist(0, 2));
 
     return DataFrame(
       frameIndex: uint16frameIndex,

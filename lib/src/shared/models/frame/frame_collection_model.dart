@@ -1,7 +1,5 @@
 import 'dart:typed_data';
-
 import 'package:equatable/equatable.dart';
-import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
 import 'package:mrumru/src/shared/models/frame/data_frame.dart';
 
@@ -22,7 +20,7 @@ class FrameCollectionModel extends Equatable {
 
   /// Merges the raw data of all frames into a single string.
   String get mergedRawData {
-    return frames.whereType<DataFrame>().map((DataFrame frame) => frame.data).join();
+    return String.fromCharCodes(mergedRawDataBytes);
   }
 
   Uint8List get mergedRawDataBytes {
