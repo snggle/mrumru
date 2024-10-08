@@ -47,11 +47,5 @@ class ReceiveTabCubit extends Cubit<AReceiveTabState> {
     emit(ReceiveTabResultState(decodedMessage: decodedMessage));
   }
 
-  void _handleFrameReceived(DataFrame frameBase) {
-    String decodedMessage = frameBase.data;
-    if (state is ReceiveTabRecordingState) {
-      decodedMessage = '${(state as ReceiveTabRecordingState).decodedMessage}$decodedMessage';
-    }
-    emit(ReceiveTabRecordingState(decodedMessage: decodedMessage));
-  }
+  void _handleFrameReceived(DataFrame frameBase) {}
 }

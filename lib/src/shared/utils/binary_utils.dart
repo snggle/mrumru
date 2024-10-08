@@ -75,5 +75,4 @@ class BinaryUtils {
   static Uint8List stringToBytes(String input, int expectedLength) {
     return Uint8List.fromList(input.codeUnits).sublist(0, expectedLength);
   }
-
 }

@@ -1,23 +1,20 @@
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
-import 'package:mrumru/src/shared/models/frame/data_frame.dart';
 import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
-import 'package:mrumru/src/shared/utils/app_logger.dart';
 import 'package:mrumru/src/shared/utils/binary_utils.dart';
-import 'package:mrumru/src/shared/utils/crypto_utils.dart';
-import 'package:mrumru/src/shared/utils/log_level.dart';
+import 'package:mrumru/src/shared/utils/frame_reminder.dart';
 
 class FrameModelDecoder {
   final ValueChanged<DataFrame>? onFrameDecoded;
   final ValueChanged<MetadataFrame>? onFirstFrameDecoded;
   final ValueChanged<DataFrame>? onLastFrameDecoded;
 
-  final List<AFrameBase> _decodedFrames = <AFrameBase>[];
+  final List<ABaseFrame> _decodedFrames = <ABaseFrame>[];
   final StringBuffer _completeBinary = StringBuffer();
-  int _frameCount = 0;
-  int _cursor = 0;
+
+  int _totalDataFrames = 0;
+  int _decodedDataFrames = 0;
 
   FrameModelDecoder({
     this.onFrameDecoded,
@@ -33,141 +30,70 @@ class FrameModelDecoder {
   }
 
   FrameCollectionModel get decodedContent {
-    return FrameCollectionModel(List<AFrameBase>.from(_decodedFrames));
+    return FrameCollectionModel(List<ABaseFrame>.from(_decodedFrames));
   }
 
   void clear() {
     _decodedFrames.clear();
     _completeBinary.clear();
     _cursor = 0;
+    _metadataFrameDecodedBool = false;
+    _decodedDataFrames = 0;
+    _totalDataFrames = 0;
   }
+
+  int _cursor = 0;
+  bool _metadataFrameDecodedBool = false;
 
   void _decodeFrames() {
-    int headerBitsLength =
-        (MetadataFrame.frameIndexSize + MetadataFrame.frameLengthSize) * 8;
+    if (!_metadataFrameDecodedBool) {
+      _decodeMetadataFrame();
+    } else {
+      _decodeDataFrame();
+    }
+  }
 
-    while (_hasEnoughDataForHeader(headerBitsLength)) {
-      try {
-        int initialCursor = _cursor;
+  void _decodeMetadataFrame() {
+    String binaryData = _completeBinary.toString().substring(_cursor);
+    Uint8List bytes = BinaryUtils.convertBinaryToBytes(binaryData);
 
-        ByteData headerData = _readHeader(headerBitsLength);
+    try {
+      FrameReminder<MetadataFrame> metadataFrame = MetadataFrame.fromBytes(bytes);
+      _metadataFrameDecodedBool = true;
+      _decodedFrames.add(metadataFrame.value);
+      onFirstFrameDecoded?.call(metadataFrame.value);
 
-        int frameIndex = headerData.getUint16(0, Endian.big);
-        int frameLength =
-        headerData.getUint16(MetadataFrame.frameIndexSize, Endian.big);
+      _totalDataFrames = metadataFrame.value.framesCount.toInt();
 
-        int frameSizeInBits = frameLength * 8;
+      int bitsConsumed = (bytes.length - metadataFrame.reminder.length) * 8;
+      _cursor += bitsConsumed;
 
-        if (!_hasEnoughDataForFrame(initialCursor, frameSizeInBits)) {
-          break;
-        }
+      _decodeFrames();
+    } catch (e) {
+      rethrow;
+    }
+  }
 
-        Uint8List frameBytes = _readFrameBytes(initialCursor, frameSizeInBits);
+  void _decodeDataFrame() {
+    String binaryData = _completeBinary.toString().substring(_cursor);
+    Uint8List bytes = BinaryUtils.convertBinaryToBytes(binaryData);
 
-        AFrameBase frame = _decodeFrame(frameIndex, frameBytes);
+    try {
+      FrameReminder<DataFrame> dataFrame = DataFrame.fromBytes(bytes);
+      _decodedFrames.add(dataFrame.value);
+      _decodedDataFrames++;
+      onFrameDecoded?.call(dataFrame.value);
 
-        _verifyFrameChecksum(frame);
+      int bitsConsumed = (bytes.length - dataFrame.reminder.length) * 8;
+      _cursor += bitsConsumed;
 
-        _decodedFrames.add(frame);
-
-        _cursor = initialCursor + frameSizeInBits;
-      } catch (e) {
-        AppLogger().log(
-          message: 'FrameModelDecoder: Frame decoding failed. Error: $e',
-          logLevel: LogLevel.error,
-        );
-        break;
+      if (_decodedDataFrames == _totalDataFrames) {
+        onLastFrameDecoded?.call(dataFrame.value);
+      } else {
+        _decodeFrames();
       }
-    }
-
-    if (_decodedFrames.length == _frameCount + 1) {
-      _verifyCompositeChecksum();
-    }
-  }
-
-  bool _hasEnoughDataForHeader(int headerBitsLength) {
-    return _cursor + headerBitsLength <= _completeBinary.length;
-  }
-
-  ByteData _readHeader(int headerBitsLength) {
-    String headerBinary =
-    _completeBinary.toString().substring(_cursor, _cursor + headerBitsLength);
-    List<int> headerBytes = BinaryUtils.binaryStringToByteList(headerBinary);
-    ByteData headerData = ByteData.sublistView(Uint8List.fromList(headerBytes));
-
-
-    return headerData;
-  }
-
-  bool _hasEnoughDataForFrame(int initialCursor, int frameSizeInBits) {
-    return initialCursor + frameSizeInBits <= _completeBinary.length;
-  }
-
-  Uint8List _readFrameBytes(int initialCursor, int frameSizeInBits) {
-    String frameBinary = _completeBinary.toString()
-        .substring(initialCursor, initialCursor + frameSizeInBits);
-    List<int> frameBytes = BinaryUtils.binaryStringToByteList(frameBinary);
-
-
-    return Uint8List.fromList(frameBytes);
-  }
-
-  AFrameBase _decodeFrame(int frameIndex, Uint8List frameBytes) {
-    AFrameBase frame;
-    if (_decodedFrames.isEmpty && frameIndex == 0) {
-      frame = MetadataFrame.fromBytes(frameBytes);
-      _frameCount = (frame as MetadataFrame).framesCount;
-      onFirstFrameDecoded?.call(frame as MetadataFrame);
-    } else {
-      frame = DataFrame.fromBytes(frameBytes);
-      onFrameDecoded?.call(frame as DataFrame);
-
-      if (frame.frameIndex == _frameCount) {
-        onLastFrameDecoded?.call(frame as DataFrame);
-      }
-    }
-    return frame;
-  }
-
-  void _verifyFrameChecksum(AFrameBase frame) {
-    Uint8List expectedChecksum;
-    if (frame is DataFrame) {
-      expectedChecksum = CryptoUtils.calcChecksum(text: frame.data);
-    } else {
-      expectedChecksum = CryptoUtils.calcChecksumFromBytes(Uint8List(0));
-    }
-
-    if (!BinaryUtils.compareUint8Lists(frame.frameChecksum, expectedChecksum)) {
-      AppLogger().log(
-        message:
-        'FrameModelDecoder: Frame checksum mismatch for frameIndex ${frame.frameIndex}',
-        logLevel: LogLevel.error,
-      );
-    }
-  }
-
-  void _verifyCompositeChecksum() {
-    List<int> allFramesBytes = <int>[];
-    for (AFrameBase frame in _decodedFrames) {
-      allFramesBytes.addAll(frame.toBytes());
-    }
-
-    Uint8List receivedCompositeChecksum =
-        (_decodedFrames.first as MetadataFrame).compositeChecksum;
-    Uint8List calculatedChecksum =
-    CryptoUtils.calcChecksumFromBytes(Uint8List.fromList(allFramesBytes));
-
-    if (BinaryUtils.compareUint8Lists(
-        receivedCompositeChecksum, calculatedChecksum)) {
-      AppLogger().log(
-        message: 'Composite checksum verified successfully.',
-        logLevel: LogLevel.info,
-      );
-    } else {
-      AppLogger().log(
-        message: 'Composite checksum mismatch!',
-        logLevel: LogLevel.error,
-      );
+    } catch (e) {
+      rethrow;
     }
   }
 }

@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/recorder/correlation/start_index_correlation_calculator.dart';
@@ -7,7 +6,6 @@ import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dar
 import 'package:mrumru/src/audio/recorder/queue/events/packet_remaining_event.dart';
 import 'package:mrumru/src/audio/recorder/queue/packet_event_queue.dart';
 import 'package:mrumru/src/frame/frame_model_decoder.dart';
-import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
 import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
 import 'package:mrumru/src/shared/models/sample_model.dart';
 import 'package:mrumru/src/shared/utils/app_logger.dart';
@@ -79,13 +77,10 @@ class PacketRecognizer {
     _startOffset = null;
   }
 
-  void _handleFirstFrameDecoded(MetadataFrame frameModel) {
-    print('First frame decoded: ${frameModel.frameIndex}');
-  }
+  void _handleFirstFrameDecoded(MetadataFrame frameModel) {}
 
-  void _handleLastFrameDecoded(AFrameBase frameModel) {
-    AppLogger().log(
-        message: 'Last frame decoded: ${frameModel.frameIndex}', logLevel: LogLevel.debug);
+  void _handleLastFrameDecoded(ABaseFrame frameModel) {
+    AppLogger().log(message: 'Last frame decoded: ${frameModel.frameIndex}', logLevel: LogLevel.debug);
     stopRecording();
   }
 
@@ -98,15 +93,12 @@ class PacketRecognizer {
   }
 
   Future<void> _findStartOffset() async {
-    List<double> waveToProcess =
-    await _packetsQueue.readWave(_audioSettingsModel.maxStartOffset);
-    _startOffset = await compute(
-        _computeStartOffset, <dynamic>[waveToProcess, _audioSettingsModel]);
+    List<double> waveToProcess = await _packetsQueue.readWave(_audioSettingsModel.maxStartOffset);
+    _startOffset = await compute(_computeStartOffset, <dynamic>[waveToProcess, _audioSettingsModel]);
 
     List<double> remainingData = waveToProcess.sublist(_startOffset!);
     _packetsQueue.push(PacketRemainingEvent(remainingData));
-    AppLogger().log(
-        message: 'Start offset found: $_startOffset', logLevel: LogLevel.debug);
+    AppLogger().log(message: 'Start offset found: $_startOffset', logLevel: LogLevel.debug);
   }
 
   Future<void> _tryProcessWave() async {
@@ -118,10 +110,8 @@ class PacketRecognizer {
   }
 
   Future<void> _processSampleWave() async {
-    List<double> sampleWave =
-    await _packetsQueue.readWave(_audioSettingsModel.sampleSize);
-    SampleModel sampleModel =
-    SampleModel.fromWave(sampleWave, _audioSettingsModel);
+    List<double> sampleWave = await _packetsQueue.readWave(_audioSettingsModel.sampleSize);
+    SampleModel sampleModel = SampleModel.fromWave(sampleWave, _audioSettingsModel);
     _frameModelDecoder.addBinaries(<String>[sampleModel.calcBinary()]);
   }
 }
@@ -130,8 +120,6 @@ Future<int> _computeStartOffset(List<dynamic> props) async {
   List<double> wave = props[0] as List<double>;
   AudioSettingsModel audioSettingsModel = props[1] as AudioSettingsModel;
 
-  StartIndexCorrelationCalculator startIndexCorrelationCalculator =
-  StartIndexCorrelationCalculator(audioSettingsModel: audioSettingsModel);
-  return startIndexCorrelationCalculator.findIndexWithHighestCorrelation(
-      wave, audioSettingsModel.startFrequencies);
+  StartIndexCorrelationCalculator startIndexCorrelationCalculator = StartIndexCorrelationCalculator(audioSettingsModel: audioSettingsModel);
+  return startIndexCorrelationCalculator.findIndexWithHighestCorrelation(wave, audioSettingsModel.startFrequencies);
 }
