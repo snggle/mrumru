@@ -10,7 +10,7 @@ class FrameModelDecoder {
   final ValueChanged<MetadataFrame>? onFirstFrameDecoded;
   final ValueChanged<DataFrame>? onLastFrameDecoded;
 
-  final List<AFrameBase> _decodedFrames = <AFrameBase>[];
+  final List<ABaseFrame> _decodedFrames = <ABaseFrame>[];
   final StringBuffer _completeBinary = StringBuffer();
 
   int _totalDataFrames = 0;
@@ -30,7 +30,7 @@ class FrameModelDecoder {
   }
 
   FrameCollectionModel get decodedContent {
-    return FrameCollectionModel(List<AFrameBase>.from(_decodedFrames));
+    return FrameCollectionModel(List<ABaseFrame>.from(_decodedFrames));
   }
 
   void clear() {

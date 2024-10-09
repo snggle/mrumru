@@ -6,7 +6,7 @@ import 'package:mrumru/src/shared/utils/uints/uint_16.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_dynamic.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
 
-class DataFrame extends AFrameBase {
+class DataFrame extends ABaseFrame {
   final Uint16 _frameIndex;
   final Uint16 _frameLength;
   final UintDynamic _data;
@@ -36,7 +36,7 @@ class DataFrame extends AFrameBase {
       ...uint16frameLength.bytes,
       ...uintDynamicData.bytes,
     ]);
-    Uint8List checksumFull = CryptoUtils.calcChecksumFromBytes(checksumData);
+    Uint8List checksumFull = CryptoUtils.calcChecksumFromBytes(bytes: checksumData);
     Uint16 uint16frameChecksum = Uint16(checksumFull.sublist(0, 2));
 
     return DataFrame(

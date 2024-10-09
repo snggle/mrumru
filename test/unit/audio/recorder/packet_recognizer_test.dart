@@ -14,15 +14,13 @@ void main() async {
     test('Should [return FrameCollectionModel] from given wave (chunksCount == 1)', () async {
       // Arrange
       AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults().copyWith(chunksCount: 1);
-      FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
 
       late FrameCollectionModel actualFrameCollectionModel;
 
       PacketRecognizer actualPacketRecognizer = PacketRecognizer(
         audioSettingsModel: actualAudioSettingsModel,
-        frameSettingsModel: actualFrameSettingsModel,
         onDecodingCompleted: (FrameCollectionModel frameCollectionModel) => actualFrameCollectionModel = frameCollectionModel,
-        onFrameDecoded: (FrameModel frameModel) {},
+        onFrameDecoded: (ABaseFrame frame) {},
       );
 
       List<double> actualWave = await TestUtils.readAsDoubleFromFile(
@@ -53,12 +51,10 @@ void main() async {
     test('Should [return FrameCollectionModel] from given wave (chunksCount == 2)', () async {
       // Arrange
       AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults().copyWith(chunksCount: 2);
-      FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
       late FrameCollectionModel actualFrameCollectionModel;
 
       PacketRecognizer actualPacketRecognizer = PacketRecognizer(
         audioSettingsModel: actualAudioSettingsModel,
-        frameSettingsModel: actualFrameSettingsModel,
         onDecodingCompleted: (FrameCollectionModel frameCollectionModel) => actualFrameCollectionModel = frameCollectionModel,
         onFrameDecoded: (FrameModel frameModel) {},
       );
@@ -88,12 +84,10 @@ void main() async {
     test('Should [return FrameCollectionModel] from given wave (chunksCount == 4)', () async {
       // Arrange
       AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults().copyWith(chunksCount: 4);
-      FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
       late FrameCollectionModel actualFrameCollectionModel;
 
       PacketRecognizer actualPacketRecognizer = PacketRecognizer(
         audioSettingsModel: actualAudioSettingsModel,
-        frameSettingsModel: actualFrameSettingsModel,
         onDecodingCompleted: (FrameCollectionModel frameCollectionModel) => actualFrameCollectionModel = frameCollectionModel,
         onFrameDecoded: (FrameModel frameModel) {},
       );
@@ -122,12 +116,10 @@ void main() async {
     test('Should [return FrameCollectionModel] from given wave (chunksCount == 8)', () async {
       // Arrange
       AudioSettingsModel actualAudioSettingsModel = AudioSettingsModel.withDefaults().copyWith(chunksCount: 8);
-      FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
       late FrameCollectionModel actualFrameCollectionModel;
 
       PacketRecognizer actualPacketRecognizer = PacketRecognizer(
         audioSettingsModel: actualAudioSettingsModel,
-        frameSettingsModel: actualFrameSettingsModel,
         onDecodingCompleted: (FrameCollectionModel frameCollectionModel) => actualFrameCollectionModel = frameCollectionModel,
         onFrameDecoded: (FrameModel frameModel) {},
       );

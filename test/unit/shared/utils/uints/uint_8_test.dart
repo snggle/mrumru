@@ -1,22 +1,22 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mrumru/src/shared/utils/uints/uint_16.dart';
+import 'package:mrumru/src/shared/utils/uints/uint_8.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
 
 void main() {
-  group('Test of Uint16.fromBytes()', () {
+  group('Test of Uint8.fromBytes() ', () {
     test('Should return [bytes] from given Uint8List', () {
       // Arrange
-      Uint8List actualBytes = Uint8List.fromList(<int>[0, 3]);
+      Uint8List actualBytes = Uint8List.fromList(<int>[3]);
 
       // Act
-      UintReminder<Uint16> actualUint16 = Uint16.fromBytes(actualBytes);
+      UintReminder<Uint8> actualUint8 = Uint8.fromBytes(actualBytes);
 
       // Assert
-      Uint16 expectedUint16 = Uint16(Uint8List.fromList(<int>[0, 3]));
+      Uint8 expectedValue = Uint8(Uint8List.fromList(<int>[3]));
 
-      expect(actualUint16.value, expectedUint16);
+      expect(actualUint8.value, expectedValue);
     });
   });
 
@@ -26,22 +26,22 @@ void main() {
       int actualValue = 3;
 
       // Act
-      Uint16 actualUint16 = Uint16.fromInt(actualValue);
+      Uint8 actualUint8 = Uint8.fromInt(actualValue);
 
       // Assert
-      Uint16 expectedUint16 = Uint16(Uint8List.fromList(<int>[0, 3]));
+      Uint8 expectedUint8 = Uint8(Uint8List.fromList(<int>[3]));
 
-      expect(actualUint16, expectedUint16);
+      expect(actualUint8, expectedUint8);
     });
   });
 
   group('Test of Uint16.toInt()', () {
     test('Should return [int] from given bytes', () {
       // Arrange
-      Uint16 actualUint16 = Uint16(Uint8List.fromList(<int>[0, 3]));
+      Uint8 actualUint8 = Uint8(Uint8List.fromList(<int>[3]));
 
       // Act
-      int actualValue = actualUint16.toInt();
+      int actualValue = actualUint8.toInt();
 
       // Assert
       int expectedValue = 3;

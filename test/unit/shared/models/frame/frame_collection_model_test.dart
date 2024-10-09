@@ -2,29 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
 
 void main() {
-  final FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
-  final FrameCollectionModel actualFrameCollectionModel = FrameCollectionModel(<FrameModel>[
-    FrameModel(frameIndex: 0, framesCount: 20, rawData: '1234', frameSettings: actualFrameSettingsModel),
-    FrameModel(frameIndex: 1, framesCount: 20, rawData: '5678', frameSettings: actualFrameSettingsModel),
-    FrameModel(frameIndex: 2, framesCount: 20, rawData: '9:;<', frameSettings: actualFrameSettingsModel),
-    FrameModel(frameIndex: 3, framesCount: 20, rawData: '=>?@', frameSettings: actualFrameSettingsModel),
-    FrameModel(frameIndex: 4, framesCount: 20, rawData: 'ABCD', frameSettings: actualFrameSettingsModel),
-    FrameModel(frameIndex: 5, framesCount: 20, rawData: 'EFGH', frameSettings: actualFrameSettingsModel),
-    FrameModel(frameIndex: 6, framesCount: 20, rawData: 'IJKL', frameSettings: actualFrameSettingsModel),
-    FrameModel(frameIndex: 7, framesCount: 20, rawData: 'MNOP', frameSettings: actualFrameSettingsModel),
-    FrameModel(frameIndex: 8, framesCount: 20, rawData: 'QRST', frameSettings: actualFrameSettingsModel),
-    FrameModel(frameIndex: 9, framesCount: 20, rawData: 'UVWX', frameSettings: actualFrameSettingsModel),
-    FrameModel(frameIndex: 10, framesCount: 20, rawData: 'YZ[]', frameSettings: actualFrameSettingsModel),
-    FrameModel(frameIndex: 11, framesCount: 20, rawData: '^_`a', frameSettings: actualFrameSettingsModel),
-    FrameModel(frameIndex: 12, framesCount: 20, rawData: 'bcde', frameSettings: actualFrameSettingsModel),
-    FrameModel(frameIndex: 13, framesCount: 20, rawData: 'fghi', frameSettings: actualFrameSettingsModel),
-    FrameModel(frameIndex: 14, framesCount: 20, rawData: 'jklm', frameSettings: actualFrameSettingsModel),
-    FrameModel(frameIndex: 15, framesCount: 20, rawData: 'nopq', frameSettings: actualFrameSettingsModel),
-    FrameModel(frameIndex: 16, framesCount: 20, rawData: 'rstu', frameSettings: actualFrameSettingsModel),
-    FrameModel(frameIndex: 17, framesCount: 20, rawData: 'vwxy', frameSettings: actualFrameSettingsModel),
-    FrameModel(frameIndex: 18, framesCount: 20, rawData: 'z{|}', frameSettings: actualFrameSettingsModel),
-    FrameModel(frameIndex: 19, framesCount: 20, rawData: '~', frameSettings: actualFrameSettingsModel)
-  ]);
+
 
   group('Tests of FrameCollectionModel.binaryFrames', () {
     test('Should return [binary string list] representing encoded rawData from each frames', () {

@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
 
-class FrameReminder<T extends AFrameBase> {
+class FrameReminder<T extends ABaseFrame> {
   final T value;
   final Uint8List reminder;
 

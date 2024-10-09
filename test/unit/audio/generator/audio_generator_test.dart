@@ -20,7 +20,6 @@ void main() async {
       await AudioGenerator(
         audioSink: audioFileSink,
         audioSettingsModel: AudioSettingsModel.withDefaults().copyWith(chunksCount: 1),
-        frameSettingsModel: FrameSettingsModel.withDefaults(),
         audioGeneratorNotifier: AudioGeneratorNotifier(),
       ).generate(actualMessage);
       await audioFileSink.future;
@@ -42,7 +41,6 @@ void main() async {
       await AudioGenerator(
         audioSink: audioFileSink,
         audioSettingsModel: AudioSettingsModel.withDefaults().copyWith(chunksCount: 2),
-        frameSettingsModel: FrameSettingsModel.withDefaults(),
         audioGeneratorNotifier: AudioGeneratorNotifier(),
       ).generate(actualMessage);
       await audioFileSink.future;
@@ -64,7 +62,6 @@ void main() async {
       await AudioGenerator(
         audioSink: audioFileSink,
         audioSettingsModel: AudioSettingsModel.withDefaults().copyWith(chunksCount: 4),
-        frameSettingsModel: FrameSettingsModel.withDefaults(),
         audioGeneratorNotifier: AudioGeneratorNotifier(),
       ).generate(actualMessage);
       await audioFileSink.future;
@@ -86,7 +83,6 @@ void main() async {
       await AudioGenerator(
         audioSink: audioFileSink,
         audioSettingsModel: AudioSettingsModel.withDefaults().copyWith(chunksCount: 8),
-        frameSettingsModel: FrameSettingsModel.withDefaults(),
         audioGeneratorNotifier: AudioGeneratorNotifier(),
       ).generate(actualMessage);
       await audioFileSink.future;
@@ -108,7 +104,6 @@ void main() async {
       await AudioGenerator(
         audioSink: audioFileSink,
         audioSettingsModel: AudioSettingsModel.withDefaults().copyWith(chunksCount: 16),
-        frameSettingsModel: FrameSettingsModel.withDefaults(),
         audioGeneratorNotifier: AudioGeneratorNotifier(),
       ).generate(actualMessage);
       await audioFileSink.future;
@@ -130,7 +125,6 @@ void main() async {
       await AudioGenerator(
         audioSink: audioFileSink,
         audioSettingsModel: AudioSettingsModel.withDefaults().copyWith(chunksCount: 32),
-        frameSettingsModel: FrameSettingsModel.withDefaults(),
         audioGeneratorNotifier: AudioGeneratorNotifier(),
       ).generate(actualMessage);
       await audioFileSink.future;
@@ -152,7 +146,6 @@ void main() async {
       await AudioGenerator(
         audioSink: audioFileSink,
         audioSettingsModel: AudioSettingsModel.withDefaults().copyWith(chunksCount: 64),
-        frameSettingsModel: FrameSettingsModel.withDefaults(),
         audioGeneratorNotifier: AudioGeneratorNotifier(),
       ).generate(actualMessage);
       await audioFileSink.future;

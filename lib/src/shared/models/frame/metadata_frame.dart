@@ -9,7 +9,7 @@ import 'package:mrumru/src/shared/utils/uints/uint_32.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_dynamic.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
 
-class MetadataFrame extends AFrameBase {
+class MetadataFrame extends ABaseFrame {
   final Uint16 _frameIndex;
   final Uint16 _frameLength;
   final Uint16 _framesCount;
@@ -60,14 +60,14 @@ class MetadataFrame extends AFrameBase {
   }) {
     Uint16 uint16frameIndex = Uint16.fromInt(frameIndex);
     Uint16 uint16frameLength = Uint16.fromInt(data.length);
-    Uint16 uint16framesCount = Uint16.fromInt(dataFrames.length + 1);
+    Uint16 uint16framesCount = Uint16.fromInt(dataFrames.length);
     Uint32 uint32sessionId = Uint32(sessionId);
     UintDynamic uintDynamicData = UintDynamic(data, data.length * 8);
 
     Uint8List compositeChecksumData = Uint8List.fromList(<int>[
       for (DataFrame dataFrame in dataFrames) ...dataFrame.frameChecksum.bytes,
     ]);
-    Uint8List compositeChecksumFull = CryptoUtils.calcChecksumFromBytes(compositeChecksumData);
+    Uint8List compositeChecksumFull = CryptoUtils.calcChecksumFromBytes( bytes: compositeChecksumData);
     Uint32 uint32compositeChecksum = Uint32(compositeChecksumFull.sublist(0, 4));
 
     Uint8List checksumData = Uint8List.fromList(<int>[
@@ -79,7 +79,7 @@ class MetadataFrame extends AFrameBase {
       ...uint32compositeChecksum.bytes,
       ...uintDynamicData.bytes,
     ]);
-    Uint8List checksumFull = CryptoUtils.calcChecksumFromBytes(checksumData);
+    Uint8List checksumFull = CryptoUtils.calcChecksumFromBytes(bytes: checksumData);
     Uint16 uint16frameChecksum = Uint16(checksumFull.sublist(0, 2));
 
     return MetadataFrame(

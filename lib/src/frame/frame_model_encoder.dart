@@ -47,7 +47,7 @@ class FrameModelEncoder {
       dataFrames: dataFrames,
     );
 
-    return FrameCollectionModel(<AFrameBase>[metadataFrame, ...dataFrames]);
+    return FrameCollectionModel(<ABaseFrame>[metadataFrame, ...dataFrames]);
   }
 
   String _splitDataForIndex(String rawData, int index) {

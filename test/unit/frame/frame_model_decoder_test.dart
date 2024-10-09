@@ -3,8 +3,7 @@ import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/frame/frame_model_decoder.dart';
 
 void main() {
-  FrameSettingsModel actualFrameSettingsModel = FrameSettingsModel.withDefaults();
-  FrameModelDecoder actualFrameModelDecoder = FrameModelDecoder(framesSettingsModel: actualFrameSettingsModel);
+  FrameModelDecoder actualFrameModelDecoder = FrameModelDecoder();
 
   // @formatter:off
   List<String> actualFirstChunkedData = <String>['0000', '0000', '0000', '0010', '0011', '0001', '0011', '0010', '0011', '0011', '0011', '0100', '1000', '0001'];

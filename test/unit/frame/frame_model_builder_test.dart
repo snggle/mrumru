@@ -5,12 +5,10 @@ import 'package:mrumru/src/frame/frame_model_encoder.dart';
 void main() {
   late FrameModelEncoder actualFrameBuilder;
   late String actualRawData;
-  late FrameSettingsModel actualFrameSettings = FrameSettingsModel.withDefaults();
 
   setUp(() {
-    actualFrameBuilder = FrameModelEncoder(frameSettingsModel: actualFrameSettings);
+    actualFrameBuilder = FrameModelEncoder();
     actualRawData = '123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
-    actualFrameSettings = FrameSettingsModel.withDefaults();
   });
 
   group('Tests of FrameModelBuilder.buildFrameCollection()', () {
@@ -20,12 +18,12 @@ void main() {
 
       // Assert
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(<FrameModel>[
-        FrameModel(frameIndex: 0, framesCount: 20, rawData: '1234', frameSettings: actualFrameSettings),
-        FrameModel(frameIndex: 1, framesCount: 20, rawData: '5678', frameSettings: actualFrameSettings),
-        FrameModel(frameIndex: 2, framesCount: 20, rawData: '9:;<', frameSettings: actualFrameSettings),
-        FrameModel(frameIndex: 3, framesCount: 20, rawData: '=>?@', frameSettings: actualFrameSettings),
-        FrameModel(frameIndex: 4, framesCount: 20, rawData: 'ABCD', frameSettings: actualFrameSettings),
-        FrameModel(frameIndex: 5, framesCount: 20, rawData: 'EFGH', frameSettings: actualFrameSettings),
+        FrameModel(frameIndex: 0, framesCount: 20, rawData: '1234', ),
+        FrameModel(frameIndex: 1, framesCount: 20, rawData: '5678', ),
+        FrameModel(frameIndex: 2, framesCount: 20, rawData: '9:;<', ),
+        FrameModel(frameIndex: 3, framesCount: 20, rawData: '=>?@', ),
+        FrameModel(frameIndex: 4, framesCount: 20, rawData: 'ABCD', ),
+        FrameModel(frameIndex: 5, framesCount: 20, rawData: 'EFGH', ),
         FrameModel(frameIndex: 6, framesCount: 20, rawData: 'IJKL', frameSettings: actualFrameSettings),
         FrameModel(frameIndex: 7, framesCount: 20, rawData: 'MNOP', frameSettings: actualFrameSettings),
         FrameModel(frameIndex: 8, framesCount: 20, rawData: 'QRST', frameSettings: actualFrameSettings),

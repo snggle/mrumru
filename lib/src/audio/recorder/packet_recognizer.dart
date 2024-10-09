@@ -81,7 +81,7 @@ class PacketRecognizer {
     print('First frame decoded: ${frameModel.frameIndex}');
   }
 
-  void _handleLastFrameDecoded(AFrameBase frameModel) {
+  void _handleLastFrameDecoded(ABaseFrame frameModel) {
     AppLogger().log(message: 'Last frame decoded: ${frameModel.frameIndex}', logLevel: LogLevel.debug);
     stopRecording();
   }
