@@ -29,8 +29,6 @@ class DataFrame extends ABaseFrame {
     Uint16 uint16frameIndex = Uint16.fromInt(frameIndex);
     Uint16 uint16frameLength = Uint16.fromInt(data.length);
     UintDynamic uintDynamicData = UintDynamic(data, data.length * 8);
-
-    // Calculate frame checksum
     Uint8List checksumData = Uint8List.fromList(<int>[
       ...uint16frameIndex.bytes,
       ...uint16frameLength.bytes,

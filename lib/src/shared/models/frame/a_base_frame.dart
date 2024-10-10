@@ -8,6 +8,5 @@ abstract class ABaseFrame with EquatableMixin {
 
   Uint16 get frameChecksum;
 
-  // Abstract method to convert to bytes
   List<int> toBytes();
 }

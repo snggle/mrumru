@@ -10,7 +10,6 @@ import 'package:mrumru/src/frame/protocol/uint_32_frame_protocol_id.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_8.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
 
-
 void main() {
   group('Test of Uint32FrameProtocolID.toBytes()', () {
     test('Should return correct bytes representation', () {
@@ -81,7 +80,7 @@ void main() {
       ]);
 
       // Act
-      UintReminder<Uint32FrameProtocolID> result = Uint32FrameProtocolID.fromBytes(bytes);
+      UintReminder<Uint32FrameProtocolID> actualFrameProtocolID = Uint32FrameProtocolID.fromBytes(bytes);
 
       // Assert
       Uint32FrameProtocolID expectedFrameProtocolID = Uint32FrameProtocolID(
@@ -91,7 +90,7 @@ void main() {
         frameVersionNumber: Uint8.fromInt(FrameVersionNumber.firstDefault.value),
       );
 
-      expect(result.value, expectedFrameProtocolID);
+      expect(actualFrameProtocolID.value, expectedFrameProtocolID);
     });
   });
 }

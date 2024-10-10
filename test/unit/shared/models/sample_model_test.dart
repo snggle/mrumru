@@ -20,6 +20,7 @@ void main() {
       // Assert
       List<double> expectedWave = await TestUtils.readAsDoubleFromFile(File('test/unit/shared/models/assets/mocked_sample_samples_model.txt'));
 
+      // Values are rounded to 10 decimal places to avoid operating system differences in the generated calculated values
       expect(TestUtils.roundList(actualWave, 10), TestUtils.roundList(expectedWave, 10));
     });
   });

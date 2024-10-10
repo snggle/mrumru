@@ -29,7 +29,6 @@ class FrameModelEncoder {
       ));
     }
 
-
     MetadataFrame metadataFrame = MetadataFrame.fromValues(
       frameIndex: 0,
       frameProtocolID: Uint32FrameProtocolID.fromValues(

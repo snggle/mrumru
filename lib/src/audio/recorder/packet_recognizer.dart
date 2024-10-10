@@ -77,9 +77,7 @@ class PacketRecognizer {
     _startOffset = null;
   }
 
-  void _handleFirstFrameDecoded(MetadataFrame frameModel) {
-    print('First frame decoded: ${frameModel.frameIndex}');
-  }
+  void _handleFirstFrameDecoded(MetadataFrame frameModel) {}
 
   void _handleLastFrameDecoded(ABaseFrame frameModel) {
     AppLogger().log(message: 'Last frame decoded: ${frameModel.frameIndex}', logLevel: LogLevel.debug);

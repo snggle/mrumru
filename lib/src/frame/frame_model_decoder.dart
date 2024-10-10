@@ -65,14 +65,12 @@ class FrameModelDecoder {
 
       _totalDataFrames = metadataFrame.value.framesCount.toInt();
 
-      print('Decoded MetadataFrame - Frame Count (Total Expected): $_totalDataFrames');
-
       int bitsConsumed = (bytes.length - metadataFrame.reminder.length) * 8;
       _cursor += bitsConsumed;
 
       _decodeFrames();
     } catch (e) {
-      print('Error decoding MetadataFrame: $e');
+      rethrow;
     }
   }
 
@@ -86,8 +84,6 @@ class FrameModelDecoder {
       _decodedDataFrames++;
       onFrameDecoded?.call(dataFrame.value);
 
-      print('Decoded Data Frame Index: ${dataFrame.value.frameIndex.toInt()}, Total Decoded Frames: $_decodedDataFrames, Expected Frames: $_totalDataFrames');
-
       int bitsConsumed = (bytes.length - dataFrame.reminder.length) * 8;
       _cursor += bitsConsumed;
 
@@ -97,7 +93,7 @@ class FrameModelDecoder {
         _decodeFrames();
       }
     } catch (e) {
-      print('Error decoding DataFrame: $e');
+      rethrow;
     }
   }
 }

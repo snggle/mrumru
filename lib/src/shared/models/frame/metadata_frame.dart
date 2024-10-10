@@ -67,7 +67,7 @@ class MetadataFrame extends ABaseFrame {
     Uint8List compositeChecksumData = Uint8List.fromList(<int>[
       for (DataFrame dataFrame in dataFrames) ...dataFrame.frameChecksum.bytes,
     ]);
-    Uint8List compositeChecksumFull = CryptoUtils.calcChecksumFromBytes( bytes: compositeChecksumData);
+    Uint8List compositeChecksumFull = CryptoUtils.calcChecksumFromBytes(bytes: compositeChecksumData);
     Uint32 uint32compositeChecksum = Uint32(compositeChecksumFull.sublist(0, 4));
 
     Uint8List checksumData = Uint8List.fromList(<int>[

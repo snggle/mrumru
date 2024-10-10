@@ -9,7 +9,7 @@ class Uint32 extends UintDynamic {
   static const int _bitsSize = 32;
 
   Uint32(Uint8List bytes) : super(bytes, _bitsSize);
-  
+
   factory Uint32.fromInt(int value) {
     return Uint32(BigIntUtils.encode(BigInt.from(value), _bytesSize));
   }

@@ -60,16 +60,18 @@ void main() {
 
     test('Should clear FrameCollectionModel containing frames', () {
       // Arrange
-      actualFrameModelDecoder..addBinaries(actualFirstChunkedData)
+      actualFrameModelDecoder
+        ..addBinaries(actualFirstChunkedData)
 
-      // Act
-      ..clear();
+        // Act
+        ..clear();
 
       // Assert
       expect(actualFrameModelDecoder.decodedContent.frames.isEmpty, true);
     });
   });
 }
+
 String _frameToBinaryString(ABaseFrame frame) {
   return frame.toBytes().map((int byte) => byte.toRadixString(2).padLeft(8, '0')).join();
 }
@@ -126,4 +128,3 @@ DataFrame _createTestDataFrame() {
     frameChecksum: frameChecksum,
   );
 }
-
