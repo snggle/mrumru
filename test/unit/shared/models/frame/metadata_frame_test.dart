@@ -93,12 +93,12 @@ void main() {
       UintDynamic expectedData = UintDynamic(actualData, actualData.length * 8);
 
       Uint8List actualCompositeChecksumData = Uint8List.fromList(<int>[
-        for (DataFrame df in actualDataFrames) ...df.frameChecksum.bytes,
+        for (DataFrame actualDataFrame in actualDataFrames) ...actualDataFrame.frameChecksum.bytes,
       ]);
       Uint8List actualCompositeChecksum = CryptoUtils.calcChecksumFromBytes(bytes: actualCompositeChecksumData);
       Uint32 expectedCompositeChecksum = Uint32(actualCompositeChecksum.sublist(0, 4));
 
-      Uint8List checksumData = Uint8List.fromList(<int>[
+      Uint8List actualChecksumData = Uint8List.fromList(<int>[
         ...expectedFrameIndex.bytes,
         ...expectedFrameLength.bytes,
         ...expectedFramesCount.bytes,
@@ -107,7 +107,7 @@ void main() {
         ...expectedCompositeChecksum.bytes,
         ...expectedData.bytes,
       ]);
-      Uint8List expectedChecksum = CryptoUtils.calcChecksumFromBytes(bytes: checksumData);
+      Uint8List expectedChecksum = CryptoUtils.calcChecksumFromBytes(bytes: actualChecksumData);
       Uint16 expectedFrameChecksum = Uint16(expectedChecksum.sublist(0, 2));
 
       MetadataFrame expectedMetadataFrame = MetadataFrame(
@@ -135,14 +135,14 @@ void main() {
         frameVersionNumber: Uint8.fromInt(FrameVersionNumber.firstDefault.value),
       );
       Uint8List actualBytes = Uint8List.fromList(<int>[
-        0x00, 0x01, // frameIndex
-        0x00, 0x04, // frameLength
-        0x00, 0x01, // framesCount
+        0, 1, // frameIndex
+        0, 4, // frameLength
+        0, 1, // framesCount
         ...actualFrameProtocolID.bytes, // frameProtocolID
-        0x00, 0x00, 0x00, 0x01, // sessionId
-        0x00, 0x00, 0x00, 0x00, // compositeChecksum
-        0x01, 0x02, 0x03, 0x04, // data
-        0x00, 0x00, // frameChecksum
+        0, 0, 0, 1, // sessionId
+        0, 0, 0, 0, // compositeChecksum
+        1, 2, 3, 4, // data
+        0, 0, // frameChecksum
       ]);
 
       // Act
@@ -150,14 +150,14 @@ void main() {
 
       // Assert
       MetadataFrame expectedMetadataFrame = MetadataFrame(
-        frameIndex: Uint16(Uint8List.fromList(<int>[0x00, 0x01])),
-        frameLength: Uint16(Uint8List.fromList(<int>[0x00, 0x04])),
-        framesCount: Uint16(Uint8List.fromList(<int>[0x00, 0x01])),
+        frameIndex: Uint16(Uint8List.fromList(<int>[0, 1])),
+        frameLength: Uint16(Uint8List.fromList(<int>[0, 4])),
+        framesCount: Uint16(Uint8List.fromList(<int>[0, 1])),
         frameProtocolID: actualFrameProtocolID,
-        sessionId: Uint32(Uint8List.fromList(<int>[0x00, 0x00, 0x00, 0x01])),
-        compositeChecksum: Uint32(Uint8List.fromList(<int>[0x00, 0x00, 0x00, 0x00])),
-        data: UintDynamic(Uint8List.fromList(<int>[0x01, 0x02, 0x03, 0x04]), 32),
-        frameChecksum: Uint16(Uint8List.fromList(<int>[0x00, 0x00])),
+        sessionId: Uint32(Uint8List.fromList(<int>[0, 0, 0, 1])),
+        compositeChecksum: Uint32(Uint8List.fromList(<int>[0, 0, 0, 0])),
+        data: UintDynamic(Uint8List.fromList(<int>[1, 2, 3, 4]), 32),
+        frameChecksum: Uint16(Uint8List.fromList(<int>[0, 0])),
       );
 
       expect(actualMetadataFrame.value, expectedMetadataFrame);

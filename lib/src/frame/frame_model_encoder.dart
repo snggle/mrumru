@@ -7,7 +7,6 @@ import 'package:mrumru/src/frame/protocol/frame_protocol_type.dart';
 import 'package:mrumru/src/frame/protocol/frame_version_number.dart';
 import 'package:mrumru/src/frame/protocol/uint_32_frame_protocol_id.dart';
 import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
-import 'package:mrumru/src/shared/utils/secure_random.dart';
 
 class FrameModelEncoder {
   final int asciiCharacterCountInFrame;
@@ -30,9 +29,6 @@ class FrameModelEncoder {
       ));
     }
 
-    Uint8List combinedData = Uint8List.fromList(
-      dataFrames.expand((DataFrame frame) => frame.data.bytes).toList(),
-    );
 
     MetadataFrame metadataFrame = MetadataFrame.fromValues(
       frameIndex: 0,
@@ -43,7 +39,7 @@ class FrameModelEncoder {
         frameVersionNumber: FrameVersionNumber.firstDefault,
       ),
       sessionId: _generateSessionId(),
-      data: combinedData,
+      data: Uint8List(0),
       dataFrames: dataFrames,
     );
 
@@ -56,8 +52,8 @@ class FrameModelEncoder {
     return rawData.substring(startIndex, endIndex);
   }
 
+  // TODO(arek): Randomize sessionID after half-duplex communication is implemented
   Uint8List _generateSessionId() {
-    Uint8List randomBytes = SecureRandom.getBytes(length: 4, max: 255);
-    return randomBytes;
+    return Uint8List.fromList(<int>[1, 2, 3, 4]);
   }
 }

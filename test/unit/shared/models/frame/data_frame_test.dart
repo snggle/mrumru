@@ -73,10 +73,10 @@ void main() {
     test('Should parse DataFrame correctly from given bytes', () {
       // Arrange
       Uint8List actualBytes = Uint8List.fromList(<int>[
-        0x00, 0x01, // frameIndex
-        0x00, 0x04, // frameLength
-        0x01, 0x02, 0x03, 0x04, // data
-        0x00, 0x00, // frameChecksum
+        0, 1, // frameIndex
+        0, 4, // frameLength
+        1, 2, 3, 4, // data
+        0, 0, // frameChecksum
       ]);
 
       // Act
@@ -84,10 +84,10 @@ void main() {
 
       // Assert
       DataFrame expectedDataFrame = DataFrame(
-        frameIndex: Uint16(Uint8List.fromList(<int>[0x00, 0x01])),
-        frameLength: Uint16(Uint8List.fromList(<int>[0x00, 0x04])),
-        data: UintDynamic(Uint8List.fromList(<int>[0x01, 0x02, 0x03, 0x04]), 32),
-        frameChecksum: Uint16(Uint8List.fromList(<int>[0x00, 0x00])),
+        frameIndex: Uint16(Uint8List.fromList(<int>[0, 1])),
+        frameLength: Uint16(Uint8List.fromList(<int>[0, 4])),
+        data: UintDynamic(Uint8List.fromList(<int>[1, 2, 3, 4]), 32),
+        frameChecksum: Uint16(Uint8List.fromList(<int>[0, 0])),
       );
 
       expect(actualDataFrame.value, expectedDataFrame);
