@@ -23,7 +23,6 @@ library mrumru;
 ///   ```
 export 'package:mrumru/src/audio/duplex/duplex_controller.dart';
 export 'package:mrumru/src/audio/duplex/duplex_controller_notifier.dart';
-
 /// A library for transmitting data using sound waves.
 
 /// Generates audio samples from text messages.
@@ -80,6 +79,7 @@ export 'package:mrumru/src/audio/generator/sink/i_audio_sink.dart';
 ///   audioRecorderController.stopRecording();
 ///  ```
 export 'package:mrumru/src/audio/recorder/audio_recorder_controller.dart';
+export 'package:mrumru/src/shared/models//frame/a_base_frame.dart';
 /// Adds audio settings that can be modified to customize the audio structure.
 ///
 /// Usage:
@@ -136,3 +136,4 @@ export 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
 ///  ```
 export 'package:mrumru/src/shared/models/frame/data_frame.dart';
 export 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
+export 'package:mrumru/src/shared/models/frame/metadata_frame.dart';

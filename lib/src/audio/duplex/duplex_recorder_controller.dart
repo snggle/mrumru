@@ -40,7 +40,7 @@ class DuplexRecorderController {
     _audioRecorderController = AudioRecorderController(
       audioSettingsModel: _audioSettingsModel,
       onRecordingCompleted: _handleRecordingCompleted,
-      onFrameReceived: (AFrameBase frameModel) {},
+      onFrameReceived: (ABaseFrame frameModel) {},
     );
   }
 
