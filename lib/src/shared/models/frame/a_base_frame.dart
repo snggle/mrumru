@@ -1,12 +1,17 @@
 import 'package:equatable/equatable.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_16.dart';
 
+/// A class that represents a ABaseFrame.
 abstract class ABaseFrame with EquatableMixin {
+  /// The index of the frame.
   Uint16 get frameIndex;
 
+  /// The length of the frame.
   Uint16 get frameLength;
 
+  /// The checksum of the frame.
   Uint16 get frameChecksum;
 
+  /// Converts the frame into its binary representation.
   List<int> toBytes();
 }

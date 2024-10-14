@@ -6,7 +6,7 @@ import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
 
 void main() {
   group('Test of UintDynamic.fromBytes()', () {
-    test('Should return [bytes] from given Uint8List', () {
+    test('Should [return bytes] from given Uint8List', () {
       // Arrange
       Uint8List actualBytes = Uint8List.fromList(<int>[0, 0, 0, 3]);
 
@@ -21,7 +21,7 @@ void main() {
   });
 
   group('Test of UintDynamic.bytes', () {
-    test('Should return [bytes]', () {
+    test('Should [return bytes] from given value', () {
       // Arrange
       UintDynamic actualUintDynamic = UintDynamic(Uint8List.fromList(<int>[0, 0, 0, 3]), 32);
 
@@ -36,7 +36,7 @@ void main() {
   });
 
   group('Test of UintDynamic.toInt()', () {
-    test('Should return [bytes] from given value', () {
+    test('Should [return int] from given bytes', () {
       // Arrange
       Uint8List actualBytes = Uint8List.fromList(<int>[0, 0, 0, 3]);
 

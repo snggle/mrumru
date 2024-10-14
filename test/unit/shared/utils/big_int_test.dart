@@ -5,7 +5,7 @@ import 'package:mrumru/src/shared/utils/big_int_utils.dart';
 
 void main() {
   group('Test of BigIntUtils.decode()', () {
-    test('Should return decoded big int from given bytes', () {
+    test('Should [return decoded big int] from given bytes', () {
       // Arrange
       List<int> actualBytes = <int>[0, 0, 0, 0, 0, 0, 0, 1];
 
@@ -20,7 +20,7 @@ void main() {
   });
 
   group('Test of BigIntUtils.encode()', () {
-    test('should return list of encoded big int to bytes', () {
+    test('should [return list of encoded big int] to bytes', () {
       // Arrange
       BigInt actualValue = BigInt.from(1);
 

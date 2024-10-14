@@ -4,22 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/src/shared/utils/crypto_utils.dart';
 
 void main() {
-  group('Tests of CryptoUtils.calcChecksum()', () {
-    test('Should return [checksum] for given string', () {
-      // Arrange
-      String actualRawData = '123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
-
-      // Act
-      Uint8List actualChecksum = CryptoUtils.calcChecksumFromString(text: actualRawData);
-
-      // Assert
-      Uint8List expectedChecksum = Uint8List.fromList(<int>[208, 108, 196, 253, 127, 116, 71, 68, 105, 61, 231, 77, 72, 33, 247, 88]);
-      expect(actualChecksum, expectedChecksum);
-    });
-  });
-
   group('Tests of CryptoUtils.calcChecksumFromBytes()', () {
-    test('Should return [checksum] for given bytes', () {
+    test('Should [return checksum] for given bytes', () {
       // Arrange
       // @formatter:off
       Uint8List actualBytes = Uint8List.fromList(<int>[

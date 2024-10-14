@@ -1,7 +1,8 @@
 import 'dart:typed_data';
-import 'package:mrumru/src/frame/protocol/uint_32_frame_protocol_id.dart';
 import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
 import 'package:mrumru/src/shared/models/frame/data_frame.dart';
+import 'package:mrumru/src/shared/models/frame/frame_protocol_id.dart';
+import 'package:mrumru/src/shared/utils/big_int_utils.dart';
 import 'package:mrumru/src/shared/utils/crypto_utils.dart';
 import 'package:mrumru/src/shared/utils/frame_reminder.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_16.dart';
@@ -9,21 +10,24 @@ import 'package:mrumru/src/shared/utils/uints/uint_32.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_dynamic.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
 
+/// A class that represents a MetadataFrame.
 class MetadataFrame extends ABaseFrame {
+  /// The set of bytes that represents the [MetadataFrame].
   final Uint16 _frameIndex;
   final Uint16 _frameLength;
   final Uint16 _framesCount;
-  final Uint32FrameProtocolID _frameProtocolID;
+  final FrameProtocolID _frameProtocolID;
   final Uint32 _sessionId;
   final Uint32 _compositeChecksum;
   final UintDynamic _data;
   final Uint16 _frameChecksum;
 
+  /// Creates a instance of [MetadataFrame] with the given values.
   MetadataFrame({
     required Uint16 frameIndex,
     required Uint16 frameLength,
     required Uint16 framesCount,
-    required Uint32FrameProtocolID frameProtocolID,
+    required FrameProtocolID frameProtocolID,
     required Uint32 sessionId,
     required Uint32 compositeChecksum,
     required UintDynamic data,
@@ -37,6 +41,7 @@ class MetadataFrame extends ABaseFrame {
         _data = data,
         _frameChecksum = frameChecksum;
 
+  /// Creates a instance of [MetadataFrame] with the given [bytes].
   @override
   Uint8List toBytes() {
     return Uint8List.fromList(<int>[
@@ -51,9 +56,10 @@ class MetadataFrame extends ABaseFrame {
     ]);
   }
 
+  /// Creates a instance of [MetadataFrame] from the given [values].
   factory MetadataFrame.fromValues({
     required int frameIndex,
-    required Uint32FrameProtocolID frameProtocolID,
+    required FrameProtocolID frameProtocolID,
     required Uint8List sessionId,
     required Uint8List data,
     required List<DataFrame> dataFrames,
@@ -62,7 +68,7 @@ class MetadataFrame extends ABaseFrame {
     Uint16 uint16frameLength = Uint16.fromInt(data.length);
     Uint16 uint16framesCount = Uint16.fromInt(dataFrames.length);
     Uint32 uint32sessionId = Uint32(sessionId);
-    UintDynamic uintDynamicData = UintDynamic(data, data.length * 8);
+    UintDynamic uintDynamicData = UintDynamic(data, data.length * BigIntUtils.bitsInByte);
 
     Uint8List compositeChecksumData = Uint8List.fromList(<int>[
       for (DataFrame dataFrame in dataFrames) ...dataFrame.frameChecksum.bytes,
@@ -94,14 +100,15 @@ class MetadataFrame extends ABaseFrame {
     );
   }
 
+  /// Creates a instance of [MetadataFrame] from the given [bytes].
   static FrameReminder<MetadataFrame> fromBytes(Uint8List bytes) {
     UintReminder<Uint16> frameIndex = Uint16.fromBytes(bytes);
     UintReminder<Uint16> frameLength = Uint16.fromBytes(frameIndex.reminder);
     UintReminder<Uint16> framesCount = Uint16.fromBytes(frameLength.reminder);
-    UintReminder<Uint32FrameProtocolID> frameProtocolID = Uint32FrameProtocolID.fromBytes(framesCount.reminder);
+    UintReminder<FrameProtocolID> frameProtocolID = FrameProtocolID.fromBytes(framesCount.reminder);
     UintReminder<Uint32> sessionId = Uint32.fromBytes(frameProtocolID.reminder);
     UintReminder<Uint32> compositeChecksum = Uint32.fromBytes(sessionId.reminder);
-    int dataBitsSize = frameLength.value.toInt() * 8;
+    int dataBitsSize = frameLength.value.toInt() * BigIntUtils.bitsInByte;
     UintReminder<UintDynamic> data = UintDynamic.fromBytes(compositeChecksum.reminder, dataBitsSize);
     UintReminder<Uint16> frameChecksum = Uint16.fromBytes(data.reminder);
 
@@ -120,6 +127,7 @@ class MetadataFrame extends ABaseFrame {
     );
   }
 
+  /// Methods to get the values of the [MetadataFrame].
   @override
   Uint16 get frameIndex => _frameIndex;
 
@@ -128,7 +136,7 @@ class MetadataFrame extends ABaseFrame {
 
   Uint16 get framesCount => _framesCount;
 
-  Uint32FrameProtocolID get frameProtocolID => _frameProtocolID;
+  FrameProtocolID get frameProtocolID => _frameProtocolID;
 
   Uint32 get sessionId => _sessionId;
 

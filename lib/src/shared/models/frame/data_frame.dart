@@ -1,17 +1,20 @@
 import 'dart:typed_data';
 import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
+import 'package:mrumru/src/shared/utils/big_int_utils.dart';
 import 'package:mrumru/src/shared/utils/crypto_utils.dart';
 import 'package:mrumru/src/shared/utils/frame_reminder.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_16.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_dynamic.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
 
+/// A class that represents a DataFrame.
 class DataFrame extends ABaseFrame {
   final Uint16 _frameIndex;
   final Uint16 _frameLength;
   final UintDynamic _data;
   final Uint16 _frameChecksum;
 
+  /// Creates a instance of [DataFrame] with the given values.
   DataFrame({
     required Uint16 frameIndex,
     required Uint16 frameLength,
@@ -22,13 +25,14 @@ class DataFrame extends ABaseFrame {
         _data = data,
         _frameChecksum = frameChecksum;
 
+  /// Creates a instance of [DataFrame] from the given [values].
   factory DataFrame.fromValues({
     required int frameIndex,
     required Uint8List data,
   }) {
     Uint16 uint16frameIndex = Uint16.fromInt(frameIndex);
     Uint16 uint16frameLength = Uint16.fromInt(data.length);
-    UintDynamic uintDynamicData = UintDynamic(data, data.length * 8);
+    UintDynamic uintDynamicData = UintDynamic(data, data.length * BigIntUtils.bitsInByte);
     Uint8List checksumData = Uint8List.fromList(<int>[
       ...uint16frameIndex.bytes,
       ...uint16frameLength.bytes,
@@ -45,10 +49,11 @@ class DataFrame extends ABaseFrame {
     );
   }
 
+  /// Creates a instance of [DataFrame] from the given [bytes].
   static FrameReminder<DataFrame> fromBytes(Uint8List bytes) {
     UintReminder<Uint16> frameIndex = Uint16.fromBytes(bytes);
     UintReminder<Uint16> frameLength = Uint16.fromBytes(frameIndex.reminder);
-    int dataBitsSize = frameLength.value.toInt() * 8;
+    int dataBitsSize = frameLength.value.toInt() * BigIntUtils.bitsInByte;
     UintReminder<UintDynamic> data = UintDynamic.fromBytes(frameLength.reminder, dataBitsSize);
     UintReminder<Uint16> frameChecksum = Uint16.fromBytes(data.reminder);
 

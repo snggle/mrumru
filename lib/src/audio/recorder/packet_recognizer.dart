@@ -5,7 +5,7 @@ import 'package:mrumru/src/audio/recorder/correlation/start_index_correlation_ca
 import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dart';
 import 'package:mrumru/src/audio/recorder/queue/events/packet_remaining_event.dart';
 import 'package:mrumru/src/audio/recorder/queue/packet_event_queue.dart';
-import 'package:mrumru/src/frame/frame_model_decoder.dart';
+import 'package:mrumru/src/frame/frame_decoder.dart';
 import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
 import 'package:mrumru/src/shared/models/sample_model.dart';
 import 'package:mrumru/src/shared/utils/app_logger.dart';
@@ -18,7 +18,7 @@ class PacketRecognizer {
   final AudioSettingsModel _audioSettingsModel;
   final ValueChanged<FrameCollectionModel> _onDecodingCompleted;
 
-  late final FrameModelDecoder _frameModelDecoder;
+  late final FrameDecoder _frameDecoder;
   late Completer<bool> _processLoopCompleter;
 
   bool _recordingBool = false;
@@ -27,17 +27,17 @@ class PacketRecognizer {
   PacketRecognizer({
     required AudioSettingsModel audioSettingsModel,
     required void Function(FrameCollectionModel) onDecodingCompleted,
-    ValueChanged<DataFrame>? onFrameDecoded,
+    ValueChanged<ABaseFrame>? onFrameDecoded,
   })  : _audioSettingsModel = audioSettingsModel,
         _onDecodingCompleted = onDecodingCompleted {
-    _frameModelDecoder = FrameModelDecoder(
+    _frameDecoder = FrameDecoder(
       onFirstFrameDecoded: _handleFirstFrameDecoded,
       onLastFrameDecoded: _handleLastFrameDecoded,
       onFrameDecoded: onFrameDecoded,
     );
   }
 
-  FrameCollectionModel get decodedContent => _frameModelDecoder.decodedContent;
+  FrameCollectionModel get decodedContent => _frameDecoder.decodedContent;
 
   Future<void> startDecoding() async {
     _processLoopCompleter = Completer<bool>();
@@ -73,11 +73,13 @@ class PacketRecognizer {
 
   void _clear() {
     _packetsQueue.clear();
-    _frameModelDecoder.clear();
+    _frameDecoder.clear();
     _startOffset = null;
   }
 
-  void _handleFirstFrameDecoded(MetadataFrame frameModel) {}
+  void _handleFirstFrameDecoded(MetadataFrame metaDataFrame) {
+    AppLogger().log(message: 'MetaDataFrameDecoded: ${metaDataFrame.framesCount}, ${metaDataFrame.sessionId}, ', logLevel: LogLevel.debug);
+  }
 
   void _handleLastFrameDecoded(ABaseFrame frameModel) {
     AppLogger().log(message: 'Last frame decoded: ${frameModel.frameIndex}', logLevel: LogLevel.debug);
@@ -112,7 +114,7 @@ class PacketRecognizer {
   Future<void> _processSampleWave() async {
     List<double> sampleWave = await _packetsQueue.readWave(_audioSettingsModel.sampleSize);
     SampleModel sampleModel = SampleModel.fromWave(sampleWave, _audioSettingsModel);
-    _frameModelDecoder.addBinaries(<String>[sampleModel.calcBinary()]);
+    _frameDecoder.addBinaries(<String>[sampleModel.calcBinary()]);
   }
 }
 

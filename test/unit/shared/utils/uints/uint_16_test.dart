@@ -6,7 +6,7 @@ import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
 
 void main() {
   group('Test of Uint16.fromBytes()', () {
-    test('Should return [bytes] from given Uint8List', () {
+    test('Should [return bytes] from given Uint8List', () {
       // Arrange
       Uint8List actualBytes = Uint8List.fromList(<int>[0, 3]);
 
@@ -21,7 +21,7 @@ void main() {
   });
 
   group('Test of Uint16.fromInt()', () {
-    test('Should return [bytes] from given value', () {
+    test('Should [return bytes] from given value', () {
       // Arrange
       int actualValue = 3;
 
@@ -36,7 +36,7 @@ void main() {
   });
 
   group('Test of Uint16.toInt()', () {
-    test('Should return [int] from given bytes', () {
+    test('Should [return int] from given bytes', () {
       // Arrange
       Uint16 actualUint16 = Uint16(Uint8List.fromList(<int>[0, 3]));
 

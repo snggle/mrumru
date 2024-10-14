@@ -1,20 +1,19 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mrumru/src/frame/protocol/frame_compression_type.dart';
-import 'package:mrumru/src/frame/protocol/frame_encoding_type.dart';
-import 'package:mrumru/src/frame/protocol/frame_protocol_type.dart';
-import 'package:mrumru/src/frame/protocol/frame_version_number.dart';
-import 'package:mrumru/src/frame/protocol/uint_32_frame_protocol_id.dart';
 import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
 import 'package:mrumru/src/shared/models/frame/data_frame.dart';
 import 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
+import 'package:mrumru/src/shared/models/frame/frame_compression_type.dart';
+import 'package:mrumru/src/shared/models/frame/frame_encoding_type.dart';
+import 'package:mrumru/src/shared/models/frame/frame_protocol_id.dart';
+import 'package:mrumru/src/shared/models/frame/frame_protocol_type.dart';
+import 'package:mrumru/src/shared/models/frame/frame_version_number.dart';
 import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
-
 import 'package:mrumru/src/shared/utils/uints/uint_8.dart';
 
 void main() {
-  Uint32FrameProtocolID actualProtocolID = Uint32FrameProtocolID(
+  FrameProtocolID actualProtocolID = FrameProtocolID(
     frameCompressionType: Uint8.fromInt(FrameCompressionType.noCompression.value),
     frameEncodingType: Uint8.fromInt(FrameEncodingType.defaultMethod.value),
     frameProtocolType: Uint8.fromInt(FrameProtocolType.rawDataTransfer.value),
@@ -51,7 +50,7 @@ void main() {
   FrameCollectionModel actualFrameCollectionModel = FrameCollectionModel(<ABaseFrame>[...actualDataFrames, actualMetadataFrame]);
 
   group('Tests of FrameCollectionModel.binaryFrames', () {
-    test('Should return [binary string list] representing encoded rawData from each frame', () {
+    test('Should [return binary string list] representing encoded rawData from each frame', () {
       // Act
       List<String> actualBinaryFrames = actualFrameCollectionModel.binaryFrames;
 
@@ -86,7 +85,7 @@ void main() {
   });
 
   group('Tests of FrameCollectionModel.mergedBinaryFrames', () {
-    test('Should return [binary string] representing merged and encoded rawData from each frame', () {
+    test('Should [return binary string] representing merged and encoded rawData from each frame', () {
       // Act
       String actualString = actualFrameCollectionModel.mergedBinaryFrames;
 
@@ -111,22 +110,12 @@ void main() {
     });
   });
 
-  group('Tests of FrameCollectionModel.mergedRawData', () {
-    test('Should return [raw string] representing merged rawData from each frame', () {
-      // Act
-      String actualString = actualFrameCollectionModel.mergedRawData;
-
-      // Assert
-      String expectedString = inputString;
-      expect(actualString, expectedString);
-    });
-  });
 
   // Added missing test
   group('Tests of FrameCollectionModel.mergedRawDataBytes', () {
-    test('Should return [Uint8List] representing merged rawData bytes from each frame', () {
+    test('Should [return Uint8List] representing merged rawData bytes from each frame', () {
       // Act
-      Uint8List actualBytes = actualFrameCollectionModel.mergedRawDataBytes;
+      Uint8List actualBytes = actualFrameCollectionModel.mergedDataBytes;
 
       // Assert
       Uint8List expectedBytes = Uint8List.fromList(inputString.codeUnits);

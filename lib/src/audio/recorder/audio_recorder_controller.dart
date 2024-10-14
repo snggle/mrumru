@@ -9,7 +9,7 @@ import 'package:wav/wav.dart';
 
 class AudioRecorderController {
   final AudioRecorder audioRecorder = AudioRecorder();
-  final ValueChanged<DataFrame>? onFrameReceived;
+  final ValueChanged<ABaseFrame>? onFrameReceived;
   final ValueChanged<FrameCollectionModel> onRecordingCompleted;
   final AudioSettingsModel audioSettingsModel;
   late final PacketRecognizer packetRecognizer;

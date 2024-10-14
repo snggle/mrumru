@@ -7,15 +7,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/recorder/packet_recognizer.dart';
 import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dart';
-import 'package:mrumru/src/frame/protocol/frame_compression_type.dart';
-import 'package:mrumru/src/frame/protocol/frame_encoding_type.dart';
-import 'package:mrumru/src/frame/protocol/frame_protocol_type.dart';
-import 'package:mrumru/src/frame/protocol/frame_version_number.dart';
-import 'package:mrumru/src/frame/protocol/uint_32_frame_protocol_id.dart';
+import 'package:mrumru/src/shared/models/frame/frame_compression_type.dart';
+import 'package:mrumru/src/shared/models/frame/frame_encoding_type.dart';
+import 'package:mrumru/src/shared/models/frame/frame_protocol_id.dart';
+import 'package:mrumru/src/shared/models/frame/frame_protocol_type.dart';
+import 'package:mrumru/src/shared/models/frame/frame_version_number.dart';
 import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
-import 'package:mrumru/src/shared/utils/uints/uint_16.dart';
-import 'package:mrumru/src/shared/utils/uints/uint_32.dart';
-import 'package:mrumru/src/shared/utils/uints/uint_dynamic.dart';
 
 import '../../../utils/test_utils.dart';
 
@@ -50,24 +47,26 @@ void main() async {
       // Assert
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(
         <ABaseFrame>[
-          MetadataFrame(
-              frameIndex: Uint16.fromInt(0),
-              frameLength: Uint16.fromInt(8),
-              framesCount: Uint16.fromInt(1),
-              frameProtocolID: Uint32FrameProtocolID.fromValues(
-                  frameCompressionType: FrameCompressionType.noCompression,
-                  frameEncodingType: FrameEncodingType.defaultMethod,
-                  frameProtocolType: FrameProtocolType.rawDataTransfer,
-                  frameVersionNumber: FrameVersionNumber.firstDefault),
-              sessionId: Uint32(Uint8List.fromList(<int>[1, 2, 3, 4])),
-              compositeChecksum: Uint32(Uint8List.fromList(<int>[11, 139, 0, 154])),
-              data: UintDynamic(Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]), 64),
-              frameChecksum: Uint16(Uint8List.fromList(<int>[164, 73]))),
-          DataFrame(
-              frameIndex: Uint16.fromInt(1),
-              frameLength: Uint16(Uint8List.fromList(<int>[0, 8])),
-              data: UintDynamic.fromBytes(Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]), 64).value,
-              frameChecksum: Uint16(Uint8List.fromList(<int>[33, 217]))),
+          MetadataFrame.fromValues(
+            frameIndex: 0,
+            frameProtocolID: FrameProtocolID.fromValues(
+                frameCompressionType: FrameCompressionType.noCompression,
+                frameEncodingType: FrameEncodingType.defaultMethod,
+                frameProtocolType: FrameProtocolType.rawDataTransfer,
+                frameVersionNumber: FrameVersionNumber.firstDefault),
+            sessionId: Uint8List.fromList(<int>[1, 2, 3, 4]),
+            data: Uint8List.fromList(<int>[]),
+            dataFrames: <DataFrame>[
+              DataFrame.fromValues(
+                frameIndex: 1,
+                data: Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]),
+              )
+            ],
+          ),
+          DataFrame.fromValues(
+            frameIndex: 1,
+            data: Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]),
+          )
         ],
       );
       expect(actualFrameCollectionModel, expectedFrameCollectionModel);
@@ -98,24 +97,26 @@ void main() async {
       // Assert
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(
         <ABaseFrame>[
-          MetadataFrame(
-              frameIndex: Uint16.fromInt(0),
-              frameLength: Uint16.fromInt(8),
-              framesCount: Uint16.fromInt(1),
-              frameProtocolID: Uint32FrameProtocolID.fromValues(
-                  frameCompressionType: FrameCompressionType.noCompression,
-                  frameEncodingType: FrameEncodingType.defaultMethod,
-                  frameProtocolType: FrameProtocolType.rawDataTransfer,
-                  frameVersionNumber: FrameVersionNumber.firstDefault),
-              sessionId: Uint32(Uint8List.fromList(<int>[1, 2, 3, 4])),
-              compositeChecksum: Uint32(Uint8List.fromList(<int>[11, 139, 0, 154])),
-              data: UintDynamic(Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]), 64),
-              frameChecksum: Uint16(Uint8List.fromList(<int>[164, 73]))),
-          DataFrame(
-              frameIndex: Uint16.fromInt(1),
-              frameLength: Uint16(Uint8List.fromList(<int>[0, 8])),
-              data: UintDynamic.fromBytes(Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]), 64).value,
-              frameChecksum: Uint16(Uint8List.fromList(<int>[33, 217]))),
+          MetadataFrame.fromValues(
+            frameIndex: 0,
+            frameProtocolID: FrameProtocolID.fromValues(
+                frameCompressionType: FrameCompressionType.noCompression,
+                frameEncodingType: FrameEncodingType.defaultMethod,
+                frameProtocolType: FrameProtocolType.rawDataTransfer,
+                frameVersionNumber: FrameVersionNumber.firstDefault),
+            sessionId: Uint8List.fromList(<int>[1, 2, 3, 4]),
+            data: Uint8List.fromList(<int>[]),
+            dataFrames: <DataFrame>[
+              DataFrame.fromValues(
+                frameIndex: 1,
+                data: Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]),
+              )
+            ],
+          ),
+          DataFrame.fromValues(
+            frameIndex: 1,
+            data: Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]),
+          )
         ],
       );
       expect(actualFrameCollectionModel, expectedFrameCollectionModel);
@@ -146,24 +147,26 @@ void main() async {
       // Assert
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(
         <ABaseFrame>[
-          MetadataFrame(
-              frameIndex: Uint16.fromInt(0),
-              frameLength: Uint16.fromInt(0),
-              framesCount: Uint16.fromInt(1),
-              frameProtocolID: Uint32FrameProtocolID.fromValues(
-                  frameCompressionType: FrameCompressionType.noCompression,
-                  frameEncodingType: FrameEncodingType.defaultMethod,
-                  frameProtocolType: FrameProtocolType.rawDataTransfer,
-                  frameVersionNumber: FrameVersionNumber.firstDefault),
-              sessionId: Uint32(Uint8List.fromList(<int>[1, 2, 3, 4])),
-              compositeChecksum: Uint32(Uint8List.fromList(<int>[11, 139, 0, 154])),
-              data: UintDynamic(Uint8List.fromList(<int>[]), 0),
-              frameChecksum: Uint16(Uint8List.fromList(<int>[143, 128]))),
-          DataFrame(
-              frameIndex: Uint16.fromInt(1),
-              frameLength: Uint16(Uint8List.fromList(<int>[0, 8])),
-              data: UintDynamic.fromBytes(Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]), 64).value,
-              frameChecksum: Uint16(Uint8List.fromList(<int>[33, 217]))),
+          MetadataFrame.fromValues(
+            frameIndex: 0,
+            frameProtocolID: FrameProtocolID.fromValues(
+                frameCompressionType: FrameCompressionType.noCompression,
+                frameEncodingType: FrameEncodingType.defaultMethod,
+                frameProtocolType: FrameProtocolType.rawDataTransfer,
+                frameVersionNumber: FrameVersionNumber.firstDefault),
+            sessionId: Uint8List.fromList(<int>[1, 2, 3, 4]),
+            data: Uint8List.fromList(<int>[]),
+            dataFrames: <DataFrame>[
+              DataFrame.fromValues(
+                frameIndex: 1,
+                data: Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]),
+              )
+            ],
+          ),
+          DataFrame.fromValues(
+            frameIndex: 1,
+            data: Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]),
+          )
         ],
       );
 
@@ -195,24 +198,26 @@ void main() async {
       // Assert
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(
         <ABaseFrame>[
-          MetadataFrame(
-              frameIndex: Uint16.fromInt(0),
-              frameLength: Uint16.fromInt(0),
-              framesCount: Uint16.fromInt(1),
-              frameProtocolID: Uint32FrameProtocolID.fromValues(
-                  frameCompressionType: FrameCompressionType.noCompression,
-                  frameEncodingType: FrameEncodingType.defaultMethod,
-                  frameProtocolType: FrameProtocolType.rawDataTransfer,
-                  frameVersionNumber: FrameVersionNumber.firstDefault),
-              sessionId: Uint32(Uint8List.fromList(<int>[1, 2, 3, 4])),
-              compositeChecksum: Uint32(Uint8List.fromList(<int>[11, 139, 0, 154])),
-              data: UintDynamic(Uint8List.fromList(<int>[]), 0),
-              frameChecksum: Uint16(Uint8List.fromList(<int>[143, 128]))),
-          DataFrame(
-              frameIndex: Uint16.fromInt(1),
-              frameLength: Uint16(Uint8List.fromList(<int>[0, 8])),
-              data: UintDynamic.fromBytes(Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]), 64).value,
-              frameChecksum: Uint16(Uint8List.fromList(<int>[33, 217]))),
+          MetadataFrame.fromValues(
+            frameIndex: 0,
+            frameProtocolID: FrameProtocolID.fromValues(
+                frameCompressionType: FrameCompressionType.noCompression,
+                frameEncodingType: FrameEncodingType.defaultMethod,
+                frameProtocolType: FrameProtocolType.rawDataTransfer,
+                frameVersionNumber: FrameVersionNumber.firstDefault),
+            sessionId: Uint8List.fromList(<int>[1, 2, 3, 4]),
+            data: Uint8List.fromList(<int>[]),
+            dataFrames: <DataFrame>[
+              DataFrame.fromValues(
+                frameIndex: 1,
+                data: Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]),
+              )
+            ],
+          ),
+          DataFrame.fromValues(
+            frameIndex: 1,
+            data: Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]),
+          )
         ],
       );
 

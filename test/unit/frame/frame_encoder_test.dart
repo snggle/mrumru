@@ -1,13 +1,14 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/frame/frame_model_encoder.dart';
-import 'package:mrumru/src/frame/protocol/frame_compression_type.dart';
-import 'package:mrumru/src/frame/protocol/frame_encoding_type.dart';
-import 'package:mrumru/src/frame/protocol/frame_protocol_type.dart';
-import 'package:mrumru/src/frame/protocol/frame_version_number.dart';
-import 'package:mrumru/src/frame/protocol/uint_32_frame_protocol_id.dart';
+import 'package:mrumru/src/frame/frame_encoder.dart';
+import 'package:mrumru/src/shared/models/frame/frame_compression_type.dart';
+import 'package:mrumru/src/shared/models/frame/frame_encoding_type.dart';
+import 'package:mrumru/src/shared/models/frame/frame_protocol_id.dart';
+import 'package:mrumru/src/shared/models/frame/frame_protocol_type.dart';
+import 'package:mrumru/src/shared/models/frame/frame_version_number.dart';
 import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_16.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_32.dart';
@@ -15,26 +16,20 @@ import 'package:mrumru/src/shared/utils/uints/uint_8.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_dynamic.dart';
 
 void main() {
-  late FrameModelEncoder actualFrameModelEncoder;
-  late String actualRawData;
-  late Uint32FrameProtocolID actualFrameProtocolID;
+  group('Tests of FrameEncoder.buildFrameCollection()', () {
+    test('Should [return FrameCollectionModel] from given raw data', () {
+      // Arrange
+      FrameEncoder actualFrameEncoder = FrameEncoder(frameDataBytesLength: 32);
+      Uint8List actualBytes = utf8.encode('123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~');
+      FrameProtocolID actualFrameProtocolID = FrameProtocolID(
+        frameCompressionType: Uint8.fromInt(FrameCompressionType.noCompression.value),
+        frameEncodingType: Uint8.fromInt(FrameEncodingType.defaultMethod.value),
+        frameProtocolType: Uint8.fromInt(FrameProtocolType.rawDataTransfer.value),
+        frameVersionNumber: Uint8.fromInt(FrameVersionNumber.firstDefault.value),
+      );
 
-  setUp(() {
-    actualFrameModelEncoder = FrameModelEncoder(asciiCharacterCountInFrame: 32);
-    actualRawData = '123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
-
-    actualFrameProtocolID = Uint32FrameProtocolID(
-      frameCompressionType: Uint8.fromInt(FrameCompressionType.noCompression.value),
-      frameEncodingType: Uint8.fromInt(FrameEncodingType.defaultMethod.value),
-      frameProtocolType: Uint8.fromInt(FrameProtocolType.rawDataTransfer.value),
-      frameVersionNumber: Uint8.fromInt(FrameVersionNumber.firstDefault.value),
-    );
-  });
-
-  group('Tests of FrameModelBuilder.buildFrameCollection()', () {
-    test('Should correctly split and generate frames from given raw data', () {
       // Act
-      FrameCollectionModel actualFrameCollectionModel = actualFrameModelEncoder.buildFrameCollection(actualRawData);
+      FrameCollectionModel actualFrameCollectionModel = actualFrameEncoder.buildFrameCollection(actualBytes);
 
       // Assert
       //@formatter:off
@@ -70,7 +65,6 @@ void main() {
             frameChecksum:  Uint16(Uint8List.fromList(<int>[70, 194])),)
       ]);
       //@formatter:on
-
       expect(actualFrameCollectionModel, expectedFrameCollectionModel);
     });
   });
