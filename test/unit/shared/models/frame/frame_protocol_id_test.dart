@@ -1,12 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mrumru/src/shared/models/frame/frame_protocol_id.dart';
-import 'package:mrumru/src/shared/utils/enums/compression_method.dart';
-import 'package:mrumru/src/shared/utils/enums/encoding_method.dart';
-import 'package:mrumru/src/shared/utils/enums/protocol_type.dart';
-import 'package:mrumru/src/shared/utils/enums/version_number.dart';
-
+import 'package:mrumru/src/shared/dtos/frame_protocol_id.dart';
+import 'package:mrumru/src/shared/enums/compression_method.dart';
+import 'package:mrumru/src/shared/enums/encoding_method.dart';
+import 'package:mrumru/src/shared/enums/protocol_type.dart';
+import 'package:mrumru/src/shared/enums/version_number.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_8.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
 
@@ -34,7 +33,7 @@ void main() {
   });
 
   group('Test of FrameProtocolID.fromBytes()', () {
-    test('Should [return UintReminder] containing FrameProtocolID and remaining bytes', () {
+    test('Should [return UintReminder] containing FrameProtocolID from given bytes when [reminder EMPTY]', () {
       // Arrange
       Uint8List actualBytes = Uint8List.fromList(<int>[0, 0, 0, 1]);
 
@@ -55,7 +54,7 @@ void main() {
       expect(actualFrameProtocolIDReminder, expectedFrameProtocolIDReminder);
     });
 
-    test('Should [return UintReminder] containing FrameProtocolID and remaining bytes', () {
+    test('Should [return UintReminder] containing FrameProtocolID from given bytes when [reminder NOT EMPTY]', () {
       // Arrange
       Uint8List actualBytes = Uint8List.fromList(<int>[0, 0, 0, 1, 60, 80, 90, 100]);
 

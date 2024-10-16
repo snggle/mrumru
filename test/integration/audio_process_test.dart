@@ -8,13 +8,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/recorder/packet_recognizer.dart';
 import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dart';
-import 'package:mrumru/src/shared/models/frame/frame_protocol_id.dart';
-import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
+import 'package:mrumru/src/shared/enums/compression_method.dart';
+import 'package:mrumru/src/shared/enums/encoding_method.dart';
+import 'package:mrumru/src/shared/enums/protocol_type.dart';
+import 'package:mrumru/src/shared/enums/version_number.dart';
 import 'package:mrumru/src/shared/utils/app_logger.dart';
-import 'package:mrumru/src/shared/utils/enums/compression_method.dart';
-import 'package:mrumru/src/shared/utils/enums/encoding_method.dart';
-import 'package:mrumru/src/shared/utils/enums/protocol_type.dart';
-import 'package:mrumru/src/shared/utils/enums/version_number.dart';
 import 'package:wav/wav.dart';
 
 void main() async {
@@ -56,8 +54,6 @@ void main() async {
       }
 
       // Assert
-
-      // @formatter:off
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(<ABaseFrame>[
         MetadataFrame.fromValues(
           frameIndex: 0,
@@ -69,13 +65,16 @@ void main() async {
           ),
           sessionId: base64Decode('AQIDBA=='),
           data: Uint8List(0),
-          dataFrames: <DataFrame>[],
+          dataFrames: <DataFrame>[
+            DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1A=')),
+            DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9gYWJjZGVmZ2hpamtsbW5vcHE=')),
+            DataFrame.fromValues(frameIndex: 3, data: base64Decode('cnN0dXZ3eHl6e3x9fg==')),
+          ],
         ),
         DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1A=')),
         DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9gYWJjZGVmZ2hpamtsbW5vcHE=')),
         DataFrame.fromValues(frameIndex: 3, data: base64Decode('cnN0dXZ3eHl6e3x9fg==')),
       ]);
-      // @formatter:on
 
       expect(actualFrameCollectionModel, expectedFrameCollectionModel);
     });

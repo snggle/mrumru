@@ -7,12 +7,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/recorder/packet_recognizer.dart';
 import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dart';
-import 'package:mrumru/src/shared/models/frame/frame_protocol_id.dart';
-import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
-import 'package:mrumru/src/shared/utils/enums/compression_method.dart';
-import 'package:mrumru/src/shared/utils/enums/encoding_method.dart';
-import 'package:mrumru/src/shared/utils/enums/protocol_type.dart';
-import 'package:mrumru/src/shared/utils/enums/version_number.dart';
+import 'package:mrumru/src/shared/enums/compression_method.dart';
+import 'package:mrumru/src/shared/enums/encoding_method.dart';
+import 'package:mrumru/src/shared/enums/protocol_type.dart';
+import 'package:mrumru/src/shared/enums/version_number.dart';
 
 import '../../../utils/test_utils.dart';
 

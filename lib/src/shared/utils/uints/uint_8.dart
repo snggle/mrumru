@@ -5,9 +5,9 @@ import 'package:mrumru/src/shared/utils/big_int_utils.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_dynamic.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
 
-/// A class that represents a Uint8.
+/// A class that represents a [Uint8].
 class Uint8 extends UintDynamic {
-  /// The size of the Uint8 in bytes.
+  /// The size of the [Uint8].
   static const int _bytesSize = 1;
   static const int _bitsSize = 8;
 

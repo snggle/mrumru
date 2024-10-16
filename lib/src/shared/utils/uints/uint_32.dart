@@ -5,9 +5,9 @@ import 'package:mrumru/src/shared/utils/big_int_utils.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_dynamic.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
 
-/// A class that represents a Uint32.
+/// A class that represents a [Uint32].
 class Uint32 extends UintDynamic {
-  /// The size of the Uint32 in bytes.
+  /// The size of the [Uint32].
   static const int _bytesSize = 4;
   static const int _bitsSize = 32;
 

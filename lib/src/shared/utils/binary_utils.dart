@@ -1,11 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:mrumru/mrumru.dart';
-
 /// A class that provides utility methods for binary operations.
-///
-/// `BinaryUtils` offers methods for converting between binary strings and
-/// byte arrays, as well as handling frame-specific binary conversions.
 class BinaryUtils {
   /// The number of bits in a single byte.
   static const int bitsInByte = 8;
@@ -24,11 +19,10 @@ class BinaryUtils {
     return byteList;
   }
 
-  /// Converts the bytes of a frame to a binary string.
+  /// Converts the bytes to a binary string.
   ///
-  /// [frame] is an instance of `ABaseFrame`, and this method converts each
-  /// byte of the frame into its binary string representation, padding it to 8 bits.
-  static String frameToBinaryString(ABaseFrame frame) {
-    return frame.toBytes().map((int byte) => byte.toRadixString(2).padLeft(BinaryUtils.bitsInByte, '0')).join();
+  /// [bytes] is a list of bytes that are converted to a binary string.
+  static String frameToBinaryString(Uint8List bytes) {
+    return bytes.map((int byte) => byte.toRadixString(2).padLeft(BinaryUtils.bitsInByte, '0')).join();
   }
 }

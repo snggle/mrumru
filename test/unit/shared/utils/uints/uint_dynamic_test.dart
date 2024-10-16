@@ -6,7 +6,7 @@ import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
 
 void main() {
   group('Test of UintDynamic.fromBytes()', () {
-    test('Should [return UintReminder] from given Uint8List', () {
+    test('Should [return UintReminder] from given Uint8List when [reminder EMPTY]', () {
       // Arrange
       Uint8List actualBytes = Uint8List.fromList(<int>[0, 0, 0, 3]);
 
@@ -22,7 +22,7 @@ void main() {
       expect(actualUintDynamic, expectedUintDynamic);
     });
 
-    test('Should [return UintReminder] from given Uint8List', () {
+    test('Should [return UintReminder] from given Uint8List when [reminder NOT EMPTY]', () {
       // Arrange
       Uint8List actualBytes = Uint8List.fromList(<int>[0, 0, 0, 3, 2, 2, 3, 4, 1]);
 

@@ -3,12 +3,10 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/shared/models/frame/frame_protocol_id.dart';
-import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
-import 'package:mrumru/src/shared/utils/enums/compression_method.dart';
-import 'package:mrumru/src/shared/utils/enums/encoding_method.dart';
-import 'package:mrumru/src/shared/utils/enums/protocol_type.dart';
-import 'package:mrumru/src/shared/utils/enums/version_number.dart';
+import 'package:mrumru/src/shared/enums/compression_method.dart';
+import 'package:mrumru/src/shared/enums/encoding_method.dart';
+import 'package:mrumru/src/shared/enums/protocol_type.dart';
+import 'package:mrumru/src/shared/enums/version_number.dart';
 
 void main() {
   group('Tests of FrameCollectionModel.mergedBinaryFrames', () {
@@ -36,7 +34,7 @@ void main() {
       String actualString = actualFrameCollectionModel.mergedBinaryFrames;
 
       // Assert
-      //@formatter:off
+
       String expectedString =
           '00000000000000000000000000000000000000000000000000000000000000000000000000000001000000010000001000000011000001001101010000011101100011001101100110000'
           '00001100001000000000000000100000000001000000011000100110010001100110011010000110101001101100011011100111000001110010011101000111011001111000011110100'
@@ -45,7 +43,6 @@ void main() {
           '11100101111101100000011000010110001001100011011001000110010101100110011001110110100001101001011010100110101101101100011011010110111001101111011100000'
           '11100010111111111100101000000000000001100000000000011010111001001110011011101000111010101110110011101110111100001111001011110100111101101111100011111'
           '01011111100100011011000010';
-      //@formatter:on
 
       expect(actualString, expectedString);
     });
@@ -82,6 +79,7 @@ void main() {
         74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109,
         110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126]);
       //@formatter:on
+
       expect(actualBytes, expectedBytes);
     });
   });

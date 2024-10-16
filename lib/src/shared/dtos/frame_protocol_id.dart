@@ -1,14 +1,14 @@
 import 'dart:typed_data';
 
-import 'package:mrumru/src/shared/utils/enums/compression_method.dart';
-import 'package:mrumru/src/shared/utils/enums/encoding_method.dart';
-import 'package:mrumru/src/shared/utils/enums/protocol_type.dart';
-import 'package:mrumru/src/shared/utils/enums/version_number.dart';
+import 'package:mrumru/src/shared/enums/compression_method.dart';
+import 'package:mrumru/src/shared/enums/encoding_method.dart';
+import 'package:mrumru/src/shared/enums/protocol_type.dart';
+import 'package:mrumru/src/shared/enums/version_number.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_32.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_8.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
 
-/// A class that represents a FrameProtocolID.
+/// A class that represents a [FrameProtocolID].
 class FrameProtocolID extends Uint32 {
   /// The value of the [FrameProtocolID].
   final Uint8 compressionMethod;

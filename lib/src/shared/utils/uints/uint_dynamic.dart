@@ -6,9 +6,9 @@ import 'package:mrumru/src/shared/utils/big_int_utils.dart';
 import 'package:mrumru/src/shared/utils/binary_utils.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
 
-/// A class that represents a UintDynamic.
+/// A class that represents a [UintDynamic].
 class UintDynamic with EquatableMixin {
-  /// The size of the UintDynamic in bits.
+  /// The size of the [UintDynamic].
   final int bitsSize;
   final Uint8List _bytes;
 

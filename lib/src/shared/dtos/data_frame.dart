@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
+import 'package:mrumru/src/shared/dtos/a_base_frame.dart';
 import 'package:mrumru/src/shared/utils/binary_utils.dart';
 import 'package:mrumru/src/shared/utils/crypto_utils.dart';
 import 'package:mrumru/src/shared/utils/frame_reminder.dart';

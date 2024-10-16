@@ -17,7 +17,6 @@ class UintReminder<T extends UintDynamic> extends Equatable {
   /// any leftover bytes not yet processed.
   const UintReminder(this.value, this.reminder);
 
-  /// Overrides equality comparison to include the [value] and [reminder].
   @override
   List<Object?> get props => <Object?>[value, reminder];
 }

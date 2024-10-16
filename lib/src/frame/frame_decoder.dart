@@ -2,7 +2,6 @@ import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/shared/exceptions/bytes_too_short_exception.dart';
-import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
 import 'package:mrumru/src/shared/utils/app_logger.dart';
 import 'package:mrumru/src/shared/utils/binary_utils.dart';
 import 'package:mrumru/src/shared/utils/frame_reminder.dart';
@@ -74,7 +73,7 @@ class FrameDecoder {
   /// Returns `true` if the metadata frame is already decoded, otherwise `false`.
   bool get _isMetadataFrameDecoded => _metadataFrame != null;
 
-  /// The metadata frame is crucial for guiding the decoding of subsequent frames.
+  /// Decodes metadata frame, which is crucial for guiding the decoding of subsequent frames.
   /// If the data is incomplete, decoding is deferred until more data is added.
   void _decodeMetadataFrame() {
     Uint8List bytes = BinaryUtils.convertBinaryToBytes(_nextBinaryData);

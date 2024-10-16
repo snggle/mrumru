@@ -10,7 +10,6 @@ library mrumru;
 ///   AudioGenerator audioGenerator = AudioGenerator(
 ///     audioSink: AudioSink(),
 ///     audioSettingsModel: AudioSettingsModel(),
-///     frameSettingsModel: FrameSettingsModel(),
 ///     audioGeneratorNotifier: AudioGeneratorNotifier(),
 ///   );
 ///
@@ -46,7 +45,6 @@ export 'package:mrumru/src/audio/generator/sink/i_audio_sink.dart';
 ///   // Creates an instance of [AudioRecorderController].
 ///   AudioRecorderController audioRecorderController = AudioRecorderController(
 ///     audioSettingsModel: AudioSettingsModel(),
-///     frameSettingsModel: FrameSettingsModel(),
 ///     onRecordingCompleted: () {},
 ///     onFrameReceived: (FrameModel frameModel) {},
 ///   );
@@ -58,6 +56,75 @@ export 'package:mrumru/src/audio/generator/sink/i_audio_sink.dart';
 ///   audioRecorderController.stopRecording();
 ///  ```
 export 'package:mrumru/src/audio/recorder/audio_recorder_controller.dart';
+export 'package:mrumru/src/shared/dtos/a_base_frame.dart';
+
+/// A class representing a data frame in the protocol.
+///
+/// Usage:
+///   ```
+///   // Creates an instance of [DataFrame].
+///   DataFrame dataFrame = DataFrame(
+///     frameIndex: Uint16.fromInt(0),
+///     frameLength: Uint16.fromInt(data.length),
+///     data: UintDynamic(data, data.length * BinaryUtils.bitsInByte),
+///     frameChecksum: Uint16.fromInt(0),
+///   );
+///   ```
+export 'package:mrumru/src/shared/dtos/data_frame.dart';
+
+/// A class that represents a protocol identifier for a frame.
+///
+/// Usage:
+///   ```dart
+///   FrameProtocolID protocolID = FrameProtocolID(
+///     compressionMethod: Uint8.fromInt(CompressionMethod.noCompression.value),
+///     encodingMethod: Uint8.fromInt(EncodingMethod.defaultMethod.value),
+///     protocolType: Uint8.fromInt(ProtocolType.rawDataTransfer.value),
+///     versionNumber: Uint8.fromInt(VersionNumber.firstDefault.value),
+///   );
+///   ```
+///
+/// OR
+///
+/// Usage:
+///   ```dart
+///   FrameProtocolID protocolID = FrameProtocolID.fromValues(
+///     compressionMethod: CompressionMethod.noCompression,
+///     encodingMethod: EncodingMethod.defaultMethod,
+///     protocolType: ProtocolType.rawDataTransfer,
+///     versionNumber: VersionNumber.firstDefault,
+///   );
+///   ```
+export 'package:mrumru/src/shared/dtos/frame_protocol_id.dart';
+
+/// A class that represents a metadata frame.
+///
+/// Usage:
+///   ```
+///   MetadataFrame metadataFrame = MetadataFrame(
+///     frameIndex: Uint16.fromInt(0),
+///     frameLength: Uint16.fromInt(128),
+///     framesCount: Uint16.fromInt(20),
+///     frameProtocolID: FrameProtocolID.fromValues(...),
+///     sessionId: Uint32.fromList([1, 2, 3, 4]),
+///     compositeChecksum: Uint32.fromList([5, 6, 7, 8]),
+///     data: UintDynamic(data, data.length * BinaryUtils.bitsInByte),
+///     frameChecksum: Uint16.fromInt(0),
+///   );
+///
+/// OR
+///
+/// Usage:
+///   ```dart
+///   MetadataFrame metadataFrame = MetadataFrame.fromValues(
+///     frameIndex: 0,
+///     frameProtocolID: FrameProtocolID.fromValues(...),
+///     sessionId: Uint8List.fromList([1, 2, 3, 4]),
+///     data: Uint8List.fromList([1, 2, 3]),
+///     dataFrames: [...],
+///   );
+///   ```
+export 'package:mrumru/src/shared/dtos/metadata_frame.dart';
 
 /// Adds audio settings that can be modified to customize the audio structure.
 ///
@@ -88,31 +155,23 @@ export 'package:mrumru/src/audio/recorder/audio_recorder_controller.dart';
 ///
 ///   ```
 export 'package:mrumru/src/shared/models/audio_settings_model.dart';
-export 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
 
-/// Provides model of frame used to encode and decode data.
+/// A class representing a collection of frames.
 ///
 /// Usage:
-///  ```
-///   // Creates an instance of [FrameModel].
-///   FrameModel frameModel = FrameModel(
-///     frameIndex: 0,
-///     framesCount: 20,
-///     rawData: '1234',
-///     frameSettings: FrameSettingsModel(),
-///   );
+///   ```dart
+///   // Creating an instance of [FrameCollectionModel].
+///   FrameCollectionModel frameCollection = FrameCollectionModel([
+///     metadataFrame,
+///     dataFrame1,
+///     dataFrame2,
+///   ]);
 ///
-///   // Get [mergedBinaryFrames] from [FrameModel] created from decoded content of the frame.
-///   String mergedBinaryFrames = frameModel.mergedBinaryFrames;
 ///
-///   // Create from binary string frame for decoding.
-///   FrameModel frameModel = FrameModel.fromBinaryString('101010101010101010101010');
+///   // Accessing merged binary frames from the collection.
+///   String mergedFrames = frameCollection.mergedBinaryFrames;
 ///
-///   // Get [binaryString] from [FrameModel] created from decoded content of the frame.
-///   String binaryString = frameModel.binaryString;
-///
-///   // Get [transferWavLength] from [FrameModel] calculated from the provided values.
-///   int transferWavLength = frameModel.getTransferWavLength(audioSettingsModel);
-///  ```
-export 'package:mrumru/src/shared/models/frame/data_frame.dart';
+///   // Accessing merged data bytes from the collection.
+///   Uint8List mergedData = frameCollection.mergedDataBytes;
+///   ```
 export 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';

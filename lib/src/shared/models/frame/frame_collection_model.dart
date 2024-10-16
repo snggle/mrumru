@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'package:equatable/equatable.dart';
-import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
-import 'package:mrumru/src/shared/models/frame/data_frame.dart';
+import 'package:mrumru/src/shared/dtos/a_base_frame.dart';
+import 'package:mrumru/src/shared/dtos/data_frame.dart';
 import 'package:mrumru/src/shared/utils/binary_utils.dart';
 
 /// A class representing a collection of frames.
@@ -14,7 +14,7 @@ class FrameCollectionModel extends Equatable {
 
   /// Merges the binary representations of all frames into a single binary string.
   String get mergedBinaryFrames {
-    return frames.map(BinaryUtils.frameToBinaryString).join();
+    return frames.map((ABaseFrame frame) => BinaryUtils.frameToBinaryString(Uint8List.fromList(frame.toBytes()))).join();
   }
 
   /// Merges the data bytes of all data frames into a single byte array.

@@ -5,9 +5,9 @@ import 'package:mrumru/src/shared/utils/big_int_utils.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_dynamic.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
 
-/// A class that represents a Uint16.
+/// A class that represents a [Uint16].
 class Uint16 extends UintDynamic {
-  /// The size of the Uint16 in bytes.
+  /// The size of the [Uint16].
   static const int _bytesSize = 2;
   static const int _bitsSize = 16;
 

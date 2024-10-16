@@ -2,9 +2,6 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/shared/models/frame/data_frame.dart';
-import 'package:mrumru/src/shared/models/frame/frame_protocol_id.dart';
-import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
 import 'package:mrumru/src/shared/utils/frame_reminder.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_16.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_32.dart';
@@ -13,7 +10,7 @@ import 'package:mrumru/src/shared/utils/uints/uint_dynamic.dart';
 
 void main() {
   group('Test of MetadataFrame.toBytes()', () {
-    test('Should [return correct bytes] representation', () {
+    test('Should [return bytes] representation', () {
       // Arrange
       MetadataFrame actualMetadataFrame = MetadataFrame.fromValues(
           frameIndex: 0,
@@ -82,7 +79,7 @@ void main() {
   });
 
   group('Test of MetadataFrame.fromBytes()', () {
-    test('Should [return MetadataFrame] correctly from given bytes', () {
+    test('Should [return FrameReminder] containing MetadataFrame from given bytes when [reminder EMPTY]', () {
       // Arrange
       Uint8List actualBytes = Uint8List.fromList(<int>[
         0, 1, // frameIndex
@@ -117,7 +114,7 @@ void main() {
       expect(actualMetadataFrame, expectedMetadataFrame);
     });
 
-    test('Should [return MetadataFrame] correctly from given bytes', () {
+    test('Should [return FrameReminder] containing MetadataFrame from given bytes when [reminder NOT EMPTY]', () {
       // Arrange
       Uint8List actualBytes = Uint8List.fromList(<int>[
         0, 1, // frameIndex

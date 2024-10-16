@@ -1,14 +1,14 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mrumru/src/shared/models/frame/data_frame.dart';
+import 'package:mrumru/src/shared/dtos/data_frame.dart';
 import 'package:mrumru/src/shared/utils/frame_reminder.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_16.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_dynamic.dart';
 
 void main() {
   group('Test of DataFrame.toBytes()', () {
-    test('Should [return correct bytes] representation', () {
+    test('Should [return bytes] representation', () {
       // Arrange
       DataFrame actualDataFrame = DataFrame.fromValues(frameIndex: 1, data: Uint8List.fromList(<int>[1, 2, 3, 4]));
 
@@ -48,7 +48,7 @@ void main() {
   });
 
   group('Test of DataFrame.fromBytes()', () {
-    test('Should [return DataFrame] correctly from given bytes', () {
+    test('Should [return FrameReminder] containing DataFrame from given bytes when [reminder EMPTY]', () {
       // Arrange
       Uint8List actualBytes = Uint8List.fromList(<int>[
         0, 1, // frameIndex
@@ -68,10 +68,11 @@ void main() {
         ),
         reminder: Uint8List.fromList(<int>[]),
       );
+
       expect(actualDataFrame, expectedDataFrame);
     });
 
-    test('Should [return DataFrame] correctly from given bytes ', () {
+    test('Should [return FrameReminder] containing DataFrame from given bytes when [reminder NOT EMPTY]', () {
       // Arrange
       Uint8List actualBytes = Uint8List.fromList(<int>[
         0, 1, // frameIndex
@@ -92,6 +93,7 @@ void main() {
         ),
         reminder: Uint8List.fromList(<int>[0, 25]),
       );
+
       expect(actualDataFrame, expectedDataFrame);
     });
   });
