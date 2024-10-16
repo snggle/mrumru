@@ -1,11 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mrumru/src/shared/models/frame/frame_compression_type.dart';
-import 'package:mrumru/src/shared/models/frame/frame_encoding_type.dart';
 import 'package:mrumru/src/shared/models/frame/frame_protocol_id.dart';
-import 'package:mrumru/src/shared/models/frame/frame_protocol_type.dart';
-import 'package:mrumru/src/shared/models/frame/frame_version_number.dart';
+import 'package:mrumru/src/shared/utils/enums/compression_method.dart';
+import 'package:mrumru/src/shared/utils/enums/encoding_method.dart';
+import 'package:mrumru/src/shared/utils/enums/protocol_type.dart';
+import 'package:mrumru/src/shared/utils/enums/version_number.dart';
 
 import 'package:mrumru/src/shared/utils/uints/uint_8.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
@@ -15,18 +15,18 @@ void main() {
     test('Should [return FrameProtocolID] created from given values', () {
       // Act
       FrameProtocolID actualFrameProtocolID = FrameProtocolID.fromValues(
-        frameCompressionType: FrameCompressionType.noCompression,
-        frameEncodingType: FrameEncodingType.defaultMethod,
-        frameProtocolType: FrameProtocolType.rawDataTransfer,
-        frameVersionNumber: FrameVersionNumber.firstDefault,
+        compressionMethod: CompressionMethod.noCompression,
+        encodingMethod: EncodingMethod.defaultMethod,
+        protocolType: ProtocolType.rawDataTransfer,
+        versionNumber: VersionNumber.firstDefault,
       );
 
       // Assert
       FrameProtocolID expectedFrameProtocolID = FrameProtocolID(
-        frameCompressionType: Uint8.fromInt(0),
-        frameEncodingType: Uint8.fromInt(0),
-        frameProtocolType: Uint8.fromInt(0),
-        frameVersionNumber: Uint8.fromInt(1),
+        compressionMethod: Uint8.fromInt(0),
+        encodingMethod: Uint8.fromInt(0),
+        protocolType: Uint8.fromInt(0),
+        versionNumber: Uint8.fromInt(1),
       );
 
       expect(actualFrameProtocolID, expectedFrameProtocolID);
@@ -34,6 +34,27 @@ void main() {
   });
 
   group('Test of FrameProtocolID.fromBytes()', () {
+    test('Should [return UintReminder] containing FrameProtocolID and remaining bytes', () {
+      // Arrange
+      Uint8List actualBytes = Uint8List.fromList(<int>[0, 0, 0, 1]);
+
+      // Act
+      UintReminder<FrameProtocolID> actualFrameProtocolIDReminder = FrameProtocolID.fromBytes(actualBytes);
+
+      // Assert
+      UintReminder<FrameProtocolID> expectedFrameProtocolIDReminder = UintReminder<FrameProtocolID>(
+        FrameProtocolID.fromValues(
+          compressionMethod: CompressionMethod.noCompression,
+          encodingMethod: EncodingMethod.defaultMethod,
+          protocolType: ProtocolType.rawDataTransfer,
+          versionNumber: VersionNumber.firstDefault,
+        ),
+        Uint8List.fromList(<int>[]),
+      );
+
+      expect(actualFrameProtocolIDReminder, expectedFrameProtocolIDReminder);
+    });
+
     test('Should [return UintReminder] containing FrameProtocolID and remaining bytes', () {
       // Arrange
       Uint8List actualBytes = Uint8List.fromList(<int>[0, 0, 0, 1, 60, 80, 90, 100]);
@@ -44,15 +65,15 @@ void main() {
       // Assert
       UintReminder<FrameProtocolID> expectedFrameProtocolIDReminder = UintReminder<FrameProtocolID>(
         FrameProtocolID.fromValues(
-          frameCompressionType: FrameCompressionType.noCompression,
-          frameEncodingType: FrameEncodingType.defaultMethod,
-          frameProtocolType: FrameProtocolType.rawDataTransfer,
-          frameVersionNumber: FrameVersionNumber.firstDefault,
+          compressionMethod: CompressionMethod.noCompression,
+          encodingMethod: EncodingMethod.defaultMethod,
+          protocolType: ProtocolType.rawDataTransfer,
+          versionNumber: VersionNumber.firstDefault,
         ),
         Uint8List.fromList(<int>[60, 80, 90, 100]),
       );
 
-      expect(actualFrameProtocolIDReminder.value, expectedFrameProtocolIDReminder.value);
+      expect(actualFrameProtocolIDReminder, expectedFrameProtocolIDReminder);
     });
   });
 
@@ -60,10 +81,10 @@ void main() {
     test('Should [return bytes] representing FrameProtocolID', () {
       // Arrange
       FrameProtocolID actualFrameProtocolID = FrameProtocolID.fromValues(
-        frameCompressionType: FrameCompressionType.noCompression,
-        frameEncodingType: FrameEncodingType.defaultMethod,
-        frameProtocolType: FrameProtocolType.rawDataTransfer,
-        frameVersionNumber: FrameVersionNumber.firstDefault,
+        compressionMethod: CompressionMethod.noCompression,
+        encodingMethod: EncodingMethod.defaultMethod,
+        protocolType: ProtocolType.rawDataTransfer,
+        versionNumber: VersionNumber.firstDefault,
       );
 
       // Act

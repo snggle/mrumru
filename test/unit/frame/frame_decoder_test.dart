@@ -26,7 +26,7 @@ void main() {
       expect(actualMessage, expectedFrameBinary);
     });
 
-    test('Should [clear FrameCollectionModel] containing frames', () {
+    test('Should [return true] if actualFrameDecoder is empty', () {
       // Arrange
       actualFrameDecoder
         ..addBinaries(<String>[

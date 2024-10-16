@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 
-import 'package:mrumru/src/shared/models/frame/frame_compression_type.dart';
-import 'package:mrumru/src/shared/models/frame/frame_encoding_type.dart';
-import 'package:mrumru/src/shared/models/frame/frame_protocol_type.dart';
-import 'package:mrumru/src/shared/models/frame/frame_version_number.dart';
+import 'package:mrumru/src/shared/utils/enums/compression_method.dart';
+import 'package:mrumru/src/shared/utils/enums/encoding_method.dart';
+import 'package:mrumru/src/shared/utils/enums/protocol_type.dart';
+import 'package:mrumru/src/shared/utils/enums/version_number.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_32.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_8.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
@@ -11,59 +11,59 @@ import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
 /// A class that represents a FrameProtocolID.
 class FrameProtocolID extends Uint32 {
   /// The value of the [FrameProtocolID].
-  final Uint8 frameCompressionType;
-  final Uint8 frameEncodingType;
-  final Uint8 frameProtocolType;
-  final Uint8 frameVersionNumber;
+  final Uint8 compressionMethod;
+  final Uint8 encodingMethod;
+  final Uint8 protocolType;
+  final Uint8 versionNumber;
 
   /// Creates a instance of [FrameProtocolID] with the given values.
   FrameProtocolID({
-    required this.frameCompressionType,
-    required this.frameEncodingType,
-    required this.frameProtocolType,
-    required this.frameVersionNumber,
+    required this.compressionMethod,
+    required this.encodingMethod,
+    required this.protocolType,
+    required this.versionNumber,
   }) : super(
           Uint8List.fromList(<int>[
-            ...frameCompressionType.bytes,
-            ...frameEncodingType.bytes,
-            ...frameProtocolType.bytes,
-            ...frameVersionNumber.bytes,
+            ...compressionMethod.bytes,
+            ...encodingMethod.bytes,
+            ...protocolType.bytes,
+            ...versionNumber.bytes,
           ]),
         );
 
   /// Creates a instance of [FrameProtocolID] from the given [bytes].
   static UintReminder<FrameProtocolID> fromBytes(Uint8List bytes) {
-    UintReminder<Uint8> frameCompressionType = Uint8.fromBytes(bytes);
-    UintReminder<Uint8> frameEncodingType = Uint8.fromBytes(frameCompressionType.reminder);
-    UintReminder<Uint8> frameProtocolType = Uint8.fromBytes(frameEncodingType.reminder);
-    UintReminder<Uint8> frameVersionNumber = Uint8.fromBytes(frameProtocolType.reminder);
+    UintReminder<Uint8> compressionMethod = Uint8.fromBytes(bytes);
+    UintReminder<Uint8> encodingMethod = Uint8.fromBytes(compressionMethod.reminder);
+    UintReminder<Uint8> protocolType = Uint8.fromBytes(encodingMethod.reminder);
+    UintReminder<Uint8> versionNumber = Uint8.fromBytes(protocolType.reminder);
 
     return UintReminder<FrameProtocolID>(
       FrameProtocolID(
-        frameCompressionType: frameCompressionType.value,
-        frameEncodingType: frameEncodingType.value,
-        frameProtocolType: frameProtocolType.value,
-        frameVersionNumber: frameVersionNumber.value,
+        compressionMethod: compressionMethod.value,
+        encodingMethod: encodingMethod.value,
+        protocolType: protocolType.value,
+        versionNumber: versionNumber.value,
       ),
-      frameVersionNumber.reminder,
+      versionNumber.reminder,
     );
   }
 
   /// Creates a instance of [FrameProtocolID] from the given [values].
   factory FrameProtocolID.fromValues({
-    required FrameCompressionType frameCompressionType,
-    required FrameEncodingType frameEncodingType,
-    required FrameProtocolType frameProtocolType,
-    required FrameVersionNumber frameVersionNumber,
+    required CompressionMethod compressionMethod,
+    required EncodingMethod encodingMethod,
+    required ProtocolType protocolType,
+    required VersionNumber versionNumber,
   }) {
     return FrameProtocolID(
-      frameCompressionType: Uint8.fromInt(frameCompressionType.value),
-      frameEncodingType: Uint8.fromInt(frameEncodingType.value),
-      frameProtocolType: Uint8.fromInt(frameProtocolType.value),
-      frameVersionNumber: Uint8.fromInt(frameVersionNumber.value),
+      compressionMethod: Uint8.fromInt(compressionMethod.value),
+      encodingMethod: Uint8.fromInt(encodingMethod.value),
+      protocolType: Uint8.fromInt(protocolType.value),
+      versionNumber: Uint8.fromInt(versionNumber.value),
     );
   }
 
   @override
-  List<Object?> get props => <Object?>[frameCompressionType, frameEncodingType, frameProtocolType, frameVersionNumber];
+  List<Object?> get props => <Object?>[compressionMethod, encodingMethod, protocolType, versionNumber];
 }

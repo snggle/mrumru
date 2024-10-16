@@ -78,7 +78,7 @@ class PacketRecognizer {
   }
 
   void _handleFirstFrameDecoded(MetadataFrame metaDataFrame) {
-    AppLogger().log(message: 'MetaDataFrameDecoded: ${metaDataFrame.framesCount}, ${metaDataFrame.sessionId}, ', logLevel: LogLevel.debug);
+    AppLogger().log(message: 'First frame decoded: ${metaDataFrame.framesCount}, ${metaDataFrame.sessionId}, ', logLevel: LogLevel.debug);
   }
 
   void _handleLastFrameDecoded(ABaseFrame frameModel) {

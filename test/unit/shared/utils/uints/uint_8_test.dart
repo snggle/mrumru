@@ -6,7 +6,7 @@ import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
 
 void main() {
   group('Test of Uint8.fromBytes() ', () {
-    test('Should [return bytes] from given Uint8List', () {
+    test('Should [return UintReminder] from given Uint8List', () {
       // Arrange
       Uint8List actualBytes = Uint8List.fromList(<int>[3]);
 
@@ -14,9 +14,28 @@ void main() {
       UintReminder<Uint8> actualUint8 = Uint8.fromBytes(actualBytes);
 
       // Assert
-      Uint8 expectedValue = Uint8(Uint8List.fromList(<int>[3]));
+      UintReminder<Uint8> expectedUint8 = UintReminder<Uint8>(
+        Uint8(Uint8List.fromList(<int>[3])),
+        Uint8List.fromList(<int>[]),
+      );
 
-      expect(actualUint8.value, expectedValue);
+      expect(actualUint8, expectedUint8);
+    });
+
+    test('Should [return UintReminder] from given Uint8List', () {
+      // Arrange
+      Uint8List actualBytes = Uint8List.fromList(<int>[3, 2, 2, 3, 4, 1]);
+
+      // Act
+      UintReminder<Uint8> actualUint8 = Uint8.fromBytes(actualBytes);
+
+      // Assert
+      UintReminder<Uint8> expectedUint8 = UintReminder<Uint8>(
+        Uint8(Uint8List.fromList(<int>[3])),
+        Uint8List.fromList(<int>[2, 2, 3, 4, 1]),
+      );
+
+      expect(actualUint8, expectedUint8);
     });
   });
 

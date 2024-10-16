@@ -1,124 +1,87 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
-import 'package:mrumru/src/shared/models/frame/data_frame.dart';
-import 'package:mrumru/src/shared/models/frame/frame_collection_model.dart';
-import 'package:mrumru/src/shared/models/frame/frame_compression_type.dart';
-import 'package:mrumru/src/shared/models/frame/frame_encoding_type.dart';
+import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/shared/models/frame/frame_protocol_id.dart';
-import 'package:mrumru/src/shared/models/frame/frame_protocol_type.dart';
-import 'package:mrumru/src/shared/models/frame/frame_version_number.dart';
 import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
-import 'package:mrumru/src/shared/utils/uints/uint_8.dart';
+import 'package:mrumru/src/shared/utils/enums/compression_method.dart';
+import 'package:mrumru/src/shared/utils/enums/encoding_method.dart';
+import 'package:mrumru/src/shared/utils/enums/protocol_type.dart';
+import 'package:mrumru/src/shared/utils/enums/version_number.dart';
 
 void main() {
-  FrameProtocolID actualProtocolID = FrameProtocolID(
-    frameCompressionType: Uint8.fromInt(FrameCompressionType.noCompression.value),
-    frameEncodingType: Uint8.fromInt(FrameEncodingType.defaultMethod.value),
-    frameProtocolType: Uint8.fromInt(FrameProtocolType.rawDataTransfer.value),
-    frameVersionNumber: Uint8.fromInt(FrameVersionNumber.firstDefault.value),
-  );
-
-  String inputString = '123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~';
-
-  List<DataFrame> actualDataFrames = <DataFrame>[];
-  int frameDataSize = 4;
-  for (int i = 0; i < inputString.length; i += frameDataSize) {
-    String chunk = inputString.substring(
-      i,
-      (i + frameDataSize) > inputString.length ? inputString.length : (i + frameDataSize),
-    );
-    Uint8List actualDataBytes = Uint8List.fromList(chunk.codeUnits);
-    DataFrame actualDataFrame = DataFrame.fromValues(
-      frameIndex: i ~/ frameDataSize,
-      data: actualDataBytes,
-    );
-    actualDataFrames.add(actualDataFrame);
-  }
-
-  int metadataFrameIndex = actualDataFrames.length;
-  Uint8List actualSessionId = Uint8List.fromList(<int>[0, 0, 0, 1]);
-  Uint8List actualMetadataData = Uint8List(0);
-  MetadataFrame actualMetadataFrame = MetadataFrame.fromValues(
-    frameIndex: metadataFrameIndex,
-    frameProtocolID: actualProtocolID,
-    sessionId: actualSessionId,
-    data: actualMetadataData,
-    dataFrames: actualDataFrames,
-  );
-  FrameCollectionModel actualFrameCollectionModel = FrameCollectionModel(<ABaseFrame>[...actualDataFrames, actualMetadataFrame]);
-
-  group('Tests of FrameCollectionModel.binaryFrames', () {
-    test('Should [return binary string list] representing encoded rawData from each frame', () {
-      // Act
-      List<String> actualBinaryFrames = actualFrameCollectionModel.binaryFrames;
-
-      // Assert
-      // Generate expected binary frames
-      List<String> expectedBinaryFrames = <String>[
-        '00000000000000000000000000000100001100010011001000110011001101000101110001110110',
-        '00000000000000010000000000000100001101010011011000110111001110000110000100000000',
-        '00000000000000100000000000000100001110010011101000111011001111001001110100110011',
-        '00000000000000110000000000000100001111010011111000111111010000000011000011111011',
-        '00000000000001000000000000000100010000010100001001000011010001000010000010011111',
-        '00000000000001010000000000000100010001010100011001000111010010000000111110011011',
-        '00000000000001100000000000000100010010010100101001001011010011001010101010101101',
-        '00000000000001110000000000000100010011010100111001001111010100001110010010100110',
-        '00000000000010000000000000000100010100010101001001010011010101000101000000101100',
-        '00000000000010010000000000000100010101010101011001010111010110000111100110000100',
-        '00000000000010100000000000000100010110010101101001011011010111011111010001001110',
-        '00000000000010110000000000000100010111100101111101100000011000010011010000111100',
-        '00000000000011000000000000000100011000100110001101100100011001011001111111111110',
-        '00000000000011010000000000000100011001100110011101101000011010011001010011100100',
-        '00000000000011100000000000000100011010100110101101101100011011011000011111100110',
-        '00000000000011110000000000000100011011100110111101110000011100011101110000011011',
-        '00000000000100000000000000000100011100100111001101110100011101011001100101000100',
-        '00000000000100010000000000000100011101100111011101111000011110010011011010011101',
-        '00000000000100100000000000000100011110100111101101111100011111010101010110000011',
-        '00000000000100110000000000000001011111101101111101100110',
-        '0000000000010100000000000000000000000000000101000000000000000000000000000000000100000000000000000000000000000001101111001010101111011000000000111101100100100011'
-      ];
-
-      expect(actualBinaryFrames, expectedBinaryFrames);
-    });
-  });
-
   group('Tests of FrameCollectionModel.mergedBinaryFrames', () {
     test('Should [return binary string] representing merged and encoded rawData from each frame', () {
+      // Arrange
+      FrameCollectionModel actualFrameCollectionModel = FrameCollectionModel(<ABaseFrame>[
+        MetadataFrame.fromValues(
+          frameIndex: 0,
+          frameProtocolID: FrameProtocolID.fromValues(
+            compressionMethod: CompressionMethod.noCompression,
+            encodingMethod: EncodingMethod.defaultMethod,
+            protocolType: ProtocolType.rawDataTransfer,
+            versionNumber: VersionNumber.firstDefault,
+          ),
+          sessionId: base64Decode('AQIDBA=='),
+          data: Uint8List(0),
+          dataFrames: <DataFrame>[],
+        ),
+        DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1A=')),
+        DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9gYWJjZGVmZ2hpamtsbW5vcHE=')),
+        DataFrame.fromValues(frameIndex: 3, data: base64Decode('cnN0dXZ3eHl6e3x9fg==')),
+      ]);
+
       // Act
       String actualString = actualFrameCollectionModel.mergedBinaryFrames;
 
       // Assert
       //@formatter:off
       String expectedString =
-          '0000000000000000000000000000010000110001001100100011001100110100010111000111011000000000000000010000000000000100001101010011011000110111001110000'
-          '1100001000000000000000000000010000000000000010000111001001110100011101100111100100111010011001100000000000000110000000000000100001111010011111000'
-          '1111110100000000110000111110110000000000000100000000000000010001000001010000100100001101000100001000001001111100000000000001010000000000000100010'
-          '0010101000110010001110100100000001111100110110000000000000110000000000000010001001001010010100100101101001100101010101010110100000000000001110000'
-          '0000000001000100110101001110010011110101000011100100101001100000000000001000000000000000010001010001010100100101001101010100010100000010110000000'
-          '0000000100100000000000001000101010101010110010101110101100001111001100001000000000000001010000000000000010001011001010110100101101101011101111101'
-          '0001001110000000000000101100000000000001000101111001011111011000000110000100110100001111000000000000001100000000000000010001100010011000110110010'
-          '0011001011001111111111110000000000000110100000000000001000110011001100111011010000110100110010100111001000000000000001110000000000000010001101010'
-          '0110101101101100011011011000011111100110000000000000111100000000000001000110111001101111011100000111000111011100000110110000000000010000000000000'
-          '0000100011100100111001101110100011101011001100101000100000000000001000100000000000001000111011001110111011110000111100100110110100111010000000000'
-          '0100100000000000000100011110100111101101111100011111010101010110000011000000000001001100000000000000010111111011011111011001100000000000010100000'
-          '000000000000000000000000101000000000000000000000000000000000100000000000000000000000000000001101111001010101111011000000000111101100100100011';
+          '00000000000000000000000000000000000000000000000000000000000000000000000000000001000000010000001000000011000001001101010000011101100011001101100110000'
+          '00001100001000000000000000100000000001000000011000100110010001100110011010000110101001101100011011100111000001110010011101000111011001111000011110100'
+          '11111000111111010000000100000101000010010000110100010001000101010001100100011101001000010010010100101001001011010011000100110101001110010011110101000'
+          '01110000001110101000000000000001000000000001000000101000101010010010100110101010001010101010101100101011101011000010110010101101001011011010111010101'
+          '11100101111101100000011000010110001001100011011001000110010101100110011001110110100001101001011010100110101101101100011011010110111001101111011100000'
+          '11100010111111111100101000000000000001100000000000011010111001001110011011101000111010101110110011101110111100001111001011110100111101101111100011111'
+          '01011111100100011011000010';
       //@formatter:on
 
       expect(actualString, expectedString);
     });
   });
 
-
   // Added missing test
-  group('Tests of FrameCollectionModel.mergedRawDataBytes', () {
+  group('Tests of FrameCollectionModel.mergedDataBytes', () {
     test('Should [return Uint8List] representing merged rawData bytes from each frame', () {
+      // Arrange
+      FrameCollectionModel actualFrameCollectionModel = FrameCollectionModel(<ABaseFrame>[
+        MetadataFrame.fromValues(
+          frameIndex: 0,
+          frameProtocolID: FrameProtocolID.fromValues(
+            compressionMethod: CompressionMethod.noCompression,
+            encodingMethod: EncodingMethod.defaultMethod,
+            protocolType: ProtocolType.rawDataTransfer,
+            versionNumber: VersionNumber.firstDefault,
+          ),
+          sessionId: base64Decode('AQIDBA=='),
+          data: Uint8List(0),
+          dataFrames: <DataFrame>[],
+        ),
+        DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1A=')),
+        DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9gYWJjZGVmZ2hpamtsbW5vcHE=')),
+        DataFrame.fromValues(frameIndex: 3, data: base64Decode('cnN0dXZ3eHl6e3x9fg==')),
+      ]);
+
       // Act
       Uint8List actualBytes = actualFrameCollectionModel.mergedDataBytes;
 
       // Assert
-      Uint8List expectedBytes = Uint8List.fromList(inputString.codeUnits);
+      //@formatter:off
+      Uint8List expectedBytes = Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73,
+        74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109,
+        110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126]);
+      //@formatter:on
       expect(actualBytes, expectedBytes);
     });
   });

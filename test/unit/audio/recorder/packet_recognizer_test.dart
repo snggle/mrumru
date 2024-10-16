@@ -7,12 +7,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/mrumru.dart';
 import 'package:mrumru/src/audio/recorder/packet_recognizer.dart';
 import 'package:mrumru/src/audio/recorder/queue/events/packet_received_event.dart';
-import 'package:mrumru/src/shared/models/frame/frame_compression_type.dart';
-import 'package:mrumru/src/shared/models/frame/frame_encoding_type.dart';
 import 'package:mrumru/src/shared/models/frame/frame_protocol_id.dart';
-import 'package:mrumru/src/shared/models/frame/frame_protocol_type.dart';
-import 'package:mrumru/src/shared/models/frame/frame_version_number.dart';
 import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
+import 'package:mrumru/src/shared/utils/enums/compression_method.dart';
+import 'package:mrumru/src/shared/utils/enums/encoding_method.dart';
+import 'package:mrumru/src/shared/utils/enums/protocol_type.dart';
+import 'package:mrumru/src/shared/utils/enums/version_number.dart';
 
 import '../../../utils/test_utils.dart';
 
@@ -44,16 +44,18 @@ void main() async {
         await Future<void>.delayed(const Duration(milliseconds: 100));
       }
 
+      await actualPacketRecognizer.stopRecording();
+
       // Assert
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(
         <ABaseFrame>[
           MetadataFrame.fromValues(
             frameIndex: 0,
             frameProtocolID: FrameProtocolID.fromValues(
-                frameCompressionType: FrameCompressionType.noCompression,
-                frameEncodingType: FrameEncodingType.defaultMethod,
-                frameProtocolType: FrameProtocolType.rawDataTransfer,
-                frameVersionNumber: FrameVersionNumber.firstDefault),
+                compressionMethod: CompressionMethod.noCompression,
+                encodingMethod: EncodingMethod.defaultMethod,
+                protocolType: ProtocolType.rawDataTransfer,
+                versionNumber: VersionNumber.firstDefault),
             sessionId: Uint8List.fromList(<int>[1, 2, 3, 4]),
             data: Uint8List.fromList(<int>[]),
             dataFrames: <DataFrame>[
@@ -94,16 +96,18 @@ void main() async {
         await Future<void>.delayed(const Duration(milliseconds: 100));
       }
 
+      await actualPacketRecognizer.stopRecording();
+
       // Assert
       FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(
         <ABaseFrame>[
           MetadataFrame.fromValues(
             frameIndex: 0,
             frameProtocolID: FrameProtocolID.fromValues(
-                frameCompressionType: FrameCompressionType.noCompression,
-                frameEncodingType: FrameEncodingType.defaultMethod,
-                frameProtocolType: FrameProtocolType.rawDataTransfer,
-                frameVersionNumber: FrameVersionNumber.firstDefault),
+                compressionMethod: CompressionMethod.noCompression,
+                encodingMethod: EncodingMethod.defaultMethod,
+                protocolType: ProtocolType.rawDataTransfer,
+                versionNumber: VersionNumber.firstDefault),
             sessionId: Uint8List.fromList(<int>[1, 2, 3, 4]),
             data: Uint8List.fromList(<int>[]),
             dataFrames: <DataFrame>[
@@ -150,10 +154,10 @@ void main() async {
           MetadataFrame.fromValues(
             frameIndex: 0,
             frameProtocolID: FrameProtocolID.fromValues(
-                frameCompressionType: FrameCompressionType.noCompression,
-                frameEncodingType: FrameEncodingType.defaultMethod,
-                frameProtocolType: FrameProtocolType.rawDataTransfer,
-                frameVersionNumber: FrameVersionNumber.firstDefault),
+                compressionMethod: CompressionMethod.noCompression,
+                encodingMethod: EncodingMethod.defaultMethod,
+                protocolType: ProtocolType.rawDataTransfer,
+                versionNumber: VersionNumber.firstDefault),
             sessionId: Uint8List.fromList(<int>[1, 2, 3, 4]),
             data: Uint8List.fromList(<int>[]),
             dataFrames: <DataFrame>[
@@ -201,10 +205,10 @@ void main() async {
           MetadataFrame.fromValues(
             frameIndex: 0,
             frameProtocolID: FrameProtocolID.fromValues(
-                frameCompressionType: FrameCompressionType.noCompression,
-                frameEncodingType: FrameEncodingType.defaultMethod,
-                frameProtocolType: FrameProtocolType.rawDataTransfer,
-                frameVersionNumber: FrameVersionNumber.firstDefault),
+                compressionMethod: CompressionMethod.noCompression,
+                encodingMethod: EncodingMethod.defaultMethod,
+                protocolType: ProtocolType.rawDataTransfer,
+                versionNumber: VersionNumber.firstDefault),
             sessionId: Uint8List.fromList(<int>[1, 2, 3, 4]),
             data: Uint8List.fromList(<int>[]),
             dataFrames: <DataFrame>[

@@ -2,23 +2,22 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:mrumru/mrumru.dart';
-import 'package:mrumru/src/shared/models/frame/frame_compression_type.dart';
-import 'package:mrumru/src/shared/models/frame/frame_encoding_type.dart';
 import 'package:mrumru/src/shared/models/frame/frame_protocol_id.dart';
-import 'package:mrumru/src/shared/models/frame/frame_protocol_type.dart';
-import 'package:mrumru/src/shared/models/frame/frame_version_number.dart';
-
 import 'package:mrumru/src/shared/models/frame/metadata_frame.dart';
+import 'package:mrumru/src/shared/utils/enums/compression_method.dart';
+import 'package:mrumru/src/shared/utils/enums/encoding_method.dart';
+import 'package:mrumru/src/shared/utils/enums/protocol_type.dart';
+import 'package:mrumru/src/shared/utils/enums/version_number.dart';
 
-/// A class that encodes frames from binary data.
+/// A class responsible for encoding binary data into frames.
 class FrameEncoder {
-  /// The length of the data bytes in each frame.
+  /// The maximum number of bytes allowed in each frame's data section.
   final int frameDataBytesLength;
 
-  /// Creates a new instance of [FrameEncoder] with the given [frameDataBytesLength].
+  /// Creates a new [FrameEncoder] with a specific frame data length.
   FrameEncoder({required this.frameDataBytesLength});
 
-  /// Builds a frame collection from the given [dataBytes].
+  /// Builds a frame collection from binary data.
   FrameCollectionModel buildFrameCollection(Uint8List dataBytes) {
     List<DataFrame> dataFrames = <DataFrame>[];
     int dataFramesCount = (dataBytes.length / frameDataBytesLength).ceil();
@@ -36,10 +35,10 @@ class FrameEncoder {
     MetadataFrame metadataFrame = MetadataFrame.fromValues(
       frameIndex: 0,
       frameProtocolID: FrameProtocolID.fromValues(
-        frameCompressionType: FrameCompressionType.noCompression,
-        frameEncodingType: FrameEncodingType.defaultMethod,
-        frameProtocolType: FrameProtocolType.rawDataTransfer,
-        frameVersionNumber: FrameVersionNumber.firstDefault,
+        compressionMethod: CompressionMethod.noCompression,
+        encodingMethod: EncodingMethod.defaultMethod,
+        protocolType: ProtocolType.rawDataTransfer,
+        versionNumber: VersionNumber.firstDefault,
       ),
       sessionId: _generateSessionId(),
       data: Uint8List(0),
@@ -49,15 +48,14 @@ class FrameEncoder {
     return FrameCollectionModel(<ABaseFrame>[metadataFrame, ...dataFrames]);
   }
 
-  /// Splits the given [dataBytes] into chunks of [frameDataBytesLength] bytes.
+  /// Splits the binary data into chunks for each frame.
   Uint8List _splitDataForIndex(Uint8List dataBytes, int index) {
     int startIndex = index * frameDataBytesLength;
     int endIndex = min(startIndex + frameDataBytesLength, dataBytes.length);
     return dataBytes.sublist(startIndex, endIndex);
   }
 
-  /// Generates a session ID for the metadata frame.
-  // TODO(arek): Randomize sessionID after half-duplex communication is implemented
+  /// Generates a session ID for the frame collection.
   Uint8List _generateSessionId() {
     return Uint8List.fromList(<int>[1, 2, 3, 4]);
   }

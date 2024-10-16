@@ -6,7 +6,7 @@ import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
 
 void main() {
   group('Test of UintDynamic.fromBytes()', () {
-    test('Should [return bytes] from given Uint8List', () {
+    test('Should [return UintReminder] from given Uint8List', () {
       // Arrange
       Uint8List actualBytes = Uint8List.fromList(<int>[0, 0, 0, 3]);
 
@@ -14,9 +14,28 @@ void main() {
       UintReminder<UintDynamic> actualUintDynamic = UintDynamic.fromBytes(actualBytes, 32);
 
       // Assert
-      UintDynamic expectedUintDynamic = UintDynamic(Uint8List.fromList(<int>[0, 0, 0, 3]), 32);
+      UintReminder<UintDynamic> expectedUintDynamic = UintReminder<UintDynamic>(
+        UintDynamic(Uint8List.fromList(<int>[0, 0, 0, 3]), 32),
+        Uint8List.fromList(<int>[]),
+      );
 
-      expect(actualUintDynamic.value, expectedUintDynamic);
+      expect(actualUintDynamic, expectedUintDynamic);
+    });
+
+    test('Should [return UintReminder] from given Uint8List', () {
+      // Arrange
+      Uint8List actualBytes = Uint8List.fromList(<int>[0, 0, 0, 3, 2, 2, 3, 4, 1]);
+
+      // Act
+      UintReminder<UintDynamic> actualUintDynamic = UintDynamic.fromBytes(actualBytes, 32);
+
+      // Assert
+      UintReminder<UintDynamic> expectedUintDynamic = UintReminder<UintDynamic>(
+        UintDynamic(Uint8List.fromList(<int>[0, 0, 0, 3]), 32),
+        Uint8List.fromList(<int>[2, 2, 3, 4, 1]),
+      );
+
+      expect(actualUintDynamic, expectedUintDynamic);
     });
   });
 

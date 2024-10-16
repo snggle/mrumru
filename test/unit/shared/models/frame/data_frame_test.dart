@@ -3,27 +3,24 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mrumru/src/shared/models/frame/data_frame.dart';
 import 'package:mrumru/src/shared/utils/frame_reminder.dart';
+import 'package:mrumru/src/shared/utils/uints/uint_16.dart';
+import 'package:mrumru/src/shared/utils/uints/uint_dynamic.dart';
 
 void main() {
   group('Test of DataFrame.toBytes()', () {
     test('Should [return correct bytes] representation', () {
       // Arrange
-      FrameReminder<DataFrame> actualDataFrame = DataFrame.fromBytes(Uint8List.fromList(<int>[
-        0, 1, // frameIndex
-        0, 4, // frameLength
-        1, 2, 3, 4, // data
-        0, 0, // frameChecksum
-      ]));
+      DataFrame actualDataFrame = DataFrame.fromValues(frameIndex: 1, data: Uint8List.fromList(<int>[1, 2, 3, 4]));
 
       // Act
-      Uint8List actualBytes = actualDataFrame.value.toBytes();
+      Uint8List actualBytes = actualDataFrame.toBytes();
 
       // Assert
       Uint8List expectedBytes = Uint8List.fromList(<int>[
         0, 1, // frameIndex
         0, 4, // frameLength
         1, 2, 3, 4, // data
-        0, 0, // frameChecksum
+        70, 39, // frameChecksum
       ]);
 
       expect(actualBytes, expectedBytes);
@@ -32,25 +29,21 @@ void main() {
 
   group('Test of DataFrame.fromValues()', () {
     test('Should [return DataFrame] correctly from given values', () {
-      // Arrange
-      int actualFrameIndex = 1;
-      Uint8List actualData = Uint8List.fromList(<int>[1, 2, 3, 4]);
-
       // Act
       DataFrame actualDataFrame = DataFrame.fromValues(
-        frameIndex: actualFrameIndex,
-        data: actualData,
+        frameIndex: 1,
+        data: Uint8List.fromList(<int>[1, 2, 3, 4]),
       );
 
       // Assert
-      FrameReminder<DataFrame> expectedDataFrame = DataFrame.fromBytes(Uint8List.fromList(<int>[
-        0, 1, // frameIndex
-        0, 4, // frameLength
-        1, 2, 3, 4, // data
-        70, 39, // frameChecksum
-      ]));
+      DataFrame expectedDataFrame = DataFrame(
+        frameIndex: Uint16(Uint8List.fromList(<int>[0, 1])),
+        frameLength: Uint16(Uint8List.fromList(<int>[0, 4])),
+        data: UintDynamic(Uint8List.fromList(<int>[1, 2, 3, 4]), 32),
+        frameChecksum: Uint16(Uint8List.fromList(<int>[70, 39])),
+      );
 
-      expect(actualDataFrame, expectedDataFrame.value);
+      expect(actualDataFrame, expectedDataFrame);
     });
   });
 
@@ -61,21 +54,45 @@ void main() {
         0, 1, // frameIndex
         0, 4, // frameLength
         1, 2, 3, 4, // data
-        0, 0, // frameChecksum
+        70, 39, // frameChecksum
       ]);
 
       // Act
       FrameReminder<DataFrame> actualDataFrame = DataFrame.fromBytes(actualBytes);
 
       // Assert
-      FrameReminder<DataFrame> expectedDataFrame = DataFrame.fromBytes(Uint8List.fromList(<int>[
+      FrameReminder<DataFrame> expectedDataFrame = FrameReminder<DataFrame>(
+        value: DataFrame.fromValues(
+          frameIndex: 1,
+          data: Uint8List.fromList(<int>[1, 2, 3, 4]),
+        ),
+        reminder: Uint8List.fromList(<int>[]),
+      );
+      expect(actualDataFrame, expectedDataFrame);
+    });
+
+    test('Should [return DataFrame] correctly from given bytes ', () {
+      // Arrange
+      Uint8List actualBytes = Uint8List.fromList(<int>[
         0, 1, // frameIndex
         0, 4, // frameLength
         1, 2, 3, 4, // data
-        0, 0, // frameChecksum
-      ]));
+        70, 39, // frameChecksum
+        0, 25, // reminder
+      ]);
 
-      expect(actualDataFrame.value, expectedDataFrame.value);
+      // Act
+      FrameReminder<DataFrame> actualDataFrame = DataFrame.fromBytes(actualBytes);
+
+      // Assert
+      FrameReminder<DataFrame> expectedDataFrame = FrameReminder<DataFrame>(
+        value: DataFrame.fromValues(
+          frameIndex: 1,
+          data: Uint8List.fromList(<int>[1, 2, 3, 4]),
+        ),
+        reminder: Uint8List.fromList(<int>[0, 25]),
+      );
+      expect(actualDataFrame, expectedDataFrame);
     });
   });
 }

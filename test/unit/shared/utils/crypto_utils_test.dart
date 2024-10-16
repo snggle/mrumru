@@ -16,7 +16,7 @@ void main() {
       // @formatter:on
 
       // Act
-      Uint8List actualChecksum = CryptoUtils.calcChecksumFromBytes(bytes: actualBytes);
+      Uint8List actualChecksum = CryptoUtils.calcChecksum(bytes: actualBytes);
 
       // Assert
       Uint8List expectedChecksum = Uint8List.fromList(<int>[3, 52, 94, 221, 115, 127, 181, 28, 158, 50, 128, 132, 207, 107, 82, 43]);

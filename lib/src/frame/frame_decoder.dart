@@ -8,29 +8,38 @@ import 'package:mrumru/src/shared/utils/binary_utils.dart';
 import 'package:mrumru/src/shared/utils/frame_reminder.dart';
 import 'package:mrumru/src/shared/utils/log_level.dart';
 
-/// A class that decodes frames from binary data.
+/// A class that decodes binary data into frames.
 class FrameDecoder {
-  /// The callbacks that are called when a frame is decoded or when the first or last frame is decoded.
+  /// Called whenever any frame is successfully decoded.
   final ValueChanged<ABaseFrame>? onFrameDecoded;
+
+  /// Called when the first (metadata) frame is decoded.
   final ValueChanged<MetadataFrame>? onFirstFrameDecoded;
+
+  /// Called when the last frame is decoded.
   final ValueChanged<DataFrame>? onLastFrameDecoded;
 
-  /// The decoded frames list and the complete binary data.
+  /// A list of all successfully decoded frames.
   final List<ABaseFrame> _decodedFrames = <ABaseFrame>[];
+
+  /// The complete binary data as a string in StringBuffer.
   final StringBuffer _completeBinary = StringBuffer();
 
-  /// The cursor and the metadata frame.
+  /// Thi cursor points current position of the decoder within the binary data.
   int _cursor = 0;
+
+  /// The metadata frame that has been decoded used to guide the decoding process.
   MetadataFrame? _metadataFrame;
 
-  /// Creates a new instance of [FrameDecoder] with the given callbacks.
+  /// Creates a [FrameDecoder] with optional callbacks for frame decoding events.
   FrameDecoder({
     this.onFrameDecoded,
     this.onFirstFrameDecoded,
     this.onLastFrameDecoded,
   });
 
-  /// Adds the given [binaries] to the complete binary data and decodes the frames.
+  /// This method takes a list of binary strings, appends them to the existing
+  /// binary data buffer, and then attempts to decode frames.
   void addBinaries(List<String> binaries) {
     for (String binary in binaries) {
       _completeBinary.write(binary);
@@ -38,12 +47,13 @@ class FrameDecoder {
     _decodeFrames();
   }
 
-  /// The decoded content of the frame collection.
+  /// Returns the decoded frames as a [FrameCollectionModel].
   FrameCollectionModel get decodedContent {
     return FrameCollectionModel(List<ABaseFrame>.from(_decodedFrames));
   }
 
-  /// Clears the decoded frames and the complete binary data.
+  /// This method clears both the decoded frames and the binary data buffer,
+  /// resetting the cursor and metadata frame to their initial state.
   void clear() {
     _decodedFrames.clear();
     _completeBinary.clear();
@@ -51,7 +61,8 @@ class FrameDecoder {
     _metadataFrame = null;
   }
 
-  /// Decodes the frames from the complete binary data.
+  /// Depending on the current state, this either decodes the metadata frame or
+  /// the subsequent data frames.
   void _decodeFrames() {
     if (_isMetadataFrameDecoded == false) {
       _decodeMetadataFrame();
@@ -60,10 +71,11 @@ class FrameDecoder {
     }
   }
 
-  /// Returns whether the metadata frame is decoded.
+  /// Returns `true` if the metadata frame is already decoded, otherwise `false`.
   bool get _isMetadataFrameDecoded => _metadataFrame != null;
 
-  /// Decodes the metadata frame from the complete binary data.
+  /// The metadata frame is crucial for guiding the decoding of subsequent frames.
+  /// If the data is incomplete, decoding is deferred until more data is added.
   void _decodeMetadataFrame() {
     Uint8List bytes = BinaryUtils.convertBinaryToBytes(_nextBinaryData);
 
@@ -82,12 +94,13 @@ class FrameDecoder {
     } on BytesTooShortException catch (_) {
       return;
     } catch (e) {
-      AppLogger().log(message: 'Error while decoding data frame: $e', logLevel: LogLevel.error);
+      AppLogger().log(message: 'Error while decoding metadata frame: $e', logLevel: LogLevel.error);
       rethrow;
     }
   }
 
-  /// Decodes the data frame from the complete binary data.
+  /// Each data frame is decoded in sequence after the metadata frame. The process
+  /// continues until all frames have been decoded or more data is needed.
   void _decodeDataFrame() {
     Uint8List bytes = BinaryUtils.convertBinaryToBytes(_nextBinaryData);
 
@@ -114,6 +127,6 @@ class FrameDecoder {
     }
   }
 
-  /// Returns the next binary data.
+  /// This getter returns the remaining binary data that has not yet been decoded.
   String get _nextBinaryData => _completeBinary.toString().substring(_cursor);
 }

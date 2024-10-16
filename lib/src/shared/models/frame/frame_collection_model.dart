@@ -2,23 +2,19 @@ import 'dart:typed_data';
 import 'package:equatable/equatable.dart';
 import 'package:mrumru/src/shared/models/frame/a_base_frame.dart';
 import 'package:mrumru/src/shared/models/frame/data_frame.dart';
-import 'package:mrumru/src/shared/utils/big_int_utils.dart';
+import 'package:mrumru/src/shared/utils/binary_utils.dart';
 
-/// A class that represents a FrameCollectionModel.
+/// A class representing a collection of frames.
 class FrameCollectionModel extends Equatable {
+  /// The list of frames in this collection.
   final List<ABaseFrame> frames;
 
-  /// Creates a instance of [FrameCollectionModel] with the given [frames].
+  /// Creates an instance of [FrameCollectionModel] with the provided [frames].
   const FrameCollectionModel(this.frames);
 
   /// Merges the binary representations of all frames into a single binary string.
   String get mergedBinaryFrames {
-    return frames.map((ABaseFrame frame) => frame.toBytes().map((int byte) => byte.toRadixString(2).padLeft(BigIntUtils.bitsInByte, '0')).join()).join();
-  }
-
-  /// Converts each frame into its binary representation.
-  List<String> get binaryFrames {
-    return frames.map((ABaseFrame frame) => frame.toBytes().map((int byte) => byte.toRadixString(2).padLeft(BigIntUtils.bitsInByte, '0')).join()).toList();
+    return frames.map(BinaryUtils.frameToBinaryString).join();
   }
 
   /// Merges the data bytes of all data frames into a single byte array.
