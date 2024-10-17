@@ -10,19 +10,17 @@ class BinaryUtils {
   /// [binaryText] is a string representing binary data, which is divided
   /// into groups of 8 bits (1 byte) and converted into a `Uint8List`.
   static Uint8List convertBinaryToBytes(String binaryText) {
-    Uint8List byteList = Uint8List((binaryText.length / bitsInByte).ceil());
-    for (int i = 0; i < binaryText.length; i += bitsInByte) {
+    List<int> bytes = <int>[];
+    for (int i = 0; i + bitsInByte <= binaryText.length; i += bitsInByte) {
       String byteString = binaryText.substring(i, i + bitsInByte);
       int byte = int.parse(byteString, radix: 2);
-      byteList[i ~/ bitsInByte] = byte;
+      bytes.add(byte);
     }
-    return byteList;
+    return Uint8List.fromList(bytes);
   }
 
   /// Converts the bytes to a binary string.
-  ///
-  /// [bytes] is a list of bytes that are converted to a binary string.
-  static String frameToBinaryString(Uint8List bytes) {
+  static String convertBytesToBinary(Uint8List bytes) {
     return bytes.map((int byte) => byte.toRadixString(2).padLeft(BinaryUtils.bitsInByte, '0')).join();
   }
 }

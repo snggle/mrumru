@@ -34,7 +34,6 @@ void main() {
       String actualString = actualFrameCollectionModel.mergedBinaryFrames;
 
       // Assert
-
       String expectedString =
           '00000000000000000000000000000000000000000000000000000000000000000000000000000001000000010000001000000011000001001101010000011101100011001101100110000'
           '00001100001000000000000000100000000001000000011000100110010001100110011010000110101001101100011011100111000001110010011101000111011001111000011110100'
@@ -48,7 +47,6 @@ void main() {
     });
   });
 
-  // Added missing test
   group('Tests of FrameCollectionModel.mergedDataBytes', () {
     test('Should [return Uint8List] representing merged rawData bytes from each frame', () {
       // Arrange
@@ -74,11 +72,7 @@ void main() {
       Uint8List actualBytes = actualFrameCollectionModel.mergedDataBytes;
 
       // Assert
-      //@formatter:off
-      Uint8List expectedBytes = Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73,
-        74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109,
-        110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126]);
-      //@formatter:on
+      Uint8List expectedBytes = base64Decode('MTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW11eX2BhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ent8fX4=');
 
       expect(actualBytes, expectedBytes);
     });

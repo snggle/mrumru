@@ -55,21 +55,6 @@ class MetadataFrame extends ABaseFrame {
         _data = data,
         _frameChecksum = frameChecksum;
 
-  /// Serializes the [MetadataFrame] to a byte array.
-  @override
-  Uint8List toBytes() {
-    return Uint8List.fromList(<int>[
-      ..._frameIndex.bytes,
-      ..._frameLength.bytes,
-      ..._framesCount.bytes,
-      ..._frameProtocolID.bytes,
-      ..._sessionId.bytes,
-      ..._compositeChecksum.bytes,
-      ..._data.bytes,
-      ..._frameChecksum.bytes,
-    ]);
-  }
-
   /// Creates a [MetadataFrame] from the given set of values.
   factory MetadataFrame.fromValues({
     required int frameIndex,
@@ -139,6 +124,21 @@ class MetadataFrame extends ABaseFrame {
       ),
       reminder: frameChecksum.reminder,
     );
+  }
+
+  /// Serializes the [MetadataFrame] to a byte array.
+  @override
+  Uint8List toBytes() {
+    return Uint8List.fromList(<int>[
+      ..._frameIndex.bytes,
+      ..._frameLength.bytes,
+      ..._framesCount.bytes,
+      ..._frameProtocolID.bytes,
+      ..._sessionId.bytes,
+      ..._compositeChecksum.bytes,
+      ..._data.bytes,
+      ..._frameChecksum.bytes,
+    ]);
   }
 
   /// Returns the frame index.

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:equatable/equatable.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_16.dart';
 
@@ -13,5 +15,5 @@ abstract class ABaseFrame with EquatableMixin {
   Uint16 get frameChecksum;
 
   /// Converts the frame into its binary representation.
-  List<int> toBytes();
+  Uint8List toBytes();
 }

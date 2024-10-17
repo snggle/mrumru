@@ -5,6 +5,21 @@ import 'package:mrumru/src/shared/utils/uints/uint_8.dart';
 import 'package:mrumru/src/shared/utils/uints/uint_reminder.dart';
 
 void main() {
+  group('Test of Uint8.fromInt()', () {
+    test('Should [return bytes] from given value', () {
+      // Arrange
+      int actualValue = 3;
+
+      // Act
+      Uint8 actualUint8 = Uint8.fromInt(actualValue);
+
+      // Assert
+      Uint8 expectedUint8 = Uint8(Uint8List.fromList(<int>[3]));
+
+      expect(actualUint8, expectedUint8);
+    });
+  });
+
   group('Test of Uint8.fromBytes() ', () {
     test('Should [return UintReminder] from given Uint8List when [reminder EMPTY]', () {
       // Arrange
@@ -39,18 +54,18 @@ void main() {
     });
   });
 
-  group('Test of Uint8.fromInt()', () {
+  group('Test of Uint8.bytes getter', () {
     test('Should [return bytes] from given value', () {
       // Arrange
-      int actualValue = 3;
+      Uint8 actualUint8 = Uint8.fromInt(3);
 
       // Act
-      Uint8 actualUint8 = Uint8.fromInt(actualValue);
+      Uint8List actualBytes = actualUint8.bytes;
 
       // Assert
-      Uint8 expectedUint8 = Uint8(Uint8List.fromList(<int>[3]));
+      Uint8List expectedBytes = Uint8List.fromList(<int>[3]);
 
-      expect(actualUint8, expectedUint8);
+      expect(actualBytes, expectedBytes);
     });
   });
 
@@ -66,21 +81,6 @@ void main() {
       int expectedValue = 3;
 
       expect(actualValue, expectedValue);
-    });
-  });
-
-  group('Test of Uint8.bytes getter', () {
-    test('Should [return bytes] from given value', () {
-      // Arrange
-      Uint8 actualUint8 = Uint8.fromInt(3);
-
-      // Act
-      Uint8List actualBytes = actualUint8.bytes;
-
-      // Assert
-      Uint8List expectedBytes = Uint8List.fromList(<int>[3]);
-
-      expect(actualBytes, expectedBytes);
     });
   });
 }

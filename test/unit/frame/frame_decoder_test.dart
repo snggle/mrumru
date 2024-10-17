@@ -37,7 +37,7 @@ void main() {
     test('Should [return FrameCollectionModel] from fully received binary data (received MetadataFrame)', () {
       // Arrange
       actualFrameDecoder.addBinaries(<String>[
-        '00000001000000100000001100000100100110001101001011100011011110101011110101011110',
+        '00000001000000100000001100000100010110011100011000000001111010001001111000100101',
       ]);
 
       // Act
@@ -54,10 +54,10 @@ void main() {
             versionNumber: VersionNumber.firstDefault,
           ),
           sessionId: base64Decode('AQIDBA=='),
-          data: Uint8List(0),
+          data: Uint8List.fromList(<int>[]),
           dataFrames: <DataFrame>[
             DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1A=')),
-            DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9gYWJjZGVmZ2hpamtsbW5vcHE=')),
+            DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9g')),
           ],
         ),
       ]);
@@ -70,10 +70,10 @@ void main() {
           versionNumber: VersionNumber.firstDefault,
         ),
         sessionId: base64Decode('AQIDBA=='),
-        data: Uint8List(0),
+        data: Uint8List.fromList(<int>[]),
         dataFrames: <DataFrame>[
           DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1A=')),
-          DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9gYWJjZGVmZ2hpamtsbW5vcHE=')),
+          DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9g')),
         ],
       );
 
@@ -104,7 +104,7 @@ void main() {
           data: Uint8List(0),
           dataFrames: <DataFrame>[
             DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1A=')),
-            DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9gYWJjZGVmZ2hpamtsbW5vcHE=')),
+            DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9g')),
           ],
         ),
       ]);
@@ -135,7 +135,7 @@ void main() {
           data: Uint8List(0),
           dataFrames: <DataFrame>[
             DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1A=')),
-            DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9gYWJjZGVmZ2hpamtsbW5vcHE=')),
+            DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9g')),
           ],
         ),
         DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1A=')),
@@ -147,7 +147,7 @@ void main() {
     test('Should [return FrameCollectionModel] from partially received binary data (contains Metadata and DataFrame)', () {
       // Arrange
       actualFrameDecoder.addBinaries(<String>[
-        '00000000000000100000000000100000010100010101001001010011010101000101010101010110010101110101100001011001010110100101101101011101010111100101111101100000',
+        '000000000000001000000000000011110101000101010010010100110101010001010101010101100101',
       ]);
 
       // Act
@@ -167,7 +167,7 @@ void main() {
           data: Uint8List(0),
           dataFrames: <DataFrame>[
             DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1A=')),
-            DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9gYWJjZGVmZ2hpamtsbW5vcHE=')),
+            DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9g')),
           ],
         ),
         DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1A=')),
@@ -179,7 +179,7 @@ void main() {
     test('Should [return FrameCollectionModel] from fully received binary data (contains Metadata, DataFrame and last DataFrame)', () {
       // Arrange
       actualFrameDecoder.addBinaries(<String>[
-        '01100001011000100110001101100100011001010110011001100111011010000110100101101010011010110110110001101101011011100110111101110000011100010111111111100101',
+        '011101011000010110010101101001011011010111010101111001011111011000001111110100101100',
       ]);
 
       // Act
@@ -199,13 +199,13 @@ void main() {
           data: Uint8List(0),
           dataFrames: <DataFrame>[
             DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1A=')),
-            DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9gYWJjZGVmZ2hpamtsbW5vcHE=')),
+            DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9g')),
           ],
         ),
         DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg5Ojs8PT4/QEFCQ0RFRkdISUpLTE1OT1A=')),
-        DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9gYWJjZGVmZ2hpamtsbW5vcHE=')),
+        DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9g')),
       ]);
-      DataFrame expectedLastDataFrame = DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9gYWJjZGVmZ2hpamtsbW5vcHE='));
+      DataFrame expectedLastDataFrame = DataFrame.fromValues(frameIndex: 2, data: base64Decode('UVJTVFVWV1hZWltdXl9g'));
 
       expect(actualFrameCollectionModel, expectedFrameCollectionModel);
       expect(actualLastDataFrame, expectedLastDataFrame);

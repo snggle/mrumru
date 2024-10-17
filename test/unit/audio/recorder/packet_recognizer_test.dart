@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
@@ -42,33 +43,25 @@ void main() async {
         await Future<void>.delayed(const Duration(milliseconds: 100));
       }
 
-      await actualPacketRecognizer.stopRecording();
-
       // Assert
-      FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(
-        <ABaseFrame>[
-          MetadataFrame.fromValues(
-            frameIndex: 0,
-            frameProtocolID: FrameProtocolID.fromValues(
-                compressionMethod: CompressionMethod.noCompression,
-                encodingMethod: EncodingMethod.defaultMethod,
-                protocolType: ProtocolType.rawDataTransfer,
-                versionNumber: VersionNumber.firstDefault),
-            sessionId: Uint8List.fromList(<int>[1, 2, 3, 4]),
-            data: Uint8List.fromList(<int>[]),
-            dataFrames: <DataFrame>[
-              DataFrame.fromValues(
-                frameIndex: 1,
-                data: Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]),
-              )
-            ],
+      FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(<ABaseFrame>[
+        MetadataFrame.fromValues(
+          frameIndex: 0,
+          frameProtocolID: FrameProtocolID.fromValues(
+            compressionMethod: CompressionMethod.noCompression,
+            encodingMethod: EncodingMethod.defaultMethod,
+            protocolType: ProtocolType.rawDataTransfer,
+            versionNumber: VersionNumber.firstDefault,
           ),
-          DataFrame.fromValues(
-            frameIndex: 1,
-            data: Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]),
-          )
-        ],
-      );
+          sessionId: base64Decode('AQIDBA=='),
+          data: Uint8List(0),
+          dataFrames: <DataFrame>[
+            DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg=')),
+          ],
+        ),
+        DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg=')),
+      ]);
+
       expect(actualFrameCollectionModel, expectedFrameCollectionModel);
     });
 
@@ -94,33 +87,25 @@ void main() async {
         await Future<void>.delayed(const Duration(milliseconds: 100));
       }
 
-      await actualPacketRecognizer.stopRecording();
-
       // Assert
-      FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(
-        <ABaseFrame>[
-          MetadataFrame.fromValues(
-            frameIndex: 0,
-            frameProtocolID: FrameProtocolID.fromValues(
-                compressionMethod: CompressionMethod.noCompression,
-                encodingMethod: EncodingMethod.defaultMethod,
-                protocolType: ProtocolType.rawDataTransfer,
-                versionNumber: VersionNumber.firstDefault),
-            sessionId: Uint8List.fromList(<int>[1, 2, 3, 4]),
-            data: Uint8List.fromList(<int>[]),
-            dataFrames: <DataFrame>[
-              DataFrame.fromValues(
-                frameIndex: 1,
-                data: Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]),
-              )
-            ],
+      FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(<ABaseFrame>[
+        MetadataFrame.fromValues(
+          frameIndex: 0,
+          frameProtocolID: FrameProtocolID.fromValues(
+            compressionMethod: CompressionMethod.noCompression,
+            encodingMethod: EncodingMethod.defaultMethod,
+            protocolType: ProtocolType.rawDataTransfer,
+            versionNumber: VersionNumber.firstDefault,
           ),
-          DataFrame.fromValues(
-            frameIndex: 1,
-            data: Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]),
-          )
-        ],
-      );
+          sessionId: base64Decode('AQIDBA=='),
+          data: Uint8List(0),
+          dataFrames: <DataFrame>[
+            DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg=')),
+          ],
+        ),
+        DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg=')),
+      ]);
+
       expect(actualFrameCollectionModel, expectedFrameCollectionModel);
     });
 
@@ -147,30 +132,23 @@ void main() async {
       }
 
       // Assert
-      FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(
-        <ABaseFrame>[
-          MetadataFrame.fromValues(
-            frameIndex: 0,
-            frameProtocolID: FrameProtocolID.fromValues(
-                compressionMethod: CompressionMethod.noCompression,
-                encodingMethod: EncodingMethod.defaultMethod,
-                protocolType: ProtocolType.rawDataTransfer,
-                versionNumber: VersionNumber.firstDefault),
-            sessionId: Uint8List.fromList(<int>[1, 2, 3, 4]),
-            data: Uint8List.fromList(<int>[]),
-            dataFrames: <DataFrame>[
-              DataFrame.fromValues(
-                frameIndex: 1,
-                data: Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]),
-              )
-            ],
+      FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(<ABaseFrame>[
+        MetadataFrame.fromValues(
+          frameIndex: 0,
+          frameProtocolID: FrameProtocolID.fromValues(
+            compressionMethod: CompressionMethod.noCompression,
+            encodingMethod: EncodingMethod.defaultMethod,
+            protocolType: ProtocolType.rawDataTransfer,
+            versionNumber: VersionNumber.firstDefault,
           ),
-          DataFrame.fromValues(
-            frameIndex: 1,
-            data: Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]),
-          )
-        ],
-      );
+          sessionId: base64Decode('AQIDBA=='),
+          data: Uint8List(0),
+          dataFrames: <DataFrame>[
+            DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg=')),
+          ],
+        ),
+        DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg=')),
+      ]);
 
       expect(actualFrameCollectionModel, expectedFrameCollectionModel);
     });
@@ -198,30 +176,23 @@ void main() async {
       }
 
       // Assert
-      FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(
-        <ABaseFrame>[
-          MetadataFrame.fromValues(
-            frameIndex: 0,
-            frameProtocolID: FrameProtocolID.fromValues(
-                compressionMethod: CompressionMethod.noCompression,
-                encodingMethod: EncodingMethod.defaultMethod,
-                protocolType: ProtocolType.rawDataTransfer,
-                versionNumber: VersionNumber.firstDefault),
-            sessionId: Uint8List.fromList(<int>[1, 2, 3, 4]),
-            data: Uint8List.fromList(<int>[]),
-            dataFrames: <DataFrame>[
-              DataFrame.fromValues(
-                frameIndex: 1,
-                data: Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]),
-              )
-            ],
+      FrameCollectionModel expectedFrameCollectionModel = FrameCollectionModel(<ABaseFrame>[
+        MetadataFrame.fromValues(
+          frameIndex: 0,
+          frameProtocolID: FrameProtocolID.fromValues(
+            compressionMethod: CompressionMethod.noCompression,
+            encodingMethod: EncodingMethod.defaultMethod,
+            protocolType: ProtocolType.rawDataTransfer,
+            versionNumber: VersionNumber.firstDefault,
           ),
-          DataFrame.fromValues(
-            frameIndex: 1,
-            data: Uint8List.fromList(<int>[49, 50, 51, 52, 53, 54, 55, 56]),
-          )
-        ],
-      );
+          sessionId: base64Decode('AQIDBA=='),
+          data: Uint8List(0),
+          dataFrames: <DataFrame>[
+            DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg=')),
+          ],
+        ),
+        DataFrame.fromValues(frameIndex: 1, data: base64Decode('MTIzNDU2Nzg=')),
+      ]);
 
       expect(actualFrameCollectionModel, expectedFrameCollectionModel);
     });

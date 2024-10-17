@@ -31,6 +31,21 @@ class FrameProtocolID extends Uint32 {
           ]),
         );
 
+  /// Creates a instance of [FrameProtocolID] from the given [values].
+  factory FrameProtocolID.fromValues({
+    required CompressionMethod compressionMethod,
+    required EncodingMethod encodingMethod,
+    required ProtocolType protocolType,
+    required VersionNumber versionNumber,
+  }) {
+    return FrameProtocolID(
+      compressionMethod: Uint8.fromInt(compressionMethod.value),
+      encodingMethod: Uint8.fromInt(encodingMethod.value),
+      protocolType: Uint8.fromInt(protocolType.value),
+      versionNumber: Uint8.fromInt(versionNumber.value),
+    );
+  }
+
   /// Creates a instance of [FrameProtocolID] from the given [bytes].
   static UintReminder<FrameProtocolID> fromBytes(Uint8List bytes) {
     UintReminder<Uint8> compressionMethod = Uint8.fromBytes(bytes);
@@ -46,21 +61,6 @@ class FrameProtocolID extends Uint32 {
         versionNumber: versionNumber.value,
       ),
       versionNumber.reminder,
-    );
-  }
-
-  /// Creates a instance of [FrameProtocolID] from the given [values].
-  factory FrameProtocolID.fromValues({
-    required CompressionMethod compressionMethod,
-    required EncodingMethod encodingMethod,
-    required ProtocolType protocolType,
-    required VersionNumber versionNumber,
-  }) {
-    return FrameProtocolID(
-      compressionMethod: Uint8.fromInt(compressionMethod.value),
-      encodingMethod: Uint8.fromInt(encodingMethod.value),
-      protocolType: Uint8.fromInt(protocolType.value),
-      versionNumber: Uint8.fromInt(versionNumber.value),
     );
   }
 

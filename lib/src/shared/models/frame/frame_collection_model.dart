@@ -14,7 +14,7 @@ class FrameCollectionModel extends Equatable {
 
   /// Merges the binary representations of all frames into a single binary string.
   String get mergedBinaryFrames {
-    return frames.map((ABaseFrame frame) => BinaryUtils.frameToBinaryString(Uint8List.fromList(frame.toBytes()))).join();
+    return frames.map((ABaseFrame frame) => BinaryUtils.convertBytesToBinary(frame.toBytes())).join();
   }
 
   /// Merges the data bytes of all data frames into a single byte array.
