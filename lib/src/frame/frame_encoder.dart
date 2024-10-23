@@ -7,7 +7,7 @@ import 'package:mrumru/src/shared/enums/encoding_method.dart';
 import 'package:mrumru/src/shared/enums/protocol_type.dart';
 import 'package:mrumru/src/shared/enums/version_number.dart';
 
-/// A class responsible for encoding binary data into frames.
+/// A class responsible for encoding bytes into frames.
 class FrameEncoder {
   /// The maximum number of bytes allowed in each frame's data section.
   final int frameDataBytesLength;
@@ -15,7 +15,7 @@ class FrameEncoder {
   /// Creates a new [FrameEncoder] with a specific frame data length.
   FrameEncoder({required this.frameDataBytesLength});
 
-  /// Builds a frame collection from binary data.
+  /// Builds a frame collection from bytes.
   FrameCollectionModel buildFrameCollection(Uint8List dataBytes) {
     List<DataFrameDto> dataFramesDtos = <DataFrameDto>[];
     int dataFramesCount = (dataBytes.length / frameDataBytesLength).ceil();
@@ -46,7 +46,7 @@ class FrameEncoder {
     return FrameCollectionModel(<ABaseFrameDto>[metadataFrameDto, ...dataFramesDtos]);
   }
 
-  /// Splits the binary data into chunks for each frame.
+  /// Splits bytes into chunks for each frame.
   Uint8List _splitDataForIndex(Uint8List dataBytes, int index) {
     int startIndex = index * frameDataBytesLength;
     int endIndex = min(startIndex + frameDataBytesLength, dataBytes.length);

@@ -33,7 +33,7 @@ class AudioGenerator {
         _samplesProcessor = SamplesProcessor(),
         _sampleGenerator = SampleGenerator(audioSettingsModel);
 
-  /// This method encodes the text message into binary, converts the binary data
+  /// This method encodes the bytes into binary, converts the binary data
   /// into frequencies using FSK, and then builds and pushes audio samples to the sink.
   Future<void> generate(Uint8List bytes) async {
     String binaryData = _parseBytesToBinary(bytes);
@@ -53,7 +53,7 @@ class AudioGenerator {
     _samplesProcessor.close();
   }
 
-  /// This method parses the text message into binary data.
+  /// This method parses the bytes into binary data.
   String _parseBytesToBinary(Uint8List bytes) {
     FrameEncoder frameEncoder = FrameEncoder(frameDataBytesLength: _audioSettingsModel.frameDataBytesLength);
     FrameCollectionModel frameCollectionModel = frameEncoder.buildFrameCollection(bytes);
